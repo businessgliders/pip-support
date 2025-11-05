@@ -49,6 +49,12 @@ export default function IntakeFormEmbed() {
       setShowPrivateEvents(true);
       setShowCancellation(false);
     } else if (value === "Cancellation") {
+      // Check if basic info is filled before showing cancellation flow
+      if (!formData.client_name || !formData.client_email || !formData.client_phone) {
+        alert("Please fill out your contact information (Name, Email, and Phone) before proceeding with cancellation.");
+        setFormData(prev => ({ ...prev, inquiry_type: "" })); // Reset inquiry type if info is missing
+        return;
+      }
       setShowCancellation(true);
       setShowPrivateEvents(false);
     } else {
@@ -422,8 +428,8 @@ export default function IntakeFormEmbed() {
               <div className="space-y-2">
                 <Label className="text-white font-medium">How can we help? *</Label>
                 <Select required value={formData.inquiry_type} onValueChange={handleInquiryTypeChange}>
-                  <SelectTrigger className="backdrop-blur-md bg-white/30 border-white/40 text-[#b67651] rounded-xl h-12 focus:bg-white/50">
-                    <SelectValue placeholder="Select inquiry type" />
+                  <SelectTrigger className="backdrop-blur-md bg-white/30 border-white/40 rounded-xl h-12 focus:bg-white/50 [&>span]:text-[#b67651]">
+                    <SelectValue placeholder="Select inquiry type" className="text-[#b67651]" />
                   </SelectTrigger>
                   <SelectContent className="backdrop-blur-xl bg-white/95 border-white/40">
                     <SelectItem value="General Inquiry">General Inquiry</SelectItem>

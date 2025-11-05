@@ -79,7 +79,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: "auto", opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      className="backdrop-blur-md bg-white/10 border border-white/30 rounded-2xl p-6 overflow-hidden"
+      className="backdrop-blur-md bg-[#b67651]/20 border border-[#b67651]/40 rounded-2xl p-6 overflow-hidden"
     >
       <div className="flex items-center gap-3 mb-6">
         <AlertCircle className="w-6 h-6 text-white drop-shadow-lg" />
@@ -127,10 +127,10 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
             ].map((reason) => (
               <div
                 key={reason}
-                className="flex items-center space-x-3 backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-4 hover:bg-white/30 transition-all cursor-pointer"
+                className="flex items-center space-x-3 backdrop-blur-sm bg-white/30 border border-white/40 rounded-xl p-4 hover:bg-white/40 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={reason} id={reason} className="border-white text-[#b67651]" />
-                <Label htmlFor={reason} className="text-[#b67651] cursor-pointer flex-1 font-medium drop-shadow-sm">
+                <Label htmlFor={reason} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {reason}
                 </Label>
               </div>
@@ -166,10 +166,10 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
             ].map((level) => (
               <div
                 key={level}
-                className="flex items-center space-x-3 backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-4 hover:bg-white/30 transition-all cursor-pointer"
+                className="flex items-center space-x-3 backdrop-blur-sm bg-white/30 border border-white/40 rounded-xl p-4 hover:bg-white/40 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={level} id={level} className="border-white text-[#b67651]" />
-                <Label htmlFor={level} className="text-[#b67651] cursor-pointer flex-1 font-medium drop-shadow-sm">
+                <Label htmlFor={level} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {level}
                 </Label>
               </div>
@@ -194,11 +194,11 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
             onChange={(e) =>
               setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
             }
-            className="backdrop-blur-md bg-white/30 border-white/40 text-[#b67651] placeholder:text-[#b67651]/60 rounded-xl min-h-32 focus:bg-white/50 transition-all resize-none"
+            className="backdrop-blur-md bg-white/40 border-white/50 text-white placeholder:text-white/60 rounded-xl min-h-32 focus:bg-white/50 transition-all resize-none"
             placeholder="We value your feedback and would love to hear your thoughts..."
           />
           
-          <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-xl p-4 mt-4">
+          <div className="backdrop-blur-sm bg-white/20 border border-white/40 rounded-xl p-4 mt-4">
             <div className="flex items-start gap-3">
               <Gift className="w-6 h-6 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
               <div>
@@ -222,26 +222,26 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           className="space-y-6"
         >
           {/* Discount Reveal */}
-          <div className="backdrop-blur-xl bg-gradient-to-br from-[#b67651] to-[#a56541] border-2 border-white/50 rounded-2xl p-8 shadow-2xl text-center">
+          <div className="backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/30 border-2 border-white/60 rounded-2xl p-8 shadow-2xl text-center">
             <Sparkles className="w-12 h-12 text-white mx-auto mb-4 animate-pulse drop-shadow-lg" />
             <h3 className="text-white font-bold text-3xl mb-2 drop-shadow-lg">
               {cancellationData.discount_offered} OFF
             </h3>
-            <p className="text-white/90 text-xl font-medium mb-1 drop-shadow-md">
+            <p className="text-white/95 text-xl font-medium mb-1 drop-shadow-md">
               Exclusive Retention Offer
             </p>
-            <p className="text-white/80 text-sm drop-shadow-md">
+            <p className="text-white/85 text-sm drop-shadow-md">
               Just for you!
             </p>
           </div>
 
           {/* Terms & Conditions */}
-          <div className="backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-5">
+          <div className="backdrop-blur-sm bg-white/30 border border-white/50 rounded-xl p-5">
             <h4 className="text-white font-semibold mb-3 flex items-center gap-2 drop-shadow-md">
               <Gift className="w-5 h-5" />
               Offer Details
             </h4>
-            <ul className="space-y-2 text-white/90 text-sm">
+            <ul className="space-y-2 text-white text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-white mt-1 drop-shadow-sm">✓</span>
                 <span className="drop-shadow-sm">Available on any Membership plans</span>
@@ -262,7 +262,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           </div>
 
           {/* Call to Action */}
-          <div className="backdrop-blur-sm bg-white/10 border border-white/30 rounded-xl p-4">
+          <div className="backdrop-blur-sm bg-white/20 border border-white/40 rounded-xl p-4">
             <p className="text-white text-center font-medium drop-shadow-md">
               Hit "Submit Request" and we'll reach out to activate your discount today! 🎉
             </p>
@@ -277,7 +277,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
             type="button"
             onClick={() => setStep(step - 1)}
             variant="outline"
-            className="flex-1 h-12 backdrop-blur-md bg-white/20 border-white/40 text-[#b67651] hover:bg-white/30 rounded-xl font-medium"
+            className="flex-1 h-12 backdrop-blur-md bg-white/30 border-white/50 text-white hover:bg-white/40 rounded-xl font-medium"
             disabled={isSubmitting}
           >
             Back
@@ -287,7 +287,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           type="button"
           onClick={handleNext}
           disabled={!isStepComplete() || isSubmitting}
-          className="flex-1 h-12 bg-[#b67651] hover:bg-[#a56541] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+          className="flex-1 h-12 bg-white/90 hover:bg-white text-[#b67651] rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
         >
           {isSubmitting ? (
             <>
