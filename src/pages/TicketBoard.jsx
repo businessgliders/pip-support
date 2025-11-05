@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Bell, BellOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -22,6 +22,8 @@ export default function TicketBoard() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [seenTicketIds, setSeenTicketIds] = useState(new Set());
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -29,6 +31,76 @@ export default function TicketBoard() {
     queryFn: () => base44.entities.SupportTicket.list("-created_date"),
     refetchInterval: 5000
   });
+
+  // Request notification permission
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notifications");
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      setNotificationsEnabled(true);
+      return;
+    }
+
+    if (Notification.permission !== "denied") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        setNotificationsEnabled(true);
+        new Notification("Notifications Enabled! 🔔", {
+          body: "You'll now receive alerts for new support tickets",
+          icon: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
+        });
+      }
+    }
+  };
+
+  // Check for new tickets and show notifications
+  useEffect(() => {
+    if (!notificationsEnabled || tickets.length === 0) return;
+
+    // Initialize seen tickets on first load
+    if (seenTicketIds.size === 0) {
+      setSeenTicketIds(new Set(tickets.map(t => t.id)));
+      return;
+    }
+
+    // Check for new tickets
+    tickets.forEach(ticket => {
+      if (!seenTicketIds.has(ticket.id) && ticket.status === "New") {
+        // Show notification
+        const notification = new Notification(`🎫 New ${ticket.inquiry_type}`, {
+          body: `From: ${ticket.client_name}\n${ticket.client_email}`,
+          icon: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png",
+          badge: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png",
+          tag: ticket.id,
+          requireInteraction: ticket.inquiry_type === "Cancellation"
+        });
+
+        // Click to open ticket
+        notification.onclick = () => {
+          window.focus();
+          setHighlightedTicketId(ticket.id);
+          setTimeout(() => setSelectedTicket(ticket), 500);
+          setTimeout(() => setHighlightedTicketId(null), 3000);
+          notification.close();
+        };
+
+        // Mark as seen
+        setSeenTicketIds(prev => new Set([...prev, ticket.id]));
+      }
+    });
+  }, [tickets, notificationsEnabled, seenTicketIds]);
+
+  // Check notification permission on load
+  useEffect(() => {
+    if (Notification.permission === "granted") {
+      setNotificationsEnabled(true);
+      // Initialize seen tickets
+      setSeenTicketIds(new Set(tickets.map(t => t.id)));
+    }
+  }, []);
 
   // Check URL for ticket parameter
   useEffect(() => {
@@ -38,20 +110,13 @@ export default function TicketBoard() {
     if (ticketId && tickets.length > 0) {
       const ticket = tickets.find(t => t.id === ticketId);
       if (ticket) {
-        // Highlight the ticket
         setHighlightedTicketId(ticketId);
-        
-        // Open the modal after a short delay
         setTimeout(() => {
           setSelectedTicket(ticket);
         }, 500);
-        
-        // Remove highlight after animation
         setTimeout(() => {
           setHighlightedTicketId(null);
         }, 3000);
-        
-        // Clean up URL
         window.history.replaceState({}, '', window.location.pathname);
       }
     }
@@ -131,12 +196,42 @@ export default function TicketBoard() {
               {tickets.length} total tickets • {getTicketsByStatus("New").length} new
             </p>
           </div>
-          <Link to={createPageUrl("IntakeForm")} target="_blank">
-            <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View Public Form
+          <div className="flex gap-3">
+            {/* Notification Toggle */}
+            <Button
+              onClick={() => {
+                if (notificationsEnabled) {
+                  setNotificationsEnabled(false);
+                } else {
+                  requestNotificationPermission();
+                }
+              }}
+              className={`backdrop-blur-md border shadow-lg ${
+                notificationsEnabled
+                  ? "bg-green-500/30 border-green-400/40 text-white hover:bg-green-500/40"
+                  : "bg-white/30 border-white/40 text-white hover:bg-white/40"
+              } rounded-xl h-11 px-6`}
+            >
+              {notificationsEnabled ? (
+                <>
+                  <Bell className="w-4 h-4 mr-2" />
+                  Notifications On
+                </>
+              ) : (
+                <>
+                  <BellOff className="w-4 h-4 mr-2" />
+                  Enable Notifications
+                </>
+              )}
             </Button>
-          </Link>
+            
+            <Link to={createPageUrl("IntakeForm")} target="_blank">
+              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View Public Form
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Kanban Board with Drag & Drop */}
