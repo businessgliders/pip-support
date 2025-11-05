@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLink, CheckCircle2, Loader2, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl } => "@/utils";
 import {
   Dialog,
   DialogContent,
@@ -49,12 +49,6 @@ export default function IntakeFormEmbed() {
       setShowPrivateEvents(true);
       setShowCancellation(false);
     } else if (value === "Cancellation") {
-      // Check if basic info is filled before showing cancellation flow
-      if (!formData.client_name || !formData.client_email || !formData.client_phone) {
-        alert("Please fill out your contact information (Name, Email, and Phone) before proceeding with cancellation.");
-        setFormData(prev => ({ ...prev, inquiry_type: "" })); // Reset inquiry type if info is missing
-        return;
-      }
       setShowCancellation(true);
       setShowPrivateEvents(false);
     } else {
@@ -476,6 +470,7 @@ export default function IntakeFormEmbed() {
                   <CancellationFlow
                     onSubmit={handleCancellationSubmit}
                     isSubmitting={isSubmitting}
+                    missingContactInfo={!formData.client_name || !formData.client_email || !formData.client_phone}
                   />
                 )}
               </AnimatePresence>

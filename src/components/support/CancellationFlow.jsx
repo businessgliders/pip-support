@@ -1,12 +1,13 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { AlertCircle, Gift, Loader2, Sparkles } from "lucide-react";
+import { AlertCircle, Gift, Loader2, Sparkles, Info } from "lucide-react";
 
-export default function CancellationFlow({ onSubmit, isSubmitting }) {
+export default function CancellationFlow({ onSubmit, isSubmitting, missingContactInfo }) {
   const [step, setStep] = useState(1);
   const [cancellationData, setCancellationData] = useState({
     cancellation_reason: "",
@@ -67,7 +68,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
   };
 
   const isStepComplete = () => {
-    if (step === 1) return cancellationData.cancellation_reason !== "";
+    if (step === 1) return cancellationData.cancellation_reason !== "" && !missingContactInfo;
     if (step === 2) return cancellationData.cancellation_satisfaction !== "";
     if (step === 3) return true; // Feedback is optional
     if (step === 4) return true; // Always allow submission on step 4
@@ -85,6 +86,25 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
         <AlertCircle className="w-6 h-6 text-white drop-shadow-lg" />
         <h3 className="text-white font-semibold text-xl drop-shadow-lg">We'd Hate to See You Go</h3>
       </div>
+
+      {/* Missing Contact Info Warning */}
+      {missingContactInfo && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="backdrop-blur-sm bg-white/30 border border-white/50 rounded-xl p-4 mb-6 flex items-start gap-3"
+        >
+          <Info className="w-5 h-5 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
+          <div>
+            <p className="text-white font-medium text-sm drop-shadow-sm">
+              Please complete your contact information above
+            </p>
+            <p className="text-white/90 text-xs mt-1 drop-shadow-sm">
+              We need your name, email, and phone number before you can continue
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Progress indicator */}
       <div className="flex gap-2 mb-6">

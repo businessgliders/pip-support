@@ -1,4 +1,5 @@
 
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export default function IntakeForm() {
   const [submitted, setSubmitted] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
-  const [adminError, setAdminError] = useState("");
+  const [adminError, setAdminError] = "";
   
   const navigate = useNavigate();
 
@@ -49,12 +50,6 @@ export default function IntakeForm() {
       setShowPrivateEvents(true);
       setShowCancellation(false);
     } else if (value === "Cancellation") {
-      // Check if basic info is filled before showing cancellation flow
-      if (!formData.client_name || !formData.client_email || !formData.client_phone) {
-        alert("Please fill out your contact information (Name, Email, and Phone) before proceeding with cancellation.");
-        setFormData(prev => ({ ...prev, inquiry_type: "" })); // Reset inquiry type if info is missing
-        return;
-      }
       setShowCancellation(true);
       setShowPrivateEvents(false);
     } else {
@@ -510,6 +505,7 @@ export default function IntakeForm() {
                     <CancellationFlow
                       onSubmit={handleCancellationSubmit}
                       isSubmitting={isSubmitting}
+                      missingContactInfo={!formData.client_name || !formData.client_email || !formData.client_phone}
                     />
                   )}
                 </AnimatePresence>
