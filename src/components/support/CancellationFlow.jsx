@@ -128,7 +128,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
                 className="flex items-center space-x-3 backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-4 hover:bg-white/30 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={reason} id={reason} className="border-white text-[#b67651]" />
-                <Label htmlFor={reason} className="text-gray-900 cursor-pointer flex-1 font-medium">
+                <Label htmlFor={reason} className="text-[#b67651] cursor-pointer flex-1 font-medium">
                   {reason}
                 </Label>
               </div>
@@ -167,7 +167,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
                 className="flex items-center space-x-3 backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-4 hover:bg-white/30 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={level} id={level} className="border-white text-[#b67651]" />
-                <Label htmlFor={level} className="text-gray-900 cursor-pointer flex-1 font-medium">
+                <Label htmlFor={level} className="text-[#b67651] cursor-pointer flex-1 font-medium">
                   {level}
                 </Label>
               </div>
@@ -192,7 +192,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
             onChange={(e) =>
               setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
             }
-            className="backdrop-blur-md bg-white/30 border-white/40 text-gray-900 placeholder:text-gray-600 rounded-xl min-h-32 focus:bg-white/50 transition-all resize-none"
+            className="backdrop-blur-md bg-white/30 border-white/40 text-[#b67651] placeholder:text-[#b67651]/60 rounded-xl min-h-32 focus:bg-white/50 transition-all resize-none"
             placeholder="We value your feedback and would love to hear your thoughts..."
           />
           
@@ -218,7 +218,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
             type="button"
             onClick={() => setStep(step - 1)}
             variant="outline"
-            className="flex-1 h-12 backdrop-blur-md bg-white/20 border-white/40 text-gray-900 hover:bg-white/30 rounded-xl font-medium"
+            className="flex-1 h-12 backdrop-blur-md bg-white/20 border-white/40 text-[#b67651] hover:bg-white/30 rounded-xl font-medium"
             disabled={isSubmitting}
           >
             Back
