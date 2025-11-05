@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -85,9 +86,11 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
         });
         setSubmitted(false);
         setShowCancellation(false);
+        setShowPrivateEvents(false);
       }, 3000);
     } catch (error) {
       console.error("Error submitting form:", error);
+      alert("There was an error submitting your request. Please try again or contact us directly.");
     }
     
     setIsSubmitting(false);
@@ -142,9 +145,11 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
         });
         setSubmitted(false);
         setShowCancellation(false);
+        setShowPrivateEvents(false);
       }, 3000);
     } catch (error) {
       console.error("Error submitting cancellation:", error);
+      alert("There was an error submitting your cancellation request. Please try again or contact us directly.");
     }
     
     setIsSubmitting(false);
@@ -211,7 +216,7 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
                     required
                     value={formData.client_name}
                     onChange={(e) => handleInputChange("client_name", e.target.value)}
-                    className="backdrop-blur-md bg-white/30 border-white/40 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/40 transition-all"
+                    className="backdrop-blur-md bg-white/30 border-white/40 text-gray-900 placeholder:text-gray-600 rounded-xl h-12 focus:bg-white/50 transition-all"
                     placeholder="Your name"
                   />
                 </div>
@@ -224,7 +229,7 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
                     type="email"
                     value={formData.client_email}
                     onChange={(e) => handleInputChange("client_email", e.target.value)}
-                    className="backdrop-blur-md bg-white/30 border-white/40 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/40 transition-all"
+                    className="backdrop-blur-md bg-white/30 border-white/40 text-gray-900 placeholder:text-gray-600 rounded-xl h-12 focus:bg-white/50 transition-all"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -237,7 +242,7 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
                     type="tel"
                     value={formData.client_phone}
                     onChange={(e) => handleInputChange("client_phone", e.target.value)}
-                    className="backdrop-blur-md bg-white/30 border-white/40 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/40 transition-all"
+                    className="backdrop-blur-md bg-white/30 border-white/40 text-gray-900 placeholder:text-gray-600 rounded-xl h-12 focus:bg-white/50 transition-all"
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -246,7 +251,7 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
                 <div className="space-y-2">
                   <Label className="text-white font-medium">How can we help? *</Label>
                   <Select required value={formData.inquiry_type} onValueChange={handleInquiryTypeChange}>
-                    <SelectTrigger className="backdrop-blur-md bg-white/30 border-white/40 text-white rounded-xl h-12 focus:bg-white/40">
+                    <SelectTrigger className="backdrop-blur-md bg-white/30 border-white/40 text-gray-900 rounded-xl h-12 focus:bg-white/50">
                       <SelectValue placeholder="Select inquiry type" />
                     </SelectTrigger>
                     <SelectContent className="backdrop-blur-xl bg-white/95 border-white/40">
@@ -305,7 +310,7 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
                     <Textarea
                       value={formData.notes}
                       onChange={(e) => handleInputChange("notes", e.target.value)}
-                      className="backdrop-blur-md bg-white/30 border-white/40 text-white placeholder:text-white/60 rounded-xl min-h-32 focus:bg-white/40 transition-all resize-none"
+                      className="backdrop-blur-md bg-white/30 border-white/40 text-gray-900 placeholder:text-gray-600 rounded-xl min-h-32 focus:bg-white/50 transition-all resize-none"
                       placeholder="Please share any additional information..."
                     />
                   </div>
