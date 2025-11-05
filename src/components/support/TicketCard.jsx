@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,13 +36,15 @@ const formatDateEST = (date) => {
   });
 };
 
-export default function TicketCard({ ticket, onStatusChange, onClick, isDragging }) {
+export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted }) {
   return (
     <div
       onClick={onClick}
       className={`backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 transition-all group ${
         isDragging 
           ? "shadow-2xl scale-105 bg-white/60 border-white/70 rotate-2 cursor-grabbing ring-4 ring-white/40" 
+          : isHighlighted
+          ? "shadow-2xl bg-white/60 border-yellow-400/80 ring-4 ring-yellow-400/50 animate-shake cursor-grab"
           : "hover:bg-white/40 shadow-lg hover:shadow-xl cursor-grab"
       }`}
     >
@@ -123,6 +124,17 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
       <div className="text-white/70 text-xs">
         {formatDateEST(ticket.created_date)} EST
       </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake {
+          animation: shake 0.5s ease-in-out 3;
+        }
+      `}</style>
     </div>
   );
 }

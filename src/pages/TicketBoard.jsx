@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import TicketDetailsModal from "../components/support/TicketDetailsModal";
 export default function TicketBoard() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
+  const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -29,6 +29,33 @@ export default function TicketBoard() {
     queryFn: () => base44.entities.SupportTicket.list("-created_date"),
     refetchInterval: 5000
   });
+
+  // Check URL for ticket parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ticketId = urlParams.get('ticket');
+    
+    if (ticketId && tickets.length > 0) {
+      const ticket = tickets.find(t => t.id === ticketId);
+      if (ticket) {
+        // Highlight the ticket
+        setHighlightedTicketId(ticketId);
+        
+        // Open the modal after a short delay
+        setTimeout(() => {
+          setSelectedTicket(ticket);
+        }, 500);
+        
+        // Remove highlight after animation
+        setTimeout(() => {
+          setHighlightedTicketId(null);
+        }, 3000);
+        
+        // Clean up URL
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+  }, [tickets]);
 
   const updateTicketMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.SupportTicket.update(id, data),
@@ -66,7 +93,6 @@ export default function TicketBoard() {
 
     if (!ticket || ticket.status === newStatus) return;
 
-    // Open dialog to ask for note
     setDragNoteDialog({
       ticketId,
       newStatus,
@@ -132,6 +158,7 @@ export default function TicketBoard() {
                       onStatusChange={handleStatusChange}
                       onTicketClick={setSelectedTicket}
                       isLoading={isLoading}
+                      highlightedTicketId={highlightedTicketId}
                     />
                     {provided.placeholder}
                   </div>

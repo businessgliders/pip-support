@@ -72,34 +72,103 @@ export default function IntakeForm() {
     setIsSubmitting(true);
 
     try {
-      await base44.entities.SupportTicket.create({
+      const newTicket = await base44.entities.SupportTicket.create({
         ...formData,
         status: "New",
         priority: formData.inquiry_type === "Cancellation" ? "High" : "Medium"
       });
 
-      // Try to send email, but don't fail if it doesn't work
+      // Build ticket URL
+      const ticketUrl = `${window.location.origin}/TicketBoard?ticket=${newTicket.id}`;
+
+      // Send formatted HTML email
       base44.integrations.Core.SendEmail({
-        from_name: "Pilates in Pink - Support Form",
-        to: "gurpreen@pilatesinpinkstudio.com",
-        subject: `New Support Ticket: ${formData.inquiry_type}`,
+        from_name: "Pilates in Pink Support",
+        to: "support@pilatesinpinkstudio.com",
+        subject: `New Support Ticket: ${formData.inquiry_type} - ${formData.client_name}`,
         body: `
-New support ticket received:
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #f1899b, #f7b1bd); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .header h1 { color: white; margin: 0; font-size: 24px; }
+    .content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
+    .field { margin-bottom: 20px; }
+    .label { font-weight: bold; color: #b67651; margin-bottom: 5px; }
+    .value { color: #333; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+    .button { display: inline-block; padding: 15px 30px; background: #b67651; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+    .button:hover { background: #a56541; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .priority { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .priority-high { background: #fecaca; color: #991b1b; }
+    .priority-medium { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📩 New Support Ticket Received</h1>
+    </div>
+    <div class="content">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span class="priority priority-${formData.inquiry_type === "Cancellation" ? "high" : "medium"}">
+          ${formData.inquiry_type === "Cancellation" ? "HIGH" : "MEDIUM"} PRIORITY
+        </span>
+      </div>
 
-From: ${formData.client_name}
-Email: ${formData.client_email}
-Phone: ${formData.client_phone}
-Inquiry Type: ${formData.inquiry_type}
+      <div class="field">
+        <div class="label">Client Name:</div>
+        <div class="value">${formData.client_name}</div>
+      </div>
 
-Message:
-${formData.notes || "No additional notes"}
+      <div class="field">
+        <div class="label">Email Address:</div>
+        <div class="value"><a href="mailto:${formData.client_email}">${formData.client_email}</a></div>
+      </div>
 
----
-Please reply directly to ${formData.client_email} to respond to this inquiry.
+      <div class="field">
+        <div class="label">Phone Number:</div>
+        <div class="value"><a href="tel:${formData.client_phone}">${formData.client_phone}</a></div>
+      </div>
+
+      <div class="field">
+        <div class="label">Inquiry Type:</div>
+        <div class="value">${formData.inquiry_type}</div>
+      </div>
+
+      ${formData.notes ? `
+      <div class="field">
+        <div class="label">Message:</div>
+        <div class="value">${formData.notes.replace(/\n/g, '<br>')}</div>
+      </div>
+      ` : ''}
+
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="${ticketUrl}" class="button">
+          🎫 View Ticket in Dashboard
+        </a>
+      </div>
+
+      <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 5px;">
+        <strong>📌 Quick Actions:</strong><br>
+        • Click the button above to view full ticket details<br>
+        • Reply directly to <a href="mailto:${formData.client_email}">${formData.client_email}</a><br>
+        • Call client at <a href="tel:${formData.client_phone}">${formData.client_phone}</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>This is an automated notification from Pilates in Pink Support System</p>
+      <p style="margin-top: 10px;">Ticket ID: ${newTicket.id}</p>
+    </div>
+  </div>
+</body>
+</html>
         `
       }).catch(err => console.error("Email failed:", err));
 
-      // Show success
       setSubmitted(true);
       setIsSubmitting(false);
       
@@ -126,44 +195,118 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
     setIsSubmitting(true);
     
     try {
-      await base44.entities.SupportTicket.create({
+      const newTicket = await base44.entities.SupportTicket.create({
         ...formData,
         ...cancellationData,
         status: "New",
         priority: "Urgent"
       });
 
-      // Try to send email, but don't fail if it doesn't work
+      // Build ticket URL
+      const ticketUrl = `${window.location.origin}/TicketBoard?ticket=${newTicket.id}`;
+
       base44.integrations.Core.SendEmail({
-        from_name: "Pilates in Pink - Support Form",
-        to: "gurpreen@pilatesinpinkstudio.com",
+        from_name: "Pilates in Pink Support",
+        to: "support@pilatesinpinkstudio.com",
         subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
         body: `
-⚠️ CANCELLATION REQUEST - RETENTION OPPORTUNITY
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #dc2626, #ef4444); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .header h1 { color: white; margin: 0; font-size: 24px; }
+    .content { background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; }
+    .field { margin-bottom: 20px; }
+    .label { font-weight: bold; color: #b67651; margin-bottom: 5px; }
+    .value { color: #333; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+    .button { display: inline-block; padding: 15px 30px; background: #b67651; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+    .button:hover { background: #a56541; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .alert { background: #fef2f2; border: 2px solid #ef4444; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    .discount-box { background: linear-gradient(135deg, #b67651, #a56541); padding: 25px; border-radius: 10px; text-align: center; color: white; margin: 20px 0; }
+    .discount-box h2 { margin: 0; font-size: 32px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚠️ URGENT: Cancellation Request</h1>
+    </div>
+    <div class="content">
+      <div class="alert">
+        <strong>🚨 RETENTION OPPORTUNITY</strong><br>
+        This client is requesting cancellation. Immediate action recommended!
+      </div>
 
-Client Information:
-Name: ${formData.client_name}
-Email: ${formData.client_email}
-Phone: ${formData.client_phone}
+      <div class="discount-box">
+        <div style="font-size: 48px; margin-bottom: 10px;">🎁</div>
+        <h2>${cancellationData.discount_offered} DISCOUNT</h2>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Offered to Client for Retention</p>
+      </div>
 
-Cancellation Details:
-Reason: ${cancellationData.cancellation_reason}
-Satisfaction: ${cancellationData.cancellation_satisfaction}
-Additional Feedback: ${cancellationData.cancellation_feedback || "No additional feedback"}
+      <div class="field">
+        <div class="label">Client Name:</div>
+        <div class="value">${formData.client_name}</div>
+      </div>
 
-💰 DISCOUNT OFFERED TO CLIENT: ${cancellationData.discount_offered} OFF
+      <div class="field">
+        <div class="label">Email Address:</div>
+        <div class="value"><a href="mailto:${formData.client_email}">${formData.client_email}</a></div>
+      </div>
 
-Terms shown to client:
-- Available on any Membership plans
-- Valid for the first 3 months
-- No long-term commitment required
-- Conditions apply
+      <div class="field">
+        <div class="label">Phone Number:</div>
+        <div class="value"><a href="tel:${formData.client_phone}">${formData.client_phone}</a></div>
+      </div>
 
-Risk Level: ${cancellationData.discount_offered === "20%" ? "VERY HIGH" : cancellationData.discount_offered === "15%" ? "HIGH" : cancellationData.discount_offered === "10%" ? "MEDIUM" : "LOW"}
+      <div class="field">
+        <div class="label">Cancellation Reason:</div>
+        <div class="value">${cancellationData.cancellation_reason}</div>
+      </div>
 
----
-⚡ URGENT: Client expects a call to activate this discount today.
-Please contact ${formData.client_email} (${formData.client_phone}) immediately.
+      <div class="field">
+        <div class="label">Satisfaction Level:</div>
+        <div class="value">${cancellationData.cancellation_satisfaction}</div>
+      </div>
+
+      ${cancellationData.cancellation_feedback ? `
+      <div class="field">
+        <div class="label">Additional Feedback:</div>
+        <div class="value">${cancellationData.cancellation_feedback.replace(/\n/g, '<br>')}</div>
+      </div>
+      ` : ''}
+
+      <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <strong>💰 Discount Terms Shown to Client:</strong><br>
+        ✓ Available on any Membership plans<br>
+        ✓ Valid for the first 3 months<br>
+        ✓ No long-term commitment required<br>
+        ✓ Conditions apply
+      </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="${ticketUrl}" class="button">
+          🎫 View Full Ticket & Take Action
+        </a>
+      </div>
+
+      <div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 5px;">
+        <strong>⚡ Action Required:</strong><br>
+        • Client expects a call to activate this discount TODAY<br>
+        • Contact ${formData.client_email} or ${formData.client_phone} immediately<br>
+        • Review full details in the dashboard
+      </div>
+    </div>
+    <div class="footer">
+      <p>This is an automated urgent notification from Pilates in Pink Support System</p>
+      <p style="margin-top: 10px;">Ticket ID: ${newTicket.id}</p>
+    </div>
+  </div>
+</body>
+</html>
         `
       }).catch(err => console.error("Email failed:", err));
 
