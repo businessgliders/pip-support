@@ -329,15 +329,15 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately.
                       exit={{ height: 0, opacity: 0 }}
                       className="backdrop-blur-md bg-[#b67651]/20 border border-[#b67651]/40 rounded-2xl p-6 overflow-hidden"
                     >
-                      <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2">
+                      <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2 drop-shadow-md">
                         <ExternalLink className="w-5 h-5" />
                         Private Events
                       </h3>
-                      <p className="text-white/90 mb-4">
+                      <p className="text-white/90 mb-4 drop-shadow-sm">
                         For private event inquiries and bookings, please visit our dedicated events page:
                       </p>
                       <a
-                        href="https://events.pilatesinpinkstudio.com"
+                        href="https://68e7f88493bea0ec207ab95e.blocks-app.diy/68e7f94faa69e69923c41264"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-[#b67651] hover:bg-[#a56541] text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"

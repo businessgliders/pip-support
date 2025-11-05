@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -83,8 +82,8 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
       className="backdrop-blur-md bg-white/10 border border-white/30 rounded-2xl p-6 overflow-hidden"
     >
       <div className="flex items-center gap-3 mb-6">
-        <AlertCircle className="w-6 h-6 text-white" />
-        <h3 className="text-white font-semibold text-xl">We'd Hate to See You Go</h3>
+        <AlertCircle className="w-6 h-6 text-white drop-shadow-lg" />
+        <h3 className="text-white font-semibold text-xl drop-shadow-lg">We'd Hate to See You Go</h3>
       </div>
 
       {/* Progress indicator */}
@@ -107,7 +106,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           exit={{ x: -20, opacity: 0 }}
           className="space-y-4"
         >
-          <Label className="text-white font-medium text-lg">
+          <Label className="text-white font-medium text-lg drop-shadow-md">
             What's your primary reason for canceling?
           </Label>
           <RadioGroup
@@ -131,7 +130,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
                 className="flex items-center space-x-3 backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-4 hover:bg-white/30 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={reason} id={reason} className="border-white text-[#b67651]" />
-                <Label htmlFor={reason} className="text-[#b67651] cursor-pointer flex-1 font-medium">
+                <Label htmlFor={reason} className="text-[#b67651] cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {reason}
                 </Label>
               </div>
@@ -148,7 +147,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           exit={{ x: -20, opacity: 0 }}
           className="space-y-4"
         >
-          <Label className="text-white font-medium text-lg">
+          <Label className="text-white font-medium text-lg drop-shadow-md">
             How satisfied were you with your experience?
           </Label>
           <RadioGroup
@@ -170,7 +169,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
                 className="flex items-center space-x-3 backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-4 hover:bg-white/30 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={level} id={level} className="border-white text-[#b67651]" />
-                <Label htmlFor={level} className="text-[#b67651] cursor-pointer flex-1 font-medium">
+                <Label htmlFor={level} className="text-[#b67651] cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {level}
                 </Label>
               </div>
@@ -187,7 +186,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           exit={{ x: -20, opacity: 0 }}
           className="space-y-4"
         >
-          <Label className="text-white font-medium text-lg">
+          <Label className="text-white font-medium text-lg drop-shadow-md">
             Is there anything we could do to keep you as a member?
           </Label>
           <Textarea
@@ -201,10 +200,10 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
           
           <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-xl p-4 mt-4">
             <div className="flex items-start gap-3">
-              <Gift className="w-6 h-6 text-white flex-shrink-0 mt-0.5" />
+              <Gift className="w-6 h-6 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
               <div>
-                <p className="text-white font-medium mb-1">We want to make this right!</p>
-                <p className="text-white/90 text-sm">
+                <p className="text-white font-medium mb-1 drop-shadow-md">We want to make this right!</p>
+                <p className="text-white/90 text-sm drop-shadow-sm">
                   Based on your feedback, we may be able to offer you a special retention discount. 
                   Let's find a solution that works for you.
                 </p>
@@ -224,47 +223,47 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
         >
           {/* Discount Reveal */}
           <div className="backdrop-blur-xl bg-gradient-to-br from-[#b67651] to-[#a56541] border-2 border-white/50 rounded-2xl p-8 shadow-2xl text-center">
-            <Sparkles className="w-12 h-12 text-white mx-auto mb-4 animate-pulse" />
-            <h3 className="text-white font-bold text-3xl mb-2">
+            <Sparkles className="w-12 h-12 text-white mx-auto mb-4 animate-pulse drop-shadow-lg" />
+            <h3 className="text-white font-bold text-3xl mb-2 drop-shadow-lg">
               {cancellationData.discount_offered} OFF
             </h3>
-            <p className="text-white/90 text-xl font-medium mb-1">
+            <p className="text-white/90 text-xl font-medium mb-1 drop-shadow-md">
               Exclusive Retention Offer
             </p>
-            <p className="text-white/80 text-sm">
+            <p className="text-white/80 text-sm drop-shadow-md">
               Just for you!
             </p>
           </div>
 
           {/* Terms & Conditions */}
           <div className="backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-5">
-            <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+            <h4 className="text-white font-semibold mb-3 flex items-center gap-2 drop-shadow-md">
               <Gift className="w-5 h-5" />
               Offer Details
             </h4>
             <ul className="space-y-2 text-white/90 text-sm">
               <li className="flex items-start gap-2">
-                <span className="text-white mt-1">✓</span>
-                <span>Available on any Membership plans</span>
+                <span className="text-white mt-1 drop-shadow-sm">✓</span>
+                <span className="drop-shadow-sm">Available on any Membership plans</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-white mt-1">✓</span>
-                <span>Valid for the first 3 months</span>
+                <span className="text-white mt-1 drop-shadow-sm">✓</span>
+                <span className="drop-shadow-sm">Valid for the first 3 months</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-white mt-1">✓</span>
-                <span>No long-term commitment required</span>
+                <span className="text-white mt-1 drop-shadow-sm">✓</span>
+                <span className="drop-shadow-sm">No long-term commitment required</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-white mt-1">✓</span>
-                <span>Conditions apply - our team will provide full details</span>
+                <span className="text-white mt-1 drop-shadow-sm">✓</span>
+                <span className="drop-shadow-sm">Conditions apply - our team will provide full details</span>
               </li>
             </ul>
           </div>
 
           {/* Call to Action */}
           <div className="backdrop-blur-sm bg-white/10 border border-white/30 rounded-xl p-4">
-            <p className="text-white text-center font-medium">
+            <p className="text-white text-center font-medium drop-shadow-md">
               Hit "Submit Request" and we'll reach out to activate your discount today! 🎉
             </p>
           </div>
