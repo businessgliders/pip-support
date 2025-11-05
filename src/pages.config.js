@@ -11,7 +11,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "TicketBoard",
+    mainPage: "IntakeForm",
     Pages: PAGES,
     Layout: Layout,
 };
