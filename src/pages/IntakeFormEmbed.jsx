@@ -442,7 +442,7 @@ export default function IntakeFormEmbed() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="backdrop-blur-md bg-[#b67651]/20 border border-[#b67651]/40 rounded-2xl p-6 overflow-hidden"
+                    className="backdrop-blur-md bg-[#8b5a3c]/40 border border-[#b67651]/60 rounded-2xl p-6 overflow-hidden shadow-lg"
                   >
                     <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2 drop-shadow-md">
                       <ExternalLink className="w-5 h-5" />

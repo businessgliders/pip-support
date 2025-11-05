@@ -130,7 +130,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
                 key={reason}
                 className="flex items-center space-x-3 backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 hover:bg-[#8b5a3c]/50 transition-all cursor-pointer"
               >
-                <RadioGroupItem value={reason} id={reason} className="border-white text-white" />
+                <RadioGroupItem value={reason} id={reason} className="border-white text-[#b67651]" />
                 <Label htmlFor={reason} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {reason}
                 </Label>
@@ -169,7 +169,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
                 key={level}
                 className="flex items-center space-x-3 backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 hover:bg-[#8b5a3c]/50 transition-all cursor-pointer"
               >
-                <RadioGroupItem value={level} id={level} className="border-white text-white" />
+                <RadioGroupItem value={level} id={level} className="border-white text-[#b67651]" />
                 <Label htmlFor={level} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {level}
                 </Label>

@@ -1,5 +1,4 @@
 
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -35,8 +34,8 @@ export default function IntakeForm() {
   const [submitted, setSubmitted] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
-  const [adminError, setAdminError] = "";
-  
+  const [adminError, setAdminError] = useState(""); // Initialize with an empty string
+
   const navigate = useNavigate();
 
   const handleInputChange = (field, value) => {
@@ -45,7 +44,7 @@ export default function IntakeForm() {
 
   const handleInquiryTypeChange = (value) => {
     setFormData(prev => ({ ...prev, inquiry_type: value }));
-    
+
     if (value === "Private Events") {
       setShowPrivateEvents(true);
       setShowCancellation(false);
@@ -178,7 +177,7 @@ export default function IntakeForm() {
 
       setSubmitted(true);
       setIsSubmitting(false);
-      
+
       setTimeout(() => {
         setFormData({
           client_name: "",
@@ -200,7 +199,7 @@ export default function IntakeForm() {
 
   const handleCancellationSubmit = async (cancellationData) => {
     setIsSubmitting(true);
-    
+
     try {
       const newTicket = await base44.entities.SupportTicket.create({
         ...formData,
@@ -320,7 +319,7 @@ export default function IntakeForm() {
       // Show success
       setSubmitted(true);
       setIsSubmitting(false);
-      
+
       setTimeout(() => {
         setFormData({
           client_name: "",
@@ -372,7 +371,7 @@ export default function IntakeForm() {
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b67651]/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-      
+
       {/* Admin Access Button */}
       <div className="absolute top-4 right-4 z-10">
         <Button
@@ -384,7 +383,7 @@ export default function IntakeForm() {
           <Lock className="w-4 h-4" />
         </Button>
       </div>
-      
+
       <div className="max-w-2xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
@@ -392,7 +391,7 @@ export default function IntakeForm() {
           animate={{ y: 0, opacity: 1 }}
           className="text-center mb-8"
         >
-          <img 
+          <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
             alt="Pilates in Pink"
             className="w-24 h-24 mx-auto mb-4 drop-shadow-2xl"
@@ -477,7 +476,7 @@ export default function IntakeForm() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="backdrop-blur-md bg-[#b67651]/20 border border-[#b67651]/40 rounded-2xl p-6 overflow-hidden"
+                      className="backdrop-blur-md bg-[#8b5a3c]/40 border border-[#b67651]/60 rounded-2xl p-6 overflow-hidden shadow-lg"
                     >
                       <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2 drop-shadow-md">
                         <ExternalLink className="w-5 h-5" />
