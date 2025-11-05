@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLink, CheckCircle2, Loader2, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { createPageUrl } => "@/utils";
+import { createPageUrl } from "@/utils"; // Corrected import statement
 import {
   Dialog,
   DialogContent,
