@@ -84,7 +84,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
     >
       <div className="flex items-center gap-3 mb-6">
         <AlertCircle className="w-6 h-6 text-white drop-shadow-lg" />
-        <h3 className="text-white font-semibold text-xl drop-shadow-lg">We'd Hate to See You Go</h3>
+        <h3 className="text-white font-semibold text-xl drop-shadow-lg">We're Sorry to See You Go</h3>
       </div>
 
       {/* Progress indicator */}
