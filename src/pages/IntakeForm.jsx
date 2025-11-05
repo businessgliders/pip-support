@@ -81,12 +81,13 @@ export default function IntakeForm() {
       // Build ticket URL
       const ticketUrl = `${window.location.origin}/TicketBoard?ticket=${newTicket.id}`;
 
-      // Send formatted HTML email
-      base44.integrations.Core.SendEmail({
-        from_name: "Pilates in Pink Support",
-        to: "support@pilatesinpinkstudio.com",
-        subject: `New Support Ticket: ${formData.inquiry_type} - ${formData.client_name}`,
-        body: `
+      // Send formatted HTML email - with better error handling
+      try {
+        const emailResult = await base44.integrations.Core.SendEmail({
+          from_name: "Pilates in Pink Support",
+          to: "support@pilatesinpinkstudio.com",
+          subject: `New Support Ticket: ${formData.inquiry_type} - ${formData.client_name}`,
+          body: `
 <!DOCTYPE html>
 <html>
 <head>
@@ -167,7 +168,12 @@ export default function IntakeForm() {
 </body>
 </html>
         `
-      }).catch(err => console.error("Email failed:", err));
+        });
+        console.log("✅ Email sent successfully:", emailResult);
+      } catch (emailError) {
+        console.error("❌ Email failed:", emailError);
+        alert(`Ticket created successfully, but email notification failed: ${emailError.message || 'Unknown error'}. Please check your dashboard for the new ticket.`);
+      }
 
       setSubmitted(true);
       setIsSubmitting(false);
