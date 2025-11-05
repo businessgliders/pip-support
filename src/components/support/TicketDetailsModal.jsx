@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +9,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Calendar, MessageSquare, Gift, User } from "lucide-react";
-import { format } from "date-fns";
+import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const priorityColors = {
   "Low": "bg-green-500/20 text-green-700 border-green-400/40",
@@ -25,7 +26,55 @@ const statusColors = {
   "Closed": "bg-gray-500/20 text-gray-700 border-gray-400/40"
 };
 
+const formatDateEST = (date) => {
+  return new Date(date).toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
+const formatShortDateEST = (date) => {
+  return new Date(date).toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
 export default function TicketDetailsModal({ ticket, onClose, onStatusChange }) {
+  const [relatedTickets, setRelatedTickets] = useState([]);
+  const [loadingRelated, setLoadingRelated] = useState(true);
+
+  useEffect(() => {
+    const fetchRelatedTickets = async () => {
+      try {
+        const allTickets = await base44.entities.SupportTicket.list("-created_date");
+        
+        // Find tickets with same email or phone, excluding current ticket
+        const related = allTickets.filter(t => 
+          t.id !== ticket.id && (
+            t.client_email === ticket.client_email ||
+            (ticket.client_phone && t.client_phone === ticket.client_phone)
+          )
+        );
+        
+        setRelatedTickets(related);
+      } catch (error) {
+        console.error("Failed to fetch related tickets:", error);
+      } finally {
+        setLoadingRelated(false);
+      }
+    };
+
+    fetchRelatedTickets();
+  }, [ticket]);
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto">
@@ -73,11 +122,61 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange }) 
               <div className="flex items-center gap-3 text-gray-700">
                 <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
                 <span>
-                  Submitted {format(new Date(ticket.created_date), "MMMM d, yyyy 'at' h:mm a")}
+                  Submitted {formatDateEST(ticket.created_date)} EST
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Related Tickets History */}
+          {(loadingRelated || relatedTickets.length > 0) && (
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <History className="w-4 h-4" />
+                Client Ticket History
+                <Badge variant="outline" className="ml-auto">
+                  {relatedTickets.length} previous ticket{relatedTickets.length !== 1 ? 's' : ''}
+                </Badge>
+              </h3>
+              
+              {loadingRelated ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {relatedTickets.map((relatedTicket) => (
+                    <div
+                      key={relatedTicket.id}
+                      className="bg-white/60 rounded-lg p-3 border border-purple-200/50 hover:bg-white/80 transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs">
+                              {relatedTicket.inquiry_type}
+                            </Badge>
+                            <Badge className={`${statusColors[relatedTicket.status]} border text-xs`}>
+                              {relatedTicket.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-600">
+                            {formatShortDateEST(relatedTicket.created_date)} EST
+                          </p>
+                          {relatedTicket.inquiry_type === "Cancellation" && relatedTicket.discount_offered && (
+                            <p className="text-xs text-[#b67651] font-medium mt-1">
+                              🎁 {relatedTicket.discount_offered} discount offered
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Cancellation Details */}
           {ticket.inquiry_type === "Cancellation" && (

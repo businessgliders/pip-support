@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Mail, Phone, MoreVertical, Gift } from "lucide-react";
-import { format } from "date-fns";
 
 const priorityColors = {
   "Low": "bg-green-500/20 text-green-100 border-green-400/40",
@@ -23,6 +23,18 @@ const inquiryTypeIcons = {
   "Private Events": "🎉",
   "Cancellation": "⚠️",
   "Other": "📝"
+};
+
+const formatDateEST = (date) => {
+  return new Date(date).toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
 };
 
 export default function TicketCard({ ticket, onStatusChange, onClick }) {
@@ -103,7 +115,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick }) {
 
       {/* Timestamp */}
       <div className="text-white/70 text-xs">
-        {format(new Date(ticket.created_date), "MMM d, yyyy • h:mm a")}
+        {formatDateEST(ticket.created_date)} EST
       </div>
     </div>
   );
