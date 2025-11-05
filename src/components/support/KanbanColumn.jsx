@@ -51,25 +51,17 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
+                  style={{
+                    ...provided.draggableProps.style,
+                    cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+                  }}
                 >
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    style={{
-                      ...provided.draggableProps.style,
-                      transform: snapshot.isDragging
-                        ? provided.draggableProps.style?.transform
-                        : "none",
-                    }}
-                  >
-                    <TicketCard
-                      ticket={ticket}
-                      onStatusChange={onStatusChange}
-                      onClick={() => onTicketClick(ticket)}
-                      isDragging={snapshot.isDragging}
-                    />
-                  </motion.div>
+                  <TicketCard
+                    ticket={ticket}
+                    onStatusChange={onStatusChange}
+                    onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
+                    isDragging={snapshot.isDragging}
+                  />
                 </div>
               )}
             </Draggable>

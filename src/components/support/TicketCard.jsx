@@ -41,9 +41,14 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
   return (
     <div
       onClick={onClick}
-      className={`backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 hover:bg-white/40 transition-all cursor-pointer group shadow-lg hover:shadow-xl ${
-        isDragging ? "shadow-2xl rotate-2 scale-105" : ""
+      className={`backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 transition-all cursor-grab group ${
+        isDragging 
+          ? "shadow-2xl scale-105 bg-white/50 border-white/60 rotate-3 cursor-grabbing ring-4 ring-white/30" 
+          : "hover:bg-white/40 shadow-lg hover:shadow-xl"
       }`}
+      style={{
+        transition: isDragging ? 'none' : 'all 0.2s ease'
+      }}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -117,8 +118,14 @@ export default function TicketBoard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {columns.map((status) => (
               <Droppable key={status} droppableId={status}>
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                {(provided, snapshot) => (
+                  <div 
+                    ref={provided.innerRef} 
+                    {...provided.droppableProps}
+                    className={`transition-all duration-200 ${
+                      snapshot.isDraggingOver ? 'ring-4 ring-white/50 scale-102' : ''
+                    }`}
+                  >
                     <KanbanColumn
                       status={status}
                       tickets={getTicketsByStatus(status)}
