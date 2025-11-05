@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Mail, Phone, MoreVertical, AlertCircle, Gift } from "lucide-react";
+import { Mail, Phone, MoreVertical, Gift } from "lucide-react";
 import { format } from "date-fns";
 
 const priorityColors = {
