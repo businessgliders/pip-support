@@ -205,8 +205,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               <div>
                 <p className="text-white font-medium mb-1 drop-shadow-md">We want to make this right!</p>
                 <p className="text-white/90 text-sm drop-shadow-sm">
-                  Based on your feedback, we may be able to offer you a special retention discount. 
-                  Let's find a solution that works for you.
+                  We truly value having you as part of our community. Based on your feedback, we'd like to offer you special pricing to help make things work for you.
                 </p>
               </div>
             </div>
@@ -229,10 +228,10 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               {cancellationData.discount_offered} OFF
             </h3>
             <p className="text-white/95 text-xl font-medium mb-1 drop-shadow-md">
-              Exclusive Retention Offer
+              Special Pricing for You
             </p>
             <p className="text-white/85 text-sm drop-shadow-md">
-              Just for you!
+              Because you're valued
             </p>
           </div>
 
@@ -240,7 +239,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
           <div className="backdrop-blur-sm bg-white/30 border border-white/50 rounded-xl p-5">
             <h4 className="text-white font-semibold mb-3 flex items-center gap-2 drop-shadow-md">
               <Gift className="w-5 h-5" />
-              Offer Details
+              What This Includes
             </h4>
             <ul className="space-y-2 text-white text-sm">
               <li className="flex items-start gap-2">
@@ -257,7 +256,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-white mt-1 drop-shadow-sm">✓</span>
-                <span className="drop-shadow-sm">Conditions apply - our team will provide full details</span>
+                <span className="drop-shadow-sm">Our team will provide full details and answer any questions</span>
               </li>
             </ul>
           </div>
@@ -265,7 +264,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
           {/* Call to Action */}
           <div className="backdrop-blur-sm bg-white/20 border border-white/40 rounded-xl p-4">
             <p className="text-white text-center font-medium drop-shadow-md">
-              Hit "Submit Request" and we'll reach out to activate your discount today! 🎉
+              Submit your request and we'll reach out to discuss how we can support you! 💙
             </p>
           </div>
         </motion.div>

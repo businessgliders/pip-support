@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -101,7 +102,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 mb-3 flex items-center gap-2">
           <Gift className="w-4 h-4 text-white flex-shrink-0" />
           <span className="text-white text-xs font-medium">
-            {ticket.discount_offered} Discount Offered
+            {ticket.discount_offered} special offer extended
           </span>
         </div>
       )}

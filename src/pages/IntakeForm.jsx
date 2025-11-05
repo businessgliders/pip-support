@@ -243,14 +243,14 @@ export default function IntakeForm() {
     </div>
     <div class="content">
       <div class="alert">
-        <strong>🚨 RETENTION OPPORTUNITY</strong><br>
-        This client is requesting cancellation. Immediate action recommended!
+        <strong>🚨 IMMEDIATE ACTION NEEDED</strong><br>
+        A valued member is considering cancellation. Let's reach out and see how we can help!
       </div>
 
       <div class="discount-box">
         <div style="font-size: 48px; margin-bottom: 10px;">🎁</div>
-        <h2>${cancellationData.discount_offered} DISCOUNT</h2>
-        <p style="margin: 10px 0 0 0; opacity: 0.9;">Offered to Client for Retention</p>
+        <h2>${cancellationData.discount_offered} SPECIAL PRICING</h2>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Offered to help keep this client in our community</p>
       </div>
 
       <div class="field">
@@ -286,24 +286,24 @@ export default function IntakeForm() {
       ` : ''}
 
       <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <strong>💰 Discount Terms Shown to Client:</strong><br>
+        <strong>💰 Pricing Details Shared with Client:</strong><br>
         ✓ Available on any Membership plans<br>
         ✓ Valid for the first 3 months<br>
         ✓ No long-term commitment required<br>
-        ✓ Conditions apply
+        ✓ Our team will provide full details
       </div>
 
       <div style="text-align: center; margin-top: 30px;">
         <a href="${ticketUrl}" class="button">
-          🎫 View Full Ticket & Take Action
+          🎫 View Full Details & Connect
         </a>
       </div>
 
       <div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 5px;">
-        <strong>⚡ Action Required:</strong><br>
-        • Client expects a call to activate this discount TODAY<br>
-        • Contact ${formData.client_email} or ${formData.client_phone} immediately<br>
-        • Review full details in the dashboard
+        <strong>⚡ Next Steps:</strong><br>
+        • Reach out to ${formData.client_email} or ${formData.client_phone} today<br>
+        • Client is expecting a personal call to discuss options<br>
+        • Review full feedback in the dashboard
       </div>
     </div>
     <div class="footer">

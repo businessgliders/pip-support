@@ -141,11 +141,11 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   <div className="flex items-center gap-2 mb-1">
                     <Gift className="w-5 h-5 text-[#b67651]" />
                     <span className="font-semibold text-[#b67651] text-lg">
-                      {ticket.discount_offered} Retention Offer
+                      {ticket.discount_offered} Special Offer
                     </span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    System-calculated retention discount based on client feedback
+                    Personalized pricing offered to help keep client in our community
                   </p>
                 </div>
               )}
