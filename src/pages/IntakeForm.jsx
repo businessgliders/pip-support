@@ -54,12 +54,13 @@ export default function IntakeForm() {
         priority: formData.inquiry_type === "Cancellation" ? "High" : "Medium"
       });
 
-      // Send email notification
-      await base44.integrations.Core.SendEmail({
-        from_name: "Pilates in Pink - Support Form",
-        to: "pilatesinpinkstudio-inbox1fq@inbox.kenkomail.com",
-        subject: `New Support Ticket: ${formData.inquiry_type}`,
-        body: `
+      // Send email notification (don't block on failure)
+      try {
+        await base44.integrations.Core.SendEmail({
+          from_name: "Pilates in Pink - Support Form",
+          to: "pilatesinpinkstudio-inbox1fq@inbox.kenkomail.com",
+          subject: `New Support Ticket: ${formData.inquiry_type}`,
+          body: `
 New support ticket received:
 
 From: ${formData.client_name}
@@ -72,8 +73,12 @@ ${formData.notes || "No additional notes"}
 
 ---
 Please reply directly to ${formData.client_email} to respond to this inquiry.
-        `
-      });
+          `
+        });
+      } catch (emailError) {
+        console.error("Email notification failed:", emailError);
+        // Continue anyway - ticket was created successfully
+      }
 
       setSubmitted(true);
       setTimeout(() => {
@@ -107,12 +112,13 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
         priority: "Urgent"
       });
 
-      // Send cancellation email with discount offer
-      await base44.integrations.Core.SendEmail({
-        from_name: "Pilates in Pink - Support Form",
-        to: "pilatesinpinkstudio-inbox1fq@inbox.kenkomail.com",
-        subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
-        body: `
+      // Send cancellation email with discount offer (don't block on failure)
+      try {
+        await base44.integrations.Core.SendEmail({
+          from_name: "Pilates in Pink - Support Form",
+          to: "pilatesinpinkstudio-inbox1fq@inbox.kenkomail.com",
+          subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
+          body: `
 ⚠️ CANCELLATION REQUEST - RETENTION OPPORTUNITY
 
 Client Information:
@@ -131,8 +137,12 @@ Risk Level: ${cancellationData.discount_offered === "20%" ? "VERY HIGH" : cancel
 
 ---
 Please contact ${formData.client_email} (${formData.client_phone}) immediately to discuss retention options.
-        `
-      });
+          `
+        });
+      } catch (emailError) {
+        console.error("Email notification failed:", emailError);
+        // Continue anyway - ticket was created successfully
+      }
 
       setSubmitted(true);
       setTimeout(() => {
