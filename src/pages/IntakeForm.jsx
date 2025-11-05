@@ -54,13 +54,12 @@ export default function IntakeForm() {
         priority: formData.inquiry_type === "Cancellation" ? "High" : "Medium"
       });
 
-      // Send email notification (don't block on failure)
-      try {
-        await base44.integrations.Core.SendEmail({
-          from_name: "Pilates in Pink - Support Form",
-          to: "gurpreen@pilatesinpinkstudio.com",
-          subject: `New Support Ticket: ${formData.inquiry_type}`,
-          body: `
+      // Try to send email, but don't fail if it doesn't work
+      base44.integrations.Core.SendEmail({
+        from_name: "Pilates in Pink - Support Form",
+        to: "gurpreen@pilatesinpinkstudio.com",
+        subject: `New Support Ticket: ${formData.inquiry_type}`,
+        body: `
 New support ticket received:
 
 From: ${formData.client_name}
@@ -73,13 +72,10 @@ ${formData.notes || "No additional notes"}
 
 ---
 Please reply directly to ${formData.client_email} to respond to this inquiry.
-          `
-        });
-      } catch (emailError) {
-        console.error("Email notification failed:", emailError);
-        // Continue anyway - ticket was created successfully
-      }
+        `
+      }).catch(err => console.error("Email failed:", err));
 
+      // Show success
       setSubmitted(true);
       setIsSubmitting(false);
       
@@ -113,13 +109,12 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
         priority: "Urgent"
       });
 
-      // Send cancellation email with discount offer (don't block on failure)
-      try {
-        await base44.integrations.Core.SendEmail({
-          from_name: "Pilates in Pink - Support Form",
-          to: "gurpreen@pilatesinpinkstudio.com",
-          subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
-          body: `
+      // Try to send email, but don't fail if it doesn't work
+      base44.integrations.Core.SendEmail({
+        from_name: "Pilates in Pink - Support Form",
+        to: "gurpreen@pilatesinpinkstudio.com",
+        subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
+        body: `
 ⚠️ CANCELLATION REQUEST - RETENTION OPPORTUNITY
 
 Client Information:
@@ -130,7 +125,7 @@ Phone: ${formData.client_phone}
 Cancellation Details:
 Reason: ${cancellationData.cancellation_reason}
 Satisfaction: ${cancellationData.cancellation_satisfaction}
-Additional Feedback: ${cancellationData.cancellation_feedback}
+Additional Feedback: ${cancellationData.cancellation_feedback || "No additional feedback"}
 
 💰 DISCOUNT OFFERED TO CLIENT: ${cancellationData.discount_offered} OFF
 
@@ -145,13 +140,10 @@ Risk Level: ${cancellationData.discount_offered === "20%" ? "VERY HIGH" : cancel
 ---
 ⚡ URGENT: Client expects a call to activate this discount today.
 Please contact ${formData.client_email} (${formData.client_phone}) immediately.
-          `
-        });
-      } catch (emailError) {
-        console.error("Email notification failed:", emailError);
-        // Continue anyway - ticket was created successfully
-      }
+        `
+      }).catch(err => console.error("Email failed:", err));
 
+      // Show success
       setSubmitted(true);
       setIsSubmitting(false);
       

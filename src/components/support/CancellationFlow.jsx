@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
   const isStepComplete = () => {
     if (step === 1) return cancellationData.cancellation_reason !== "";
     if (step === 2) return cancellationData.cancellation_satisfaction !== "";
-    if (step === 3) return cancellationData.cancellation_feedback !== "";
+    if (step === 3) return true; // Feedback is optional
     if (step === 4) return true; // Always allow submission on step 4
     return false;
   };
