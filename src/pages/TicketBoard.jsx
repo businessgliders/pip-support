@@ -5,17 +5,28 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 
 export default function TicketBoard() {
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: () => base44.entities.SupportTicket.list("-created_date"),
-    refetchInterval: 5000 // Auto-refresh every 5 seconds
+    refetchInterval: 5000
   });
 
   const updateTicketMutation = useMutation({
@@ -25,11 +36,49 @@ export default function TicketBoard() {
     }
   });
 
-  const handleStatusChange = (ticketId, newStatus) => {
+  const handleStatusChange = (ticketId, newStatus, note = "") => {
+    const ticket = tickets.find(t => t.id === ticketId);
+    if (!ticket) return;
+
+    const statusHistory = ticket.status_history || [];
+    statusHistory.push({
+      status: newStatus,
+      note: note,
+      timestamp: new Date().toISOString()
+    });
+
     updateTicketMutation.mutate({
       id: ticketId,
-      data: { status: newStatus }
+      data: { 
+        status: newStatus,
+        status_history: statusHistory
+      }
     });
+  };
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const ticketId = result.draggableId;
+    const newStatus = result.destination.droppableId;
+    const ticket = tickets.find(t => t.id === ticketId);
+
+    if (!ticket || ticket.status === newStatus) return;
+
+    // Open dialog to ask for note
+    setDragNoteDialog({
+      ticketId,
+      newStatus,
+      oldStatus: ticket.status,
+      ticketName: ticket.client_name
+    });
+  };
+
+  const handleConfirmStatusChange = (note) => {
+    if (dragNoteDialog) {
+      handleStatusChange(dragNoteDialog.ticketId, dragNoteDialog.newStatus, note);
+      setDragNoteDialog(null);
+    }
   };
 
   const columns = ["New", "In Progress", "Resolved", "Closed"];
@@ -63,20 +112,37 @@ export default function TicketBoard() {
           </Link>
         </div>
 
-        {/* Kanban Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {columns.map((status) => (
-            <KanbanColumn
-              key={status}
-              status={status}
-              tickets={getTicketsByStatus(status)}
-              onStatusChange={handleStatusChange}
-              onTicketClick={setSelectedTicket}
-              isLoading={isLoading}
-            />
-          ))}
-        </div>
+        {/* Kanban Board with Drag & Drop */}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {columns.map((status) => (
+              <Droppable key={status} droppableId={status}>
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    <KanbanColumn
+                      status={status}
+                      tickets={getTicketsByStatus(status)}
+                      onStatusChange={handleStatusChange}
+                      onTicketClick={setSelectedTicket}
+                      isLoading={isLoading}
+                    />
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            ))}
+          </div>
+        </DragDropContext>
       </div>
+
+      {/* Status Change Note Dialog */}
+      {dragNoteDialog && (
+        <StatusChangeDialog
+          data={dragNoteDialog}
+          onConfirm={handleConfirmStatusChange}
+          onCancel={() => setDragNoteDialog(null)}
+        />
+      )}
 
       {/* Ticket Details Modal */}
       {selectedTicket && (
@@ -84,8 +150,51 @@ export default function TicketBoard() {
           ticket={selectedTicket}
           onClose={() => setSelectedTicket(null)}
           onStatusChange={handleStatusChange}
+          onTicketClick={setSelectedTicket}
         />
       )}
     </div>
+  );
+}
+
+function StatusChangeDialog({ data, onConfirm, onCancel }) {
+  const [note, setNote] = useState("");
+
+  return (
+    <Dialog open={true} onOpenChange={onCancel}>
+      <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+        <DialogHeader>
+          <DialogTitle>Moving Ticket</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-gray-700">
+            Moving <strong>{data.ticketName}</strong> from{" "}
+            <span className="text-blue-600 font-medium">{data.oldStatus}</span> to{" "}
+            <span className="text-green-600 font-medium">{data.newStatus}</span>
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="status-note">Add a note (optional)</Label>
+            <Textarea
+              id="status-note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="e.g., Spoke with client, confirmed resolution..."
+              className="min-h-24"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => onConfirm(note)}
+            className="bg-[#b67651] hover:bg-[#a56541] text-white"
+          >
+            Update Status
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

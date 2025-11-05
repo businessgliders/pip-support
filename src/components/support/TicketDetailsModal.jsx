@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import {
@@ -47,7 +48,7 @@ const formatShortDateEST = (date) => {
   });
 };
 
-export default function TicketDetailsModal({ ticket, onClose, onStatusChange }) {
+export default function TicketDetailsModal({ ticket, onClose, onStatusChange, onTicketClick }) {
   const [relatedTickets, setRelatedTickets] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(true);
 
@@ -128,56 +129,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange }) 
             </div>
           </div>
 
-          {/* Related Tickets History */}
-          {(loadingRelated || relatedTickets.length > 0) && (
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <History className="w-4 h-4" />
-                Client Ticket History
-                <Badge variant="outline" className="ml-auto">
-                  {relatedTickets.length} previous ticket{relatedTickets.length !== 1 ? 's' : ''}
-                </Badge>
-              </h3>
-              
-              {loadingRelated ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {relatedTickets.map((relatedTicket) => (
-                    <div
-                      key={relatedTicket.id}
-                      className="bg-white/60 rounded-lg p-3 border border-purple-200/50 hover:bg-white/80 transition-all"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="text-xs">
-                              {relatedTicket.inquiry_type}
-                            </Badge>
-                            <Badge className={`${statusColors[relatedTicket.status]} border text-xs`}>
-                              {relatedTicket.status}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-gray-600">
-                            {formatShortDateEST(relatedTicket.created_date)} EST
-                          </p>
-                          {relatedTicket.inquiry_type === "Cancellation" && relatedTicket.discount_offered && (
-                            <p className="text-xs text-[#b67651] font-medium mt-1">
-                              🎁 {relatedTicket.discount_offered} discount offered
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Cancellation Details */}
           {ticket.inquiry_type === "Cancellation" && (
             <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-200">
@@ -235,40 +186,129 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange }) 
             </div>
           )}
 
+          {/* Related Tickets History */}
+          {(loadingRelated || relatedTickets.length > 0) && (
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <History className="w-4 h-4" />
+                Client Ticket History
+                <Badge variant="outline" className="ml-auto">
+                  {relatedTickets.length} previous ticket{relatedTickets.length !== 1 ? 's' : ''}
+                </Badge>
+              </h3>
+              
+              {loadingRelated ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {relatedTickets.map((relatedTicket) => (
+                    <div
+                      key={relatedTicket.id}
+                      onClick={() => {
+                        onClose();
+                        // Give a slight delay to allow the current modal to close completely
+                        // before attempting to open a new one with the new ticket data.
+                        setTimeout(() => onTicketClick(relatedTicket), 100);
+                      }}
+                      className="bg-white/60 rounded-lg p-3 border border-purple-200/50 hover:bg-white/80 transition-all cursor-pointer hover:border-purple-300"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs">
+                              {relatedTicket.inquiry_type}
+                            </Badge>
+                            <Badge className={`${statusColors[relatedTicket.status]} border text-xs`}>
+                              {relatedTicket.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-600">
+                            {formatShortDateEST(relatedTicket.created_date)} EST
+                          </p>
+                          {relatedTicket.inquiry_type === "Cancellation" && relatedTicket.discount_offered && (
+                            <p className="text-xs text-[#b67651] font-medium mt-1">
+                              🎁 {relatedTicket.discount_offered} discount offered
+                            </p>
+                          )}
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Status History Timeline */}
+          {ticket.status_history && ticket.status_history.length > 0 && (
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <History className="w-4 h-4" />
+                Status History
+              </h3>
+              <div className="space-y-3">
+                {[...ticket.status_history].reverse().map((entry, index) => (
+                  <div key={index} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
+                      {index !== ticket.status_history.length - 1 && (
+                        <div className="w-0.5 h-full bg-gray-300 mt-1" />
+                      )}
+                    </div>
+                    <div className="flex-1 pb-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-gray-900">{entry.status}</span>
+                        <span className="text-xs text-gray-500">
+                          {formatShortDateEST(entry.timestamp)} EST
+                        </span>
+                      </div>
+                      {entry.note && (
+                        <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <Separator />
 
-          {/* Status Actions */}
+          {/* Pipeline Status View */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={() => { onStatusChange(ticket.id, "New"); onClose(); }}
-                variant="outline"
-                className={`${ticket.status === "New" ? "bg-pink-50 border-pink-300" : ""}`}
-              >
-                New
-              </Button>
-              <Button
-                onClick={() => { onStatusChange(ticket.id, "In Progress"); onClose(); }}
-                variant="outline"
-                className={`${ticket.status === "In Progress" ? "bg-blue-50 border-blue-300" : ""}`}
-              >
-                In Progress
-              </Button>
-              <Button
-                onClick={() => { onStatusChange(ticket.id, "Resolved"); onClose(); }}
-                variant="outline"
-                className={`${ticket.status === "Resolved" ? "bg-green-50 border-green-300" : ""}`}
-              >
-                Resolved
-              </Button>
-              <Button
-                onClick={() => { onStatusChange(ticket.id, "Closed"); onClose(); }}
-                variant="outline"
-                className={`${ticket.status === "Closed" ? "bg-gray-50 border-gray-300" : ""}`}
-              >
-                Closed
-              </Button>
+            <h3 className="font-semibold text-gray-900 mb-4">Update Status</h3>
+            <div className="flex items-center gap-2">
+              {["New", "In Progress", "Resolved", "Closed"].map((status, index) => (
+                <React.Fragment key={status}>
+                  <button
+                    onClick={() => {
+                      if (ticket.status !== status) {
+                        const note = prompt(`Add a note for moving to ${status} (optional):`);
+                        onStatusChange(ticket.id, status, note || "");
+                        onClose();
+                      }
+                    }}
+                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all ${
+                      ticket.status === status
+                        ? `${statusColors[status]} border-2 shadow-lg`
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-sm">{status}</div>
+                    </div>
+                  </button>
+                  {index < 3 && (
+                    <div className="text-gray-400">
+                      →
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
 

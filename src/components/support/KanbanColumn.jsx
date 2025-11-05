@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Draggable } from "@hello-pangea/dnd";
 import TicketCard from "./TicketCard";
 
 const columnColors = {
@@ -44,18 +45,34 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
           </div>
         ) : (
           tickets.map((ticket, index) => (
-            <motion.div
-              key={ticket.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <TicketCard
-                ticket={ticket}
-                onStatusChange={onStatusChange}
-                onClick={() => onTicketClick(ticket)}
-              />
-            </motion.div>
+            <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    style={{
+                      ...provided.draggableProps.style,
+                      transform: snapshot.isDragging
+                        ? provided.draggableProps.style?.transform
+                        : "none",
+                    }}
+                  >
+                    <TicketCard
+                      ticket={ticket}
+                      onStatusChange={onStatusChange}
+                      onClick={() => onTicketClick(ticket)}
+                      isDragging={snapshot.isDragging}
+                    />
+                  </motion.div>
+                </div>
+              )}
+            </Draggable>
           ))
         )}
       </div>
