@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Draggable } from "@hello-pangea/dnd";
 import TicketCard from "./TicketCard";
@@ -47,22 +46,20 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
           tickets.map((ticket, index) => (
             <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
               {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  style={{
-                    ...provided.draggableProps.style,
-                    cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-                  }}
-                >
-                  <TicketCard
-                    ticket={ticket}
-                    onStatusChange={onStatusChange}
-                    onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
-                    isDragging={snapshot.isDragging}
-                  />
-                </div>
+                <>
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                  >
+                    <TicketCard
+                      ticket={ticket}
+                      onStatusChange={onStatusChange}
+                      onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
+                      isDragging={snapshot.isDragging}
+                    />
+                  </div>
+                </>
               )}
             </Draggable>
           ))

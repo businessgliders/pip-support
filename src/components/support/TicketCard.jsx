@@ -41,14 +41,11 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
   return (
     <div
       onClick={onClick}
-      className={`backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 transition-all cursor-grab group ${
+      className={`backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 transition-all group ${
         isDragging 
-          ? "shadow-2xl scale-105 bg-white/50 border-white/60 rotate-3 cursor-grabbing ring-4 ring-white/30" 
-          : "hover:bg-white/40 shadow-lg hover:shadow-xl"
+          ? "shadow-2xl scale-105 bg-white/60 border-white/70 rotate-2 cursor-grabbing ring-4 ring-white/40" 
+          : "hover:bg-white/40 shadow-lg hover:shadow-xl cursor-grab"
       }`}
-      style={{
-        transition: isDragging ? 'none' : 'all 0.2s ease'
-      }}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
@@ -62,31 +59,33 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           </Badge>
         </div>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-white hover:bg-white/20"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="backdrop-blur-xl bg-white/95 border-white/40">
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "New"); }}>
-              Move to New
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "In Progress"); }}>
-              Move to In Progress
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Resolved"); }}>
-              Move to Resolved
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Closed"); }}>
-              Move to Closed
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {!isDragging && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-white hover:bg-white/20"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="backdrop-blur-xl bg-white/95 border-white/40">
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "New"); }}>
+                Move to New
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "In Progress"); }}>
+                Move to In Progress
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Resolved"); }}>
+                Move to Resolved
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Closed"); }}>
+                Move to Closed
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {/* Inquiry Type */}
