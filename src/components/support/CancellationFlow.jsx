@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { AlertCircle, Gift, Loader2, Sparkles, Info } from "lucide-react";
+import { AlertCircle, Gift, Loader2, Sparkles, AlertTriangle } from "lucide-react"; // Added AlertTriangle
 
 export default function CancellationFlow({ onSubmit, isSubmitting, missingContactInfo }) {
   const [step, setStep] = useState(1);
@@ -86,25 +86,6 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
         <AlertCircle className="w-6 h-6 text-white drop-shadow-lg" />
         <h3 className="text-white font-semibold text-xl drop-shadow-lg">We'd Hate to See You Go</h3>
       </div>
-
-      {/* Missing Contact Info Warning */}
-      {missingContactInfo && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="backdrop-blur-sm bg-[#8b5a3c]/50 border border-white/60 rounded-xl p-4 mb-6 flex items-start gap-3"
-        >
-          <Info className="w-5 h-5 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
-          <div>
-            <p className="text-white font-medium text-sm drop-shadow-sm">
-              Please complete your contact information above
-            </p>
-            <p className="text-white/90 text-xs mt-1 drop-shadow-sm">
-              We need your name, email, and phone number before you can continue
-            </p>
-          </div>
-        </motion.div>
-      )}
 
       {/* Progress indicator */}
       <div className="flex gap-2 mb-6">
@@ -324,6 +305,18 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
           )}
         </Button>
       </div>
+
+      {/* Missing Contact Info Warning - Below button */}
+      {missingContactInfo && (
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 flex items-center gap-2 text-amber-200 text-xs"
+        >
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>Please complete your contact information above (name, email, phone) to continue</span>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
