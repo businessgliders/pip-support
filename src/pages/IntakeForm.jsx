@@ -58,7 +58,7 @@ export default function IntakeForm() {
       try {
         await base44.integrations.Core.SendEmail({
           from_name: "Pilates in Pink - Support Form",
-          to: "pilatesinpinkstudio-inbox1fq@inbox.kenkomail.com",
+          to: "gurpreen@pilatesinpinkstudio.com",
           subject: `New Support Ticket: ${formData.inquiry_type}`,
           body: `
 New support ticket received:
@@ -81,6 +81,8 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
       }
 
       setSubmitted(true);
+      setIsSubmitting(false);
+      
       setTimeout(() => {
         setFormData({
           client_name: "",
@@ -92,13 +94,12 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
         setSubmitted(false);
         setShowCancellation(false);
         setShowPrivateEvents(false);
-      }, 3000);
+      }, 4000);
     } catch (error) {
       console.error("Error submitting form:", error);
+      setIsSubmitting(false);
       alert("There was an error submitting your request. Please try again or contact us directly.");
     }
-    
-    setIsSubmitting(false);
   };
 
   const handleCancellationSubmit = async (cancellationData) => {
@@ -116,7 +117,7 @@ Please reply directly to ${formData.client_email} to respond to this inquiry.
       try {
         await base44.integrations.Core.SendEmail({
           from_name: "Pilates in Pink - Support Form",
-          to: "pilatesinpinkstudio-inbox1fq@inbox.kenkomail.com",
+          to: "gurpreen@pilatesinpinkstudio.com",
           subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
           body: `
 ⚠️ CANCELLATION REQUEST - RETENTION OPPORTUNITY
@@ -131,12 +132,19 @@ Reason: ${cancellationData.cancellation_reason}
 Satisfaction: ${cancellationData.cancellation_satisfaction}
 Additional Feedback: ${cancellationData.cancellation_feedback}
 
-💰 DISCOUNT OFFERED: ${cancellationData.discount_offered} OFF
+💰 DISCOUNT OFFERED TO CLIENT: ${cancellationData.discount_offered} OFF
+
+Terms shown to client:
+- Available on any Membership plans
+- Valid for the first 3 months
+- No long-term commitment required
+- Conditions apply
 
 Risk Level: ${cancellationData.discount_offered === "20%" ? "VERY HIGH" : cancellationData.discount_offered === "15%" ? "HIGH" : cancellationData.discount_offered === "10%" ? "MEDIUM" : "LOW"}
 
 ---
-Please contact ${formData.client_email} (${formData.client_phone}) immediately to discuss retention options.
+⚡ URGENT: Client expects a call to activate this discount today.
+Please contact ${formData.client_email} (${formData.client_phone}) immediately.
           `
         });
       } catch (emailError) {
@@ -145,6 +153,8 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
       }
 
       setSubmitted(true);
+      setIsSubmitting(false);
+      
       setTimeout(() => {
         setFormData({
           client_name: "",
@@ -156,13 +166,12 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
         setSubmitted(false);
         setShowCancellation(false);
         setShowPrivateEvents(false);
-      }, 3000);
+      }, 4000);
     } catch (error) {
       console.error("Error submitting cancellation:", error);
+      setIsSubmitting(false);
       alert("There was an error submitting your cancellation request. Please try again or contact us directly.");
     }
-    
-    setIsSubmitting(false);
   };
 
   if (submitted) {
@@ -174,9 +183,18 @@ Please contact ${formData.client_email} (${formData.client_phone}) immediately t
           className="text-center"
         >
           <div className="backdrop-blur-xl bg-white/30 border border-white/40 rounded-3xl p-12 shadow-2xl">
-            <CheckCircle2 className="w-20 h-20 text-white mx-auto mb-6" />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            >
+              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-green-500 flex items-center justify-center">
+                <CheckCircle2 className="w-16 h-16 text-white" />
+              </div>
+            </motion.div>
             <h2 className="text-3xl font-bold text-white mb-3">Thank You!</h2>
-            <p className="text-white/90 text-lg">We've received your request and will be in touch soon.</p>
+            <p className="text-white/90 text-lg mb-2">We've received your request successfully.</p>
+            <p className="text-white/80 text-base">We'll be in touch with you soon!</p>
           </div>
         </motion.div>
       </div>

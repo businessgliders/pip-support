@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { AlertCircle, Gift, Loader2 } from "lucide-react";
+import { AlertCircle, Gift, Loader2, Sparkles } from "lucide-react";
 
 export default function CancellationFlow({ onSubmit, isSubmitting }) {
   const [step, setStep] = useState(1);
@@ -52,14 +51,16 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
 
   const handleNext = () => {
     if (step === 3) {
+      // Calculate discount and move to step 4 to show it
       const discount = calculateDiscount(
         cancellationData.cancellation_reason,
         cancellationData.cancellation_satisfaction
       );
-      onSubmit({
-        ...cancellationData,
-        discount_offered: discount
-      });
+      setCancellationData({ ...cancellationData, discount_offered: discount });
+      setStep(4);
+    } else if (step === 4) {
+      // Final submission
+      onSubmit(cancellationData);
     } else {
       setStep(step + 1);
     }
@@ -69,6 +70,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
     if (step === 1) return cancellationData.cancellation_reason !== "";
     if (step === 2) return cancellationData.cancellation_satisfaction !== "";
     if (step === 3) return cancellationData.cancellation_feedback !== "";
+    if (step === 4) return true; // Always allow submission on step 4
     return false;
   };
 
@@ -86,7 +88,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
 
       {/* Progress indicator */}
       <div className="flex gap-2 mb-6">
-        {[1, 2, 3].map((num) => (
+        {[1, 2, 3, 4].map((num) => (
           <div
             key={num}
             className={`h-1.5 flex-1 rounded-full transition-all ${
@@ -211,6 +213,63 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
         </motion.div>
       )}
 
+      {/* Step 4: Discount Offer */}
+      {step === 4 && (
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="space-y-6"
+        >
+          {/* Discount Reveal */}
+          <div className="backdrop-blur-xl bg-gradient-to-br from-[#b67651] to-[#a56541] border-2 border-white/50 rounded-2xl p-8 shadow-2xl text-center">
+            <Sparkles className="w-12 h-12 text-white mx-auto mb-4 animate-pulse" />
+            <h3 className="text-white font-bold text-3xl mb-2">
+              {cancellationData.discount_offered} OFF
+            </h3>
+            <p className="text-white/90 text-xl font-medium mb-1">
+              Exclusive Retention Offer
+            </p>
+            <p className="text-white/80 text-sm">
+              Just for you!
+            </p>
+          </div>
+
+          {/* Terms & Conditions */}
+          <div className="backdrop-blur-sm bg-white/20 border border-white/30 rounded-xl p-5">
+            <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Gift className="w-5 h-5" />
+              Offer Details
+            </h4>
+            <ul className="space-y-2 text-white/90 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-white mt-1">✓</span>
+                <span>Available on any Membership plans</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-white mt-1">✓</span>
+                <span>Valid for the first 3 months</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-white mt-1">✓</span>
+                <span>No long-term commitment required</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-white mt-1">✓</span>
+                <span>Conditions apply - our team will provide full details</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Call to Action */}
+          <div className="backdrop-blur-sm bg-white/10 border border-white/30 rounded-xl p-4">
+            <p className="text-white text-center font-medium">
+              Hit "Submit Request" and we'll reach out to activate your discount today! 🎉
+            </p>
+          </div>
+        </motion.div>
+      )}
+
       {/* Navigation */}
       <div className="flex gap-3 mt-6">
         {step > 1 && (
@@ -235,8 +294,11 @@ export default function CancellationFlow({ onSubmit, isSubmitting }) {
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               Submitting...
             </>
-          ) : step === 3 ? (
-            "Submit Request"
+          ) : step === 4 ? (
+            <>
+              <Gift className="w-5 h-5 mr-2" />
+              Submit Request
+            </>
           ) : (
             "Continue"
           )}
