@@ -80,7 +80,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: "auto", opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      className="backdrop-blur-md bg-[#b67651]/20 border border-[#b67651]/40 rounded-2xl p-6 overflow-hidden"
+      className="backdrop-blur-md bg-[#8b5a3c]/40 border border-[#b67651]/60 rounded-2xl p-6 overflow-hidden shadow-lg"
     >
       <div className="flex items-center gap-3 mb-6">
         <AlertCircle className="w-6 h-6 text-white drop-shadow-lg" />
@@ -92,7 +92,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="backdrop-blur-sm bg-white/30 border border-white/50 rounded-xl p-4 mb-6 flex items-start gap-3"
+          className="backdrop-blur-sm bg-[#8b5a3c]/50 border border-white/60 rounded-xl p-4 mb-6 flex items-start gap-3"
         >
           <Info className="w-5 h-5 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
           <div>
@@ -147,9 +147,9 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
             ].map((reason) => (
               <div
                 key={reason}
-                className="flex items-center space-x-3 backdrop-blur-sm bg-white/30 border border-white/40 rounded-xl p-4 hover:bg-white/40 transition-all cursor-pointer"
+                className="flex items-center space-x-3 backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 hover:bg-[#8b5a3c]/50 transition-all cursor-pointer"
               >
-                <RadioGroupItem value={reason} id={reason} className="border-white text-[#b67651]" />
+                <RadioGroupItem value={reason} id={reason} className="border-white text-white" />
                 <Label htmlFor={reason} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {reason}
                 </Label>
@@ -186,9 +186,9 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
             ].map((level) => (
               <div
                 key={level}
-                className="flex items-center space-x-3 backdrop-blur-sm bg-white/30 border border-white/40 rounded-xl p-4 hover:bg-white/40 transition-all cursor-pointer"
+                className="flex items-center space-x-3 backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 hover:bg-[#8b5a3c]/50 transition-all cursor-pointer"
               >
-                <RadioGroupItem value={level} id={level} className="border-white text-[#b67651]" />
+                <RadioGroupItem value={level} id={level} className="border-white text-white" />
                 <Label htmlFor={level} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
                   {level}
                 </Label>
@@ -214,11 +214,11 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
             onChange={(e) =>
               setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
             }
-            className="backdrop-blur-md bg-white/40 border-white/50 text-white placeholder:text-white/60 rounded-xl min-h-32 focus:bg-white/50 transition-all resize-none"
+            className="backdrop-blur-md bg-[#8b5a3c]/40 border-white/60 text-white placeholder:text-white/70 rounded-xl min-h-32 focus:bg-[#8b5a3c]/50 transition-all resize-none"
             placeholder="We value your feedback and would love to hear your thoughts..."
           />
           
-          <div className="backdrop-blur-sm bg-white/20 border border-white/40 rounded-xl p-4 mt-4">
+          <div className="backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 mt-4">
             <div className="flex items-start gap-3">
               <Gift className="w-6 h-6 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
               <div>
@@ -255,7 +255,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
             </p>
           </div>
 
-          {/* Terms & Conditions */}
+          {/* Offer Details */}
           <div className="backdrop-blur-sm bg-white/30 border border-white/50 rounded-xl p-5">
             <h4 className="text-white font-semibold mb-3 flex items-center gap-2 drop-shadow-md">
               <Gift className="w-5 h-5" />
