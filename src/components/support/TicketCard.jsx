@@ -99,11 +99,26 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
 
       {/* Special Indicators */}
       {ticket.inquiry_type === "Cancellation" && ticket.discount_offered && (
-        <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 mb-3 flex items-center gap-2">
-          <Gift className="w-4 h-4 text-white flex-shrink-0" />
-          <span className="text-white text-xs font-medium">
-            {ticket.discount_offered} special offer extended
-          </span>
+        <div className="mb-3 space-y-2">
+          <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 flex items-center gap-2">
+            <Gift className="w-4 h-4 text-white flex-shrink-0" />
+            <span className="text-white text-xs font-medium">
+              {ticket.discount_offered} special offer extended
+            </span>
+          </div>
+          
+          {ticket.discount_accepted !== undefined && ticket.discount_accepted !== null && (
+            <div className={`rounded-lg p-2 flex items-center gap-2 ${
+              ticket.discount_accepted 
+                ? 'bg-green-500/30 border border-green-400/50' 
+                : 'bg-gray-400/30 border border-gray-300/50'
+            }`}>
+              <span className="text-sm">{ticket.discount_accepted ? '🎉' : '😔'}</span>
+              <span className="text-white text-xs font-medium">
+                {ticket.discount_accepted ? 'Offer accepted!' : 'Declined offer'}
+              </span>
+            </div>
+          )}
         </div>
       )}
 

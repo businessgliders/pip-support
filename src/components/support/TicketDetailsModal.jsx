@@ -137,16 +137,51 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </h3>
               
               {ticket.discount_offered && (
-                <div className="bg-[#b67651]/10 border border-[#b67651]/30 rounded-lg p-3 mb-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Gift className="w-5 h-5 text-[#b67651]" />
-                    <span className="font-semibold text-[#b67651] text-lg">
-                      {ticket.discount_offered} Special Offer
-                    </span>
+                <div className="mb-4 space-y-3">
+                  <div className="bg-[#b67651]/10 border border-[#b67651]/30 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Gift className="w-5 h-5 text-[#b67651]" />
+                      <span className="font-semibold text-[#b67651] text-lg">
+                        {ticket.discount_offered} Special Offer
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Personalized pricing offered to help keep client in our community
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Personalized pricing offered to help keep client in our community
-                  </p>
+
+                  {/* Client's Decision */}
+                  {ticket.discount_accepted !== undefined && ticket.discount_accepted !== null && (
+                    <div className={`border-2 rounded-lg p-4 ${
+                      ticket.discount_accepted 
+                        ? 'bg-green-50 border-green-400'
+                        : 'bg-gray-50 border-gray-300'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          ticket.discount_accepted ? 'bg-green-500' : 'bg-gray-400'
+                        }`}>
+                          <span className="text-2xl">{ticket.discount_accepted ? '🎉' : '😔'}</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className={`font-semibold ${
+                            ticket.discount_accepted ? 'text-green-700' : 'text-gray-700'
+                          }`}>
+                            {ticket.discount_accepted 
+                              ? '✨ Client Accepted the Offer!' 
+                              : 'Client Chose to Continue with Cancellation'}
+                          </p>
+                          <p className={`text-sm ${
+                            ticket.discount_accepted ? 'text-green-600' : 'text-gray-600'
+                          }`}>
+                            {ticket.discount_accepted 
+                              ? 'Great news! They want to keep their membership with the special pricing.' 
+                              : 'They decided not to take the discount offer.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
