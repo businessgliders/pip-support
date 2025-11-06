@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -187,32 +188,36 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
           initial={{ x: 20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -20, opacity: 0 }}
-          className="space-y-4"
+          className="space-y-5"
         >
-          <div className="backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4">
+          <div className="backdrop-blur-sm bg-gradient-to-br from-white/25 to-white/15 border border-white/40 rounded-xl p-4 shadow-md">
             <div className="flex items-start gap-3">
-              <Gift className="w-6 h-6 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Gift className="w-5 h-5 text-white drop-shadow-md" />
+              </div>
               <div>
-                <p className="text-white font-medium mb-1 drop-shadow-md">We want to make this right!</p>
-                <p className="text-white/90 text-sm drop-shadow-sm">
-                  We truly value having you as part of our community. Based on your feedback, we'd like to offer you special pricing to help make things work for you.
+                <p className="text-white font-semibold text-base mb-1 drop-shadow-md">We want to make this right!</p>
+                <p className="text-white/90 text-sm drop-shadow-sm leading-relaxed">
+                  You're valued in our community. We'd like to offer special pricing based on your feedback.
                 </p>
               </div>
             </div>
           </div>
 
-          <Label className="text-white font-medium text-lg drop-shadow-md">
-            Is there anything we could do to keep you as a member? *
-          </Label>
-          <Textarea
-            required
-            value={cancellationData.cancellation_feedback}
-            onChange={(e) =>
-              setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
-            }
-            className="backdrop-blur-md bg-[#8b5a3c]/40 border-white/60 text-white placeholder:text-white/70 rounded-xl min-h-32 focus:bg-[#8b5a3c]/50 transition-all resize-none"
-            placeholder="We value your feedback and would love to hear your thoughts..."
-          />
+          <div className="space-y-3">
+            <Label className="text-white font-medium text-base drop-shadow-md block">
+              Is there anything we could do to keep you as a member? *
+            </Label>
+            <Textarea
+              required
+              value={cancellationData.cancellation_feedback}
+              onChange={(e) =>
+                setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
+              }
+              className="backdrop-blur-md bg-[#8b5a3c]/40 border-white/60 text-white placeholder:text-white/70 rounded-xl min-h-32 focus:bg-[#8b5a3c]/50 transition-all resize-none"
+              placeholder="We value your feedback and would love to hear your thoughts..."
+            />
+          </div>
         </motion.div>
       )}
 
