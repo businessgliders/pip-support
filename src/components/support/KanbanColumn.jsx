@@ -1,6 +1,9 @@
+
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { Draggable } from "@hello-pangea/dnd";
+import { Archive } from "lucide-react";
 import TicketCard from "./TicketCard";
 
 const columnColors = {
@@ -17,17 +20,29 @@ const headerColors = {
   "Closed": "bg-gray-500/30 border-gray-400/40"
 };
 
-export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId }) {
+export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveAll }) {
   return (
     <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col h-[calc(100vh-250px)] min-h-[600px]`}>
       {/* Column Header */}
       <div className={`backdrop-blur-md ${headerColors[status]} border-b px-4 py-4 flex-shrink-0`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <h3 className="text-white font-semibold text-lg">{status}</h3>
           <span className="backdrop-blur-sm bg-white/30 text-white text-sm font-medium px-3 py-1 rounded-full border border-white/40">
             {tickets.length}
           </span>
         </div>
+        
+        {/* Clear All Button for Closed Column */}
+        {status === "Closed" && onArchiveAll && tickets.length > 0 && (
+          <Button
+            onClick={onArchiveAll}
+            size="sm"
+            className="w-full mt-2 h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs"
+          >
+            <Archive className="w-3 h-3 mr-1.5" />
+            Archive All ({tickets.length})
+          </Button>
+        )}
       </div>
 
       {/* Tickets Container */}

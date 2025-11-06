@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Bell, BellOff } from "lucide-react";
+import { ExternalLink, Bell, BellOff, Archive, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge"; // Added Badge import
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 
@@ -24,6 +26,7 @@ export default function TicketBoard() {
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [seenTicketIds, setSeenTicketIds] = useState(new Set());
+  const [showArchived, setShowArchived] = useState(false); // Added showArchived state
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -149,6 +152,30 @@ export default function TicketBoard() {
     });
   };
 
+  const handleArchiveAll = async () => {
+    const closedTickets = tickets.filter(t => t.status === "Closed" && !t.archived);
+    
+    if (closedTickets.length === 0) return;
+    
+    if (!confirm(`Archive ${closedTickets.length} closed ticket(s)? They can be restored later from the archive.`)) {
+      return;
+    }
+
+    for (const ticket of closedTickets) {
+      await updateTicketMutation.mutateAsync({
+        id: ticket.id,
+        data: { archived: true }
+      });
+    }
+  };
+
+  const handleRestoreTicket = (ticketId) => {
+    updateTicketMutation.mutate({
+      id: ticketId,
+      data: { archived: false }
+    });
+  };
+
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
@@ -176,8 +203,14 @@ export default function TicketBoard() {
   const columns = ["New", "In Progress", "Resolved", "Closed"];
 
   const getTicketsByStatus = (status) => {
-    return tickets.filter(ticket => ticket.status === status);
+    return tickets.filter(ticket => 
+      ticket.status === status && 
+      (showArchived ? ticket.archived : !ticket.archived)
+    );
   };
+
+  const activeTickets = tickets.filter(t => !t.archived);
+  const archivedTickets = tickets.filter(t => t.archived);
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
@@ -190,13 +223,38 @@ export default function TicketBoard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
-              Support Tickets
+              {showArchived ? "Archived Tickets" : "Support Tickets"}
             </h1>
             <p className="text-white/90">
-              {tickets.length} total tickets • {getTicketsByStatus("New").length} new
+              {showArchived 
+                ? `${archivedTickets.length} archived tickets`
+                : `${activeTickets.length} active tickets • ${getTicketsByStatus("New").length} new`
+              }
             </p>
           </div>
           <div className="flex gap-3">
+            {/* Archive Toggle Button */}
+            <Button
+              onClick={() => setShowArchived(!showArchived)}
+              className={`backdrop-blur-md border shadow-lg ${
+                showArchived
+                  ? "bg-purple-500/30 border-purple-400/40 text-white hover:bg-purple-500/40"
+                  : "bg-white/30 border-white/40 text-white hover:bg-white/40"
+              } rounded-xl h-11 px-6`}
+            >
+              {showArchived ? (
+                <>
+                  <X className="w-4 h-4 mr-2" />
+                  Close Archive
+                </>
+              ) : (
+                <>
+                  <Archive className="w-4 h-4 mr-2" />
+                  View Archive ({archivedTickets.length})
+                </>
+              )}
+            </Button>
+
             {/* Notification Toggle */}
             <Button
               onClick={() => {
@@ -234,34 +292,88 @@ export default function TicketBoard() {
           </div>
         </div>
 
-        {/* Kanban Board with Drag & Drop */}
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {columns.map((status) => (
-              <Droppable key={status} droppableId={status}>
-                {(provided, snapshot) => (
-                  <div 
-                    ref={provided.innerRef} 
-                    {...provided.droppableProps}
-                    className={`transition-all duration-200 ${
-                      snapshot.isDraggingOver ? 'ring-4 ring-white/50 scale-102' : ''
-                    }`}
+        {/* Kanban Board or Archived List */}
+        {showArchived ? (
+          <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl p-6">
+            {archivedTickets.length === 0 ? (
+              <div className="text-center py-12">
+                <Archive className="w-16 h-16 text-white/40 mx-auto mb-4" />
+                <p className="text-white/80 text-lg">No archived tickets</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {archivedTickets.map(ticket => (
+                  <div
+                    key={ticket.id}
+                    className="backdrop-blur-md bg-white/40 border border-white/50 rounded-xl p-4 flex items-center justify-between hover:bg-white/50 transition-all"
                   >
-                    <KanbanColumn
-                      status={status}
-                      tickets={getTicketsByStatus(status)}
-                      onStatusChange={handleStatusChange}
-                      onTicketClick={setSelectedTicket}
-                      isLoading={isLoading}
-                      highlightedTicketId={highlightedTicketId}
-                    />
-                    {provided.placeholder}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h4 className="text-white font-semibold">{ticket.client_name}</h4>
+                        <Badge className="bg-white/30 text-white border-white/40">
+                          {ticket.inquiry_type}
+                        </Badge>
+                        <Badge className="bg-gray-500/30 text-white border-gray-400/40">
+                          {ticket.status}
+                        </Badge>
+                      </div>
+                      <p className="text-white/80 text-sm">{ticket.client_email}</p>
+                      <p className="text-white/60 text-xs mt-1">
+                        Archived from {ticket.status} • {new Date(ticket.updated_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => setSelectedTicket(ticket)}
+                        variant="outline"
+                        size="sm"
+                        className="backdrop-blur-md bg-white/30 border-white/50 text-white hover:bg-white/40"
+                      >
+                        View
+                      </Button>
+                      <Button
+                        onClick={() => handleRestoreTicket(ticket.id)}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Restore
+                      </Button>
+                    </div>
                   </div>
-                )}
-              </Droppable>
-            ))}
+                ))}
+              </div>
+            )}
           </div>
-        </DragDropContext>
+        ) : (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {columns.map((status) => (
+                <Droppable key={status} droppableId={status}>
+                  {(provided, snapshot) => (
+                    <div 
+                      ref={provided.innerRef} 
+                      {...provided.droppableProps}
+                      className={`transition-all duration-200 ${
+                        snapshot.isDraggingOver ? 'ring-4 ring-white/50 scale-102' : ''
+                      }`}
+                    >
+                      <KanbanColumn
+                        status={status}
+                        tickets={getTicketsByStatus(status)}
+                        onStatusChange={handleStatusChange}
+                        onTicketClick={setSelectedTicket}
+                        isLoading={isLoading}
+                        highlightedTicketId={highlightedTicketId}
+                        onArchiveAll={status === "Closed" ? handleArchiveAll : undefined}
+                      />
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              ))}
+            </div>
+          </DragDropContext>
+        )}
       </div>
 
       {/* Status Change Note Dialog */}
