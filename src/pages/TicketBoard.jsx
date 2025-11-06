@@ -28,6 +28,8 @@ export default function TicketBoard() {
   const [seenTicketIds, setSeenTicketIds] = useState(new Set());
   const [showArchived, setShowArchived] = useState(false);
   const [viewMode, setViewMode] = useState("status"); // "status" or "category"
+  const [hiddenColumns, setHiddenColumns] = useState(["Private Events"]); // Hidden columns in category view
+  const [showColumnEditor, setShowColumnEditor] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -231,9 +233,11 @@ export default function TicketBoard() {
     }
   };
 
+  const allCategoryColumns = ["General Inquiry", "Membership Inquiry", "Private Events", "Cancellation", "Other"];
+  
   const columns = viewMode === "status" 
     ? ["New", "In Progress", "Resolved", "Closed"]
-    : ["General Inquiry", "Membership Inquiry", "Private Events", "Cancellation", "Other"];
+    : allCategoryColumns.filter(col => !hiddenColumns.includes(col));
 
   const getTicketsByColumn = (column) => {
     // This function is only called when showArchived is false,
@@ -296,18 +300,28 @@ export default function TicketBoard() {
               </Button>
             )}
 
+            {/* Edit Columns Button (only in category view) */}
+            {!showArchived && viewMode === "category" && (
+              <Button
+                onClick={() => setShowColumnEditor(!showColumnEditor)}
+                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg"
+              >
+                ⚙️ Edit Columns
+              </Button>
+            )}
+
             {/* Archive Toggle Button */}
             <Button
               onClick={() => setShowArchived(!showArchived)}
-              className={`backdrop-blur-md border shadow-lg h-11 px-4 md:px-6 rounded-xl ${
+              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl ${
                 showArchived
                   ? "bg-purple-500/30 border-purple-400/40 text-white hover:bg-purple-500/40"
                   : "bg-white/30 border-white/40 text-white hover:bg-white/40"
-              }`}
+              } px-4 md:px-3`}
             >
-              <Archive className="w-4 h-4 md:mr-2" />
-              <span className="hidden md:inline">
-                {showArchived ? "Close Archive" : `View Archive (${archivedTickets.length})`}
+              <Archive className="w-4 h-4" />
+              <span className="hidden md:hidden ml-2">
+                {showArchived ? "Close Archive" : `Archive (${archivedTickets.length})`}
               </span>
             </Button>
 
@@ -320,33 +334,64 @@ export default function TicketBoard() {
                   requestNotificationPermission();
                 }
               }}
-              className={`backdrop-blur-md border shadow-lg h-11 px-4 md:px-6 rounded-xl ${
+              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl ${
                 notificationsEnabled
                   ? "bg-green-500/30 border-green-400/40 text-white hover:bg-green-500/40"
                   : "bg-white/30 border-white/40 text-white hover:bg-white/40"
-              }`}
+              } px-4 md:px-3`}
             >
               {notificationsEnabled ? (
-                <>
-                  <Bell className="w-4 h-4 md:mr-2" />
-                  <span className="hidden md:inline">Notifications On</span>
-                </>
+                <Bell className="w-4 h-4" />
               ) : (
-                <>
-                  <BellOff className="w-4 h-4 md:mr-2" />
-                  <span className="hidden md:inline">Enable Notifications</span>
-                </>
+                <BellOff className="w-4 h-4" />
               )}
+              <span className="md:hidden ml-2">
+                {notificationsEnabled ? "Notifications On" : "Enable Notifications"}
+              </span>
             </Button>
             
-            <Link to={createPageUrl("IntakeForm")} target="_blank">
-              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-4 md:px-6 shadow-lg">
-                <ExternalLink className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">View Public Form</span>
+            <a href="https://support.pilatesinpinkstudio.com" target="_blank" rel="noopener noreferrer">
+              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 shadow-lg px-4 md:px-3">
+                <ExternalLink className="w-4 h-4" />
+                <span className="md:hidden ml-2">View Public Form</span>
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
+
+        {/* Column Editor Dialog */}
+        {showColumnEditor && viewMode === "category" && (
+          <div className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl p-6 mb-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Visible Columns</h3>
+            <div className="space-y-2">
+              {allCategoryColumns.map(col => (
+                <label key={col} className="flex items-center gap-3 p-3 hover:bg-white/50 rounded-lg cursor-pointer transition-all">
+                  <input
+                    type="checkbox"
+                    checked={!hiddenColumns.includes(col)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setHiddenColumns(hiddenColumns.filter(c => c !== col));
+                      } else {
+                        setHiddenColumns([...hiddenColumns, col]);
+                      }
+                    }}
+                    className="w-5 h-5 rounded border-gray-300"
+                  />
+                  <span className="text-gray-900 font-medium">{col}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button
+                onClick={() => setShowColumnEditor(false)}
+                className="bg-[#b67651] hover:bg-[#a56541] text-white"
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Kanban Board or Archived List */}
         {showArchived ? (

@@ -79,7 +79,7 @@ export default function IntakeForm() {
       });
 
       // Build ticket URL
-      const ticketUrl = `${window.location.origin}/TicketBoard?ticket=${newTicket.id}`;
+      const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
 
       // Send formatted HTML email - with better error handling
       try {
@@ -209,7 +209,7 @@ export default function IntakeForm() {
       });
 
       // Build ticket URL
-      const ticketUrl = `${window.location.origin}/TicketBoard?ticket=${newTicket.id}`;
+      const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
 
       base44.integrations.Core.SendEmail({
         from_name: "Pilates in Pink Support",
