@@ -300,13 +300,13 @@ export default function TicketBoard() {
               </Button>
             )}
 
-            {/* Edit Columns Button (only in category view) */}
+            {/* Edit Columns Button (only in category view) - moved right after toggle */}
             {!showArchived && viewMode === "category" && (
               <Button
                 onClick={() => setShowColumnEditor(!showColumnEditor)}
                 className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg"
               >
-                ⚙️ Edit Columns
+                Edit Columns
               </Button>
             )}
 
