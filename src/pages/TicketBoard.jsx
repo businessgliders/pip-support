@@ -209,6 +209,18 @@ export default function TicketBoard() {
     );
   };
 
+  const formatDateEST = (date) => {
+    return new Date(date).toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   const activeTickets = tickets.filter(t => !t.archived);
   const archivedTickets = tickets.filter(t => t.archived);
 
@@ -319,7 +331,7 @@ export default function TicketBoard() {
                       </div>
                       <p className="text-white/80 text-sm">{ticket.client_email}</p>
                       <p className="text-white/60 text-xs mt-1">
-                        Archived from {ticket.status} • {new Date(ticket.updated_date).toLocaleDateString()}
+                        Archived from {ticket.status} • {formatDateEST(ticket.updated_date)} EST
                       </p>
                     </div>
                     <div className="flex gap-2">
