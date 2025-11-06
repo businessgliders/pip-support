@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge"; // Added Badge import
+import { Badge } from "@/components/ui/badge";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 
@@ -26,7 +26,8 @@ export default function TicketBoard() {
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [seenTicketIds, setSeenTicketIds] = useState(new Set());
-  const [showArchived, setShowArchived] = useState(false); // Added showArchived state
+  const [showArchived, setShowArchived] = useState(false);
+  const [viewMode, setViewMode] = useState("status"); // "status" or "category"
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -180,33 +181,68 @@ export default function TicketBoard() {
     if (!result.destination) return;
 
     const ticketId = result.draggableId;
-    const newStatus = result.destination.droppableId;
+    const newColumn = result.destination.droppableId;
     const ticket = tickets.find(t => t.id === ticketId);
 
-    if (!ticket || ticket.status === newStatus) return;
+    if (!ticket) return;
+
+    // Only allow drag-and-drop for status changes if in status view
+    if (viewMode === "status" && ticket.status === newColumn) return;
+    // Only allow drag-and-drop for category changes if in category view
+    if (viewMode === "category" && ticket.inquiry_type === newColumn) return;
+
+    // If changing category, we don't automatically change status
+    // If changing status, we need to know the new status
+    let newStatus = ticket.status;
+    let newInquiryType = ticket.inquiry_type;
+
+    if (viewMode === "status") {
+      newStatus = newColumn;
+    } else if (viewMode === "category") {
+      newInquiryType = newColumn;
+      // We don't want to show a note dialog for category changes only.
+      // If categories are changing, we only update the category and don't prompt for a note
+      // The prompt suggests a note for status change.
+      updateTicketMutation.mutate({
+        id: ticketId,
+        data: { inquiry_type: newInquiryType }
+      });
+      return; // Skip the dialog
+    }
 
     setDragNoteDialog({
       ticketId,
-      newStatus,
+      newStatus: newStatus, // Will be the same as old status if viewMode is "category"
       oldStatus: ticket.status,
-      ticketName: ticket.client_name
+      ticketName: ticket.client_name,
+      // Pass newColumn as the identifier for the dialog
+      newColumn: newColumn, 
+      oldColumn: viewMode === "status" ? ticket.status : ticket.inquiry_type,
+      viewMode: viewMode
     });
   };
 
   const handleConfirmStatusChange = (note) => {
     if (dragNoteDialog) {
-      handleStatusChange(dragNoteDialog.ticketId, dragNoteDialog.newStatus, note);
+      // If we are in status view, newColumn is newStatus
+      // If we are in category view, we wouldn't reach this dialog as per above logic in handleDragEnd
+      handleStatusChange(dragNoteDialog.ticketId, dragNoteDialog.newColumn, note);
       setDragNoteDialog(null);
     }
   };
 
-  const columns = ["New", "In Progress", "Resolved", "Closed"];
+  const columns = viewMode === "status" 
+    ? ["New", "In Progress", "Resolved", "Closed"]
+    : ["General Inquiry", "Membership Inquiry", "Private Events", "Cancellation", "Other"];
 
-  const getTicketsByStatus = (status) => {
-    return tickets.filter(ticket => 
-      ticket.status === status && 
-      (showArchived ? ticket.archived : !ticket.archived)
-    );
+  const getTicketsByColumn = (column) => {
+    // This function is only called when showArchived is false,
+    // as the archived view has its own rendering logic.
+    if (viewMode === "status") {
+      return tickets.filter(ticket => ticket.status === column && !ticket.archived);
+    } else { // viewMode === "category"
+      return tickets.filter(ticket => ticket.inquiry_type === column && !ticket.archived);
+    }
   };
 
   const formatDateEST = (date) => {
@@ -240,31 +276,39 @@ export default function TicketBoard() {
             <p className="text-white/90">
               {showArchived 
                 ? `${archivedTickets.length} archived tickets`
-                : `${activeTickets.length} active tickets • ${getTicketsByStatus("New").length} new`
+                : `${activeTickets.length} active tickets • ${getTicketsByColumn(columns[0]).length} in ${columns[0]}`
               }
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
+            {/* View Mode Toggle (only show when not in archive) */}
+            {!showArchived && (
+              <Button
+                onClick={() => setViewMode(viewMode === "status" ? "category" : "status")}
+                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-4 md:px-6 shadow-lg"
+              >
+                <span className="hidden md:inline">
+                  {viewMode === "status" ? "View by Category" : "View by Status"}
+                </span>
+                <span className="md:hidden">
+                  {viewMode === "status" ? "📂" : "📊"}
+                </span>
+              </Button>
+            )}
+
             {/* Archive Toggle Button */}
             <Button
               onClick={() => setShowArchived(!showArchived)}
-              className={`backdrop-blur-md border shadow-lg ${
+              className={`backdrop-blur-md border shadow-lg h-11 px-4 md:px-6 rounded-xl ${
                 showArchived
                   ? "bg-purple-500/30 border-purple-400/40 text-white hover:bg-purple-500/40"
                   : "bg-white/30 border-white/40 text-white hover:bg-white/40"
-              } rounded-xl h-11 px-6`}
+              }`}
             >
-              {showArchived ? (
-                <>
-                  <X className="w-4 h-4 mr-2" />
-                  Close Archive
-                </>
-              ) : (
-                <>
-                  <Archive className="w-4 h-4 mr-2" />
-                  View Archive ({archivedTickets.length})
-                </>
-              )}
+              <Archive className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">
+                {showArchived ? "Close Archive" : `View Archive (${archivedTickets.length})`}
+              </span>
             </Button>
 
             {/* Notification Toggle */}
@@ -276,29 +320,29 @@ export default function TicketBoard() {
                   requestNotificationPermission();
                 }
               }}
-              className={`backdrop-blur-md border shadow-lg ${
+              className={`backdrop-blur-md border shadow-lg h-11 px-4 md:px-6 rounded-xl ${
                 notificationsEnabled
                   ? "bg-green-500/30 border-green-400/40 text-white hover:bg-green-500/40"
                   : "bg-white/30 border-white/40 text-white hover:bg-white/40"
-              } rounded-xl h-11 px-6`}
+              }`}
             >
               {notificationsEnabled ? (
                 <>
-                  <Bell className="w-4 h-4 mr-2" />
-                  Notifications On
+                  <Bell className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Notifications On</span>
                 </>
               ) : (
                 <>
-                  <BellOff className="w-4 h-4 mr-2" />
-                  Enable Notifications
+                  <BellOff className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Enable Notifications</span>
                 </>
               )}
             </Button>
             
             <Link to={createPageUrl("IntakeForm")} target="_blank">
-              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                View Public Form
+              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-4 md:px-6 shadow-lg">
+                <ExternalLink className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">View Public Form</span>
               </Button>
             </Link>
           </div>
@@ -306,7 +350,7 @@ export default function TicketBoard() {
 
         {/* Kanban Board or Archived List */}
         {showArchived ? (
-          <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl p-6">
+          <div className="backdrop-blur-xl bg-purple-500/20 border border-purple-400/30 rounded-2xl p-6">
             {archivedTickets.length === 0 ? (
               <div className="text-center py-12">
                 <Archive className="w-16 h-16 text-white/40 mx-auto mb-4" />
@@ -317,15 +361,15 @@ export default function TicketBoard() {
                 {archivedTickets.map(ticket => (
                   <div
                     key={ticket.id}
-                    className="backdrop-blur-md bg-white/40 border border-white/50 rounded-xl p-4 flex items-center justify-between hover:bg-white/50 transition-all"
+                    className="backdrop-blur-md bg-purple-500/30 border border-purple-400/50 rounded-xl p-4 flex items-center justify-between hover:bg-purple-500/40 transition-all"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
                         <h4 className="text-white font-semibold">{ticket.client_name}</h4>
-                        <Badge className="bg-white/30 text-white border-white/40">
+                        <Badge className="bg-purple-400/30 text-white border-purple-300/40">
                           {ticket.inquiry_type}
                         </Badge>
-                        <Badge className="bg-gray-500/30 text-white border-gray-400/40">
+                        <Badge className="bg-purple-600/30 text-white border-purple-500/40">
                           {ticket.status}
                         </Badge>
                       </div>
@@ -339,7 +383,7 @@ export default function TicketBoard() {
                         onClick={() => setSelectedTicket(ticket)}
                         variant="outline"
                         size="sm"
-                        className="backdrop-blur-md bg-white/30 border-white/50 text-white hover:bg-white/40"
+                        className="backdrop-blur-md bg-purple-400/30 border-purple-300/50 text-white hover:bg-purple-400/40"
                       >
                         View
                       </Button>
@@ -359,8 +403,8 @@ export default function TicketBoard() {
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {columns.map((status) => (
-                <Droppable key={status} droppableId={status}>
+              {columns.map((column) => (
+                <Droppable key={column} droppableId={column}>
                   {(provided, snapshot) => (
                     <div 
                       ref={provided.innerRef} 
@@ -370,13 +414,14 @@ export default function TicketBoard() {
                       }`}
                     >
                       <KanbanColumn
-                        status={status}
-                        tickets={getTicketsByStatus(status)}
+                        status={column}
+                        tickets={getTicketsByColumn(column)}
                         onStatusChange={handleStatusChange}
                         onTicketClick={setSelectedTicket}
                         isLoading={isLoading}
                         highlightedTicketId={highlightedTicketId}
-                        onArchiveAll={status === "Closed" ? handleArchiveAll : undefined}
+                        onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
+                        viewMode={viewMode}
                       />
                       {provided.placeholder}
                     </div>
@@ -422,8 +467,8 @@ function StatusChangeDialog({ data, onConfirm, onCancel }) {
         <div className="space-y-4">
           <p className="text-gray-700">
             Moving <strong>{data.ticketName}</strong> from{" "}
-            <span className="text-blue-600 font-medium">{data.oldStatus}</span> to{" "}
-            <span className="text-green-600 font-medium">{data.newStatus}</span>
+            <span className="text-blue-600 font-medium">{data.oldColumn}</span> to{" "}
+            <span className="text-green-600 font-medium">{data.newColumn}</span>
           </p>
           <div className="space-y-2">
             <Label htmlFor="status-note">Add a note (optional)</Label>

@@ -285,7 +285,8 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               ) : (
                 <>
                   <Heart className="w-5 h-5 mr-2" />
-                  Keep My Membership & Activate Discount
+                  <span className="hidden sm:inline">Keep My Membership & Activate Discount</span>
+                  <span className="sm:hidden">Accept Discount</span>
                 </>
               )}
             </Button>

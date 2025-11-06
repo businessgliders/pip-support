@@ -12,6 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Added Select imports
 
 const priorityColors = {
   "Low": "bg-green-500/20 text-green-700 border-green-400/40",
@@ -313,10 +320,12 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
           <Separator />
 
-          {/* Pipeline Status View */}
+          {/* Update Status - Dropdown on Mobile, Pipeline on Desktop */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Update Status</h3>
-            <div className="flex items-center gap-2">
+            
+            {/* Desktop View - Pipeline */}
+            <div className="hidden md:flex items-center gap-2">
               {["New", "In Progress", "Resolved", "Closed"].map((status, index) => (
                 <React.Fragment key={status}>
                   <button
@@ -344,6 +353,30 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   )}
                 </React.Fragment>
               ))}
+            </div>
+
+            {/* Mobile View - Dropdown */}
+            <div className="md:hidden">
+              <Select
+                value={ticket.status}
+                onValueChange={(newStatus) => {
+                  if (ticket.status !== newStatus) {
+                    const note = prompt(`Add a note for moving to ${newStatus} (optional):`);
+                    onStatusChange(ticket.id, newStatus, note || "");
+                    onClose();
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="New">New</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Resolved">Resolved</SelectItem>
+                  <SelectItem value="Closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
