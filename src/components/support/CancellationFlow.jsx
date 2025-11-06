@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { AlertCircle, Gift, Loader2, Sparkles, AlertTriangle } from "lucide-react"; // Added AlertTriangle
+import { AlertCircle, Gift, Loader2, Sparkles, AlertTriangle, Heart, X } from "lucide-react";
 
 export default function CancellationFlow({ onSubmit, isSubmitting, missingContactInfo }) {
   const [step, setStep] = useState(1);
@@ -13,13 +12,12 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
     cancellation_reason: "",
     cancellation_satisfaction: "",
     cancellation_feedback: "",
-    discount_offered: ""
+    discount_offered: "",
+    discount_accepted: false
   });
 
   const calculateDiscount = (reason, satisfaction) => {
-    // Strategic discount calculation - not directly predictable
     const riskScore = {
-      // Reason scoring (out of 10)
       "Too expensive / pricing concerns": 8,
       "Not seeing results": 7,
       "Moving away / relocating": 3,
@@ -29,7 +27,6 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
       "Other": 5
     };
 
-    // Satisfaction impact
     const satisfactionMultiplier = {
       "Very Dissatisfied": 1.2,
       "Somewhat Dissatisfied": 1.1,
@@ -39,11 +36,8 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
     };
 
     let score = (riskScore[reason] || 5) * (satisfactionMultiplier[satisfaction] || 1.0);
-    
-    // Add slight randomization to prevent gaming (-0.5 to +0.5)
     score += (Math.random() - 0.5);
 
-    // Map to discount tiers
     if (score >= 8) return "20%";
     if (score >= 6.5) return "15%";
     if (score >= 5) return "10%";
@@ -51,27 +45,33 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
   };
 
   const handleNext = () => {
-    if (step === 3) {
-      // Calculate discount and move to step 4 to show it
+    if (step === 2) {
       const discount = calculateDiscount(
         cancellationData.cancellation_reason,
         cancellationData.cancellation_satisfaction
       );
       setCancellationData({ ...cancellationData, discount_offered: discount });
+      setStep(3);
+    } else if (step === 3) {
       setStep(4);
-    } else if (step === 4) {
-      // Final submission
-      onSubmit(cancellationData);
     } else {
       setStep(step + 1);
     }
   };
 
+  const handleAcceptDiscount = () => {
+    onSubmit({ ...cancellationData, discount_accepted: true });
+  };
+
+  const handleRejectDiscount = () => {
+    onSubmit({ ...cancellationData, discount_accepted: false });
+  };
+
   const isStepComplete = () => {
     if (step === 1) return cancellationData.cancellation_reason !== "" && !missingContactInfo;
     if (step === 2) return cancellationData.cancellation_satisfaction !== "";
-    if (step === 3) return true; // Feedback is optional
-    if (step === 4) return true; // Always allow submission on step 4
+    if (step === 3) return cancellationData.cancellation_feedback.trim() !== "";
+    if (step === 4) return true;
     return false;
   };
 
@@ -126,15 +126,16 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               "Found another studio",
               "Other"
             ].map((reason) => (
-              <div
+              <label
                 key={reason}
+                htmlFor={reason}
                 className="flex items-center space-x-3 backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 hover:bg-[#8b5a3c]/50 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={reason} id={reason} className="border-white text-[#b67651]" />
-                <Label htmlFor={reason} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
+                <span className="text-white flex-1 font-medium drop-shadow-sm">
                   {reason}
-                </Label>
-              </div>
+                </span>
+              </label>
             ))}
           </RadioGroup>
         </motion.div>
@@ -165,21 +166,22 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               "Somewhat Dissatisfied",
               "Very Dissatisfied"
             ].map((level) => (
-              <div
+              <label
                 key={level}
+                htmlFor={level}
                 className="flex items-center space-x-3 backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 hover:bg-[#8b5a3c]/50 transition-all cursor-pointer"
               >
                 <RadioGroupItem value={level} id={level} className="border-white text-[#b67651]" />
-                <Label htmlFor={level} className="text-white cursor-pointer flex-1 font-medium drop-shadow-sm">
+                <span className="text-white flex-1 font-medium drop-shadow-sm">
                   {level}
-                </Label>
-              </div>
+                </span>
+              </label>
             ))}
           </RadioGroup>
         </motion.div>
       )}
 
-      {/* Step 3: Feedback */}
+      {/* Step 3: Feedback - with message first */}
       {step === 3 && (
         <motion.div
           initial={{ x: 20, opacity: 0 }}
@@ -187,19 +189,7 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
           exit={{ x: -20, opacity: 0 }}
           className="space-y-4"
         >
-          <Label className="text-white font-medium text-lg drop-shadow-md">
-            Is there anything we could do to keep you as a member?
-          </Label>
-          <Textarea
-            value={cancellationData.cancellation_feedback}
-            onChange={(e) =>
-              setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
-            }
-            className="backdrop-blur-md bg-[#8b5a3c]/40 border-white/60 text-white placeholder:text-white/70 rounded-xl min-h-32 focus:bg-[#8b5a3c]/50 transition-all resize-none"
-            placeholder="We value your feedback and would love to hear your thoughts..."
-          />
-          
-          <div className="backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4 mt-4">
+          <div className="backdrop-blur-sm bg-[#8b5a3c]/40 border border-white/50 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <Gift className="w-6 h-6 text-white flex-shrink-0 mt-0.5 drop-shadow-md" />
               <div>
@@ -210,10 +200,23 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
               </div>
             </div>
           </div>
+
+          <Label className="text-white font-medium text-lg drop-shadow-md">
+            Is there anything we could do to keep you as a member? *
+          </Label>
+          <Textarea
+            required
+            value={cancellationData.cancellation_feedback}
+            onChange={(e) =>
+              setCancellationData({ ...cancellationData, cancellation_feedback: e.target.value })
+            }
+            className="backdrop-blur-md bg-[#8b5a3c]/40 border-white/60 text-white placeholder:text-white/70 rounded-xl min-h-32 focus:bg-[#8b5a3c]/50 transition-all resize-none"
+            placeholder="We value your feedback and would love to hear your thoughts..."
+          />
         </motion.div>
       )}
 
-      {/* Step 4: Discount Offer */}
+      {/* Step 4: Discount Offer with Accept/Reject */}
       {step === 4 && (
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -261,52 +264,68 @@ export default function CancellationFlow({ onSubmit, isSubmitting, missingContac
             </ul>
           </div>
 
-          {/* Call to Action */}
-          <div className="backdrop-blur-sm bg-white/20 border border-white/40 rounded-xl p-4">
-            <p className="text-white text-center font-medium drop-shadow-md">
-              Submit your request and we'll reach out to discuss how we can support you! 💙
-            </p>
+          {/* Accept/Reject Buttons */}
+          <div className="space-y-3">
+            <Button
+              type="button"
+              onClick={handleAcceptDiscount}
+              disabled={isSubmitting}
+              className="w-full h-14 bg-green-600 hover:bg-green-700 text-white rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Heart className="w-5 h-5 mr-2" />
+                  Keep My Membership & Activate Discount
+                </>
+              )}
+            </Button>
+            
+            <Button
+              type="button"
+              onClick={handleRejectDiscount}
+              disabled={isSubmitting}
+              variant="outline"
+              className="w-full h-12 backdrop-blur-md bg-white/20 border-white/50 text-white hover:bg-white/30 rounded-xl font-medium"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Continue with Cancellation
+            </Button>
           </div>
         </motion.div>
       )}
 
-      {/* Navigation */}
-      <div className="flex gap-3 mt-6">
-        {step > 1 && (
+      {/* Navigation - only show on steps 1-3 */}
+      {step < 4 && (
+        <div className="flex gap-3 mt-6">
+          {step > 1 && (
+            <Button
+              type="button"
+              onClick={() => setStep(step - 1)}
+              variant="outline"
+              className="flex-1 h-12 backdrop-blur-md bg-white/30 border-white/50 text-white hover:bg-white/40 rounded-xl font-medium"
+              disabled={isSubmitting}
+            >
+              Back
+            </Button>
+          )}
           <Button
             type="button"
-            onClick={() => setStep(step - 1)}
-            variant="outline"
-            className="flex-1 h-12 backdrop-blur-md bg-white/30 border-white/50 text-white hover:bg-white/40 rounded-xl font-medium"
-            disabled={isSubmitting}
+            onClick={handleNext}
+            disabled={!isStepComplete() || isSubmitting}
+            className="flex-1 h-12 bg-white/90 hover:bg-white text-[#b67651] rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
           >
-            Back
+            Continue
           </Button>
-        )}
-        <Button
-          type="button"
-          onClick={handleNext}
-          disabled={!isStepComplete() || isSubmitting}
-          className="flex-1 h-12 bg-white/90 hover:bg-white text-[#b67651] rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Submitting...
-            </>
-          ) : step === 4 ? (
-            <>
-              <Gift className="w-5 h-5 mr-2" />
-              Submit Request
-            </>
-          ) : (
-            "Continue"
-          )}
-        </Button>
-      </div>
+        </div>
+      )}
 
       {/* Missing Contact Info Warning - Below button */}
-      {missingContactInfo && (
+      {missingContactInfo && step === 1 && (
         <motion.div
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
