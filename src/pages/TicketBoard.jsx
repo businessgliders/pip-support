@@ -285,6 +285,16 @@ export default function TicketBoard() {
             </p>
           </div>
           <div className="flex gap-3 flex-wrap">
+            {/* Edit Columns Button (only in category view) - moved before toggle */}
+            {!showArchived && viewMode === "category" && (
+              <Button
+                onClick={() => setShowColumnEditor(!showColumnEditor)}
+                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg"
+              >
+                Edit Columns
+              </Button>
+            )}
+
             {/* View Mode Toggle (only show when not in archive) */}
             {!showArchived && (
               <Button
@@ -297,16 +307,6 @@ export default function TicketBoard() {
                 <span className="md:hidden">
                   {viewMode === "status" ? "📂" : "📊"}
                 </span>
-              </Button>
-            )}
-
-            {/* Edit Columns Button (only in category view) - moved right after toggle */}
-            {!showArchived && viewMode === "category" && (
-              <Button
-                onClick={() => setShowColumnEditor(!showColumnEditor)}
-                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg"
-              >
-                Edit Columns
               </Button>
             )}
 
