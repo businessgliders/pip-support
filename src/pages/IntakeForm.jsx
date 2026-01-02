@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -35,8 +34,14 @@ export default function IntakeForm() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState(""); // Initialize with an empty string
+  const [isEmbedded, setIsEmbedded] = useState(false);
 
   const navigate = useNavigate();
+
+  // Detect if page is embedded in iframe
+  React.useEffect(() => {
+    setIsEmbedded(window.self !== window.top);
+  }, []);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -341,7 +346,7 @@ export default function IntakeForm() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2]">
+      <div className={`flex items-center justify-center p-4 ${isEmbedded ? 'min-h-[600px]' : 'min-h-screen'} bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2]`}>
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -367,46 +372,54 @@ export default function IntakeForm() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b67651]/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+    <div className={`p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden ${isEmbedded ? 'min-h-[800px]' : 'min-h-screen'}`}>
+      {/* Decorative background elements - hide in embed */}
+      {!isEmbedded && (
+        <>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b67651]/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+        </>
+      )}
 
-      {/* Admin Access Button */}
-      <div className="absolute top-4 right-4 z-10">
-        <Button
-          onClick={() => setShowAdminLogin(true)}
-          variant="ghost"
-          size="icon"
-          className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
-        >
-          <Lock className="w-4 h-4" />
-        </Button>
-      </div>
+      {/* Admin Access Button - hide in embed */}
+      {!isEmbedded && (
+        <div className="absolute top-4 right-4 z-10">
+          <Button
+            onClick={() => setShowAdminLogin(true)}
+            variant="ghost"
+            size="icon"
+            className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
+          >
+            <Lock className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
 
       <div className="max-w-2xl mx-auto relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-8"
-        >
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
-            alt="Pilates in Pink"
-            className="w-24 h-24 mx-auto mb-4 drop-shadow-2xl"
-          />
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            We're Here to Help
-          </h1>
-          <p className="text-white/90 text-lg">Tell us how we can support you today</p>
-        </motion.div>
+        {/* Header - hide in embed */}
+        {!isEmbedded && (
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="text-center mb-8"
+          >
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
+              alt="Pilates in Pink"
+              className="w-24 h-24 mx-auto mb-4 drop-shadow-2xl"
+            />
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
+              We're Here to Help
+            </h1>
+            <p className="text-white/90 text-lg">Tell us how we can support you today</p>
+          </motion.div>
+        )}
 
         {/* Main Form Card */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: isEmbedded ? 0 : 0.1 }}
         >
           <Card className="backdrop-blur-xl bg-white/20 border border-white/30 shadow-2xl rounded-3xl overflow-hidden">
             <CardHeader className="border-b border-white/20 bg-white/10">
@@ -544,15 +557,17 @@ export default function IntakeForm() {
           </Card>
         </motion.div>
 
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-center text-white/80 mt-6 text-sm"
-        >
-          We typically respond within 24 hours
-        </motion.p>
+        {/* Footer - hide in embed */}
+        {!isEmbedded && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-center text-white/80 mt-6 text-sm"
+          >
+            We typically respond within 24 hours
+          </motion.p>
+        )}
       </div>
 
       {/* Admin Login Dialog */}
