@@ -63,8 +63,8 @@ export default function IntakeForm() {
   };
 
   const handleAdminAccess = () => {
-    // Simple password check - you can change "admin123" to your preferred password
-    if (adminPassword === "admin123") {
+    // Simple password check - you can change "pip6161" to your preferred password
+    if (adminPassword === "pip6161") {
       navigate(createPageUrl("TicketBoard"));
     } else {
       setAdminError("Incorrect password");
