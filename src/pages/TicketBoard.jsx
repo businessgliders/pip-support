@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Bell, BellOff, Archive, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ExternalLink, Bell, BellOff, Archive, X, Search, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -30,6 +30,7 @@ export default function TicketBoard() {
   const [viewMode, setViewMode] = useState("status"); // "status" or "category"
   const [hiddenColumns, setHiddenColumns] = useState(["Private Events"]); // Hidden columns in category view
   const [showColumnEditor, setShowColumnEditor] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const queryClient = useQueryClient();
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -242,11 +243,26 @@ export default function TicketBoard() {
   const getTicketsByColumn = (column) => {
     // This function is only called when showArchived is false,
     // as the archived view has its own rendering logic.
+    let filtered = [];
     if (viewMode === "status") {
-      return tickets.filter(ticket => ticket.status === column && !ticket.archived);
+      filtered = tickets.filter(ticket => ticket.status === column && !ticket.archived);
     } else { // viewMode === "category"
-      return tickets.filter(ticket => ticket.inquiry_type === column && !ticket.archived);
+      filtered = tickets.filter(ticket => ticket.inquiry_type === column && !ticket.archived);
     }
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(ticket =>
+        ticket.client_name?.toLowerCase().includes(query) ||
+        ticket.client_email?.toLowerCase().includes(query) ||
+        ticket.client_phone?.toLowerCase().includes(query) ||
+        ticket.inquiry_type?.toLowerCase().includes(query) ||
+        ticket.notes?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
   };
 
   const formatDateEST = (date) => {
@@ -262,10 +278,22 @@ export default function TicketBoard() {
   };
 
   const activeTickets = tickets.filter(t => !t.archived);
-  const archivedTickets = tickets.filter(t => t.archived);
+  let archivedTickets = tickets.filter(t => t.archived);
+  
+  // Apply search filter to archived tickets
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    archivedTickets = archivedTickets.filter(ticket =>
+      ticket.client_name?.toLowerCase().includes(query) ||
+      ticket.client_email?.toLowerCase().includes(query) ||
+      ticket.client_phone?.toLowerCase().includes(query) ||
+      ticket.inquiry_type?.toLowerCase().includes(query) ||
+      ticket.notes?.toLowerCase().includes(query)
+    );
+  }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-[#fbb8c5] via-[#fdd4dc] to-[#fef0f2] relative overflow-hidden">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b67651]/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
@@ -284,22 +312,42 @@ export default function TicketBoard() {
               }
             </p>
           </div>
-          <div className="flex gap-3 flex-wrap">
-            {/* Edit Columns Button (only in category view) - moved before toggle */}
-            {!showArchived && viewMode === "category" && (
+          <div className="flex gap-3 flex-wrap items-center">
+            {/* Search Bar (Desktop) / Button (Mobile) */}
+            <div className="hidden md:block">
+              <Input
+                placeholder="Search tickets..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="backdrop-blur-md bg-white/30 border-white/40 text-white placeholder:text-white/60 rounded-xl h-11 w-64"
+              />
+            </div>
+            <Button
+              onClick={() => {
+                const query = prompt("Search tickets:", searchQuery);
+                if (query !== null) setSearchQuery(query);
+              }}
+              className="md:hidden backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-3 shadow-lg"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+
+            {/* Edit Columns Button */}
+            {!showArchived && (
               <Button
                 onClick={() => setShowColumnEditor(!showColumnEditor)}
-                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-6 shadow-lg"
+                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 shadow-lg px-3 md:px-6"
               >
-                Edit Columns
+                <Edit className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">Edit Columns</span>
               </Button>
             )}
 
-            {/* View Mode Toggle (only show when not in archive) */}
+            {/* View Mode Toggle */}
             {!showArchived && (
               <Button
                 onClick={() => setViewMode(viewMode === "status" ? "category" : "status")}
-                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-4 md:px-6 shadow-lg"
+                className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 px-3 md:px-6 shadow-lg"
               >
                 <span className="hidden md:inline">
                   {viewMode === "status" ? "View by Category" : "View by Status"}
@@ -313,14 +361,14 @@ export default function TicketBoard() {
             {/* Archive Toggle Button */}
             <Button
               onClick={() => setShowArchived(!showArchived)}
-              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl ${
+              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
                 showArchived
                   ? "bg-purple-500/30 border-purple-400/40 text-white hover:bg-purple-500/40"
                   : "bg-white/30 border-white/40 text-white hover:bg-white/40"
-              } px-4 md:px-3`}
+              }`}
             >
-              <Archive className="w-4 h-4" />
-              <span className="hidden md:hidden ml-2">
+              <Archive className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">
                 {showArchived ? "Close Archive" : `Archive (${archivedTickets.length})`}
               </span>
             </Button>
@@ -334,26 +382,22 @@ export default function TicketBoard() {
                   requestNotificationPermission();
                 }
               }}
-              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl ${
+              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
                 notificationsEnabled
                   ? "bg-green-500/30 border-green-400/40 text-white hover:bg-green-500/40"
                   : "bg-white/30 border-white/40 text-white hover:bg-white/40"
-              } px-4 md:px-3`}
+              }`}
             >
               {notificationsEnabled ? (
                 <Bell className="w-4 h-4" />
               ) : (
                 <BellOff className="w-4 h-4" />
               )}
-              <span className="md:hidden ml-2">
-                {notificationsEnabled ? "Notifications On" : "Enable Notifications"}
-              </span>
             </Button>
             
             <a href="https://support.pilatesinpinkstudio.com" target="_blank" rel="noopener noreferrer">
-              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 shadow-lg px-4 md:px-3">
+              <Button className="backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40 rounded-xl h-11 shadow-lg px-3">
                 <ExternalLink className="w-4 h-4" />
-                <span className="md:hidden ml-2">View Public Form</span>
               </Button>
             </a>
           </div>
