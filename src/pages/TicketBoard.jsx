@@ -328,7 +328,7 @@ export default function TicketBoard() {
                 placeholder="Search tickets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="backdrop-blur-md bg-white/90 border-white text-gray-900 placeholder:text-gray-500 rounded-xl h-11 w-64"
+                className="backdrop-blur-md bg-white/70 border-white/80 text-gray-900 placeholder:text-gray-600 rounded-xl h-11 w-64"
               />
             </div>
             <Button
@@ -336,7 +336,7 @@ export default function TicketBoard() {
                 const query = prompt("Search tickets:", searchQuery);
                 if (query !== null) setSearchQuery(query);
               }}
-              className="md:hidden backdrop-blur-md bg-white/90 border border-white text-gray-900 hover:bg-white rounded-xl h-11 px-3 shadow-lg"
+              className="md:hidden backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
             >
               <Search className="w-4 h-4" />
             </Button>
@@ -345,7 +345,7 @@ export default function TicketBoard() {
             {!showArchived && (
               <Button
                 onClick={() => setShowColumnEditor(!showColumnEditor)}
-                className="backdrop-blur-md bg-white/90 border border-white text-gray-900 hover:bg-white rounded-xl h-11 shadow-lg px-3 md:px-6"
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3 md:px-6"
               >
                 <Edit className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Edit Columns</span>
@@ -356,7 +356,7 @@ export default function TicketBoard() {
             {!showArchived && (
               <Button
                 onClick={() => setViewMode(viewMode === "status" ? "category" : "status")}
-                className="backdrop-blur-md bg-white/90 border border-white text-gray-900 hover:bg-white rounded-xl h-11 px-3 md:px-6 shadow-lg"
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 md:px-6 shadow-lg"
               >
                 <span className="hidden md:inline">
                   {viewMode === "status" ? "View by Category" : "View by Status"}
@@ -372,8 +372,8 @@ export default function TicketBoard() {
               onClick={() => setShowArchived(!showArchived)}
               className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
                 showArchived
-                  ? "bg-purple-500/90 border-purple-500 text-white hover:bg-purple-600"
-                  : "bg-white/90 border-white text-gray-900 hover:bg-white"
+                  ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
+                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
               }`}
             >
               <Archive className="w-4 h-4 md:mr-2" />
@@ -393,8 +393,8 @@ export default function TicketBoard() {
               }}
               className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
                 notificationsEnabled
-                  ? "bg-green-500/90 border-green-500 text-white hover:bg-green-600"
-                  : "bg-white/90 border-white text-gray-900 hover:bg-white"
+                  ? "bg-green-500/80 border-green-400/80 text-white hover:bg-green-500/90"
+                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
               }`}
             >
               {notificationsEnabled ? (
@@ -405,7 +405,7 @@ export default function TicketBoard() {
             </Button>
             
             <a href="https://support.pilatesinpinkstudio.com" target="_blank" rel="noopener noreferrer">
-              <Button className="backdrop-blur-md bg-white/90 border border-white text-gray-900 hover:bg-white rounded-xl h-11 shadow-lg px-3">
+              <Button className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3">
                 <ExternalLink className="w-4 h-4" />
               </Button>
             </a>
