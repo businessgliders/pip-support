@@ -236,8 +236,10 @@ export default function TicketBoard() {
 
   const allCategoryColumns = ["General Inquiry", "Membership Inquiry", "Private Events", "Cancellation", "Other"];
   
+  const allStatusColumns = ["New", "In Progress", "Resolved", "Closed"];
+  
   const columns = viewMode === "status" 
-    ? ["New", "In Progress", "Resolved", "Closed"]
+    ? allStatusColumns.filter(col => !hiddenColumns.includes(col))
     : allCategoryColumns.filter(col => !hiddenColumns.includes(col));
 
   const getTicketsByColumn = (column) => {
@@ -301,16 +303,23 @@ export default function TicketBoard() {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
-              {showArchived ? "Archived Tickets" : "Support Tickets"}
-            </h1>
-            <p className="text-white/90">
-              {showArchived 
-                ? `${archivedTickets.length} archived tickets`
-                : `${activeTickets.length} active tickets • ${getTicketsByColumn(columns[0]).length} in ${columns[0]}`
-              }
-            </p>
+          <div className="flex items-center gap-4">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
+              alt="Pilates in Pink"
+              className="w-16 h-16 drop-shadow-xl"
+            />
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                {showArchived ? "Archived Tickets" : "Support Tickets"}
+              </h1>
+              <p className="text-white/90">
+                {showArchived 
+                  ? `${archivedTickets.length} archived tickets`
+                  : `${activeTickets.length} active tickets • ${getTicketsByColumn(columns[0]).length} in ${columns[0]}`
+                }
+              </p>
+            </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center">
             {/* Search Bar (Desktop) / Button (Mobile) */}
@@ -404,11 +413,16 @@ export default function TicketBoard() {
         </div>
 
         {/* Column Editor Dialog */}
-        {showColumnEditor && viewMode === "category" && (
+        {showColumnEditor && (
           <div className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl p-6 mb-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Visible Columns</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {viewMode === "status" ? "Edit Status Columns" : "Edit Category Columns"}
+            </h3>
             <div className="space-y-2">
-              {allCategoryColumns.map(col => (
+              {(viewMode === "status" 
+                ? ["New", "In Progress", "Resolved", "Closed"]
+                : allCategoryColumns
+              ).map(col => (
                 <label key={col} className="flex items-center gap-3 p-3 hover:bg-white/50 rounded-lg cursor-pointer transition-all">
                   <input
                     type="checkbox"
