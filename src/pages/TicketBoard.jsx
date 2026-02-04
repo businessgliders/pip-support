@@ -295,7 +295,7 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-[#fbb8c5] via-[#fdd4dc] to-[#fef0f2] relative overflow-hidden">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-[#ff899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b67651]/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
