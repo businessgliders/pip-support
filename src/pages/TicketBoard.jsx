@@ -453,7 +453,7 @@ export default function TicketBoard() {
 
         {/* Kanban Board or Archived List */}
         {showArchived ? (
-          <div className="backdrop-blur-xl bg-purple-500/30 border border-purple-400/50 rounded-2xl p-6">
+          <div className="backdrop-blur-xl bg-purple-500/20 border border-purple-400/30 rounded-2xl p-6">
             {archivedTickets.length === 0 ? (
               <div className="text-center py-12">
                 <Archive className="w-16 h-16 text-white/40 mx-auto mb-4" />
@@ -464,7 +464,7 @@ export default function TicketBoard() {
                 {archivedTickets.map(ticket => (
                   <div
                     key={ticket.id}
-                    className="backdrop-blur-md bg-purple-500/70 border border-purple-400/80 rounded-xl p-4 flex items-center justify-between hover:bg-purple-500/80 transition-all"
+                    className="backdrop-blur-md bg-purple-500/30 border border-purple-400/50 rounded-xl p-4 flex items-center justify-between hover:bg-purple-500/40 transition-all"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">

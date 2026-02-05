@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -6,15 +7,15 @@ import { Archive } from "lucide-react";
 import TicketCard from "./TicketCard";
 
 const columnColors = {
-  "New": "from-pink-400/30 to-pink-300/30 border-pink-300/50",
-  "In Progress": "from-blue-400/30 to-blue-300/30 border-blue-300/50",
-  "Resolved": "from-green-400/30 to-green-300/30 border-green-300/50",
-  "Closed": "from-gray-400/30 to-gray-300/30 border-gray-300/50",
-  "General Inquiry": "from-blue-400/30 to-blue-300/30 border-blue-300/50",
-  "Membership Inquiry": "from-purple-400/30 to-purple-300/30 border-purple-300/50",
-  "Private Events": "from-pink-400/30 to-pink-300/30 border-pink-300/50",
-  "Cancellation": "from-red-400/30 to-red-300/30 border-red-300/50",
-  "Other": "from-gray-400/30 to-gray-300/30 border-gray-300/50"
+  "New": "from-pink-400/20 to-pink-300/20 border-pink-300/40",
+  "In Progress": "from-blue-400/20 to-blue-300/20 border-blue-300/40",
+  "Resolved": "from-green-400/20 to-green-300/20 border-green-300/40",
+  "Closed": "from-gray-400/20 to-gray-300/20 border-gray-300/40",
+  "General Inquiry": "from-blue-400/20 to-blue-300/20 border-blue-300/40",
+  "Membership Inquiry": "from-purple-400/20 to-purple-300/20 border-purple-300/40",
+  "Private Events": "from-pink-400/20 to-pink-300/20 border-pink-300/40",
+  "Cancellation": "from-red-400/20 to-red-300/20 border-red-300/40",
+  "Other": "from-gray-400/20 to-gray-300/20 border-gray-300/40"
 };
 
 const headerColors = {
