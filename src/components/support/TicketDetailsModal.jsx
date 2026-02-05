@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import {
@@ -85,11 +84,11 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
         <DialogHeader>
           <div className="flex items-start justify-between">
-            <div>
-              <DialogTitle className="text-2xl mb-2">{ticket.client_name}</DialogTitle>
+            <div className="text-left">
+              <DialogTitle className="text-lg md:text-2xl mb-2">{ticket.client_name}</DialogTitle>
               <div className="flex gap-2">
                 <Badge className={`${statusColors[ticket.status]} border`}>
                   {ticket.status}
