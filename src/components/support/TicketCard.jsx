@@ -88,7 +88,11 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
             {ticket.inquiry_type}
           </Badge>
           <span className="text-gray-700 text-[10px]">
-            {new Date(ticket.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            {new Date(ticket.created_date).toLocaleDateString('en-US', { 
+              timeZone: 'America/New_York',
+              month: 'short', 
+              day: 'numeric' 
+            })}
           </span>
         </div>
       </div>
