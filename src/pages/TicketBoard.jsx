@@ -302,16 +302,16 @@ export default function TicketBoard() {
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-8">
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
               alt="Pilates in Pink"
               className="w-16 h-16 drop-shadow-xl"
             />
-            <div>
+            <div className="text-center md:text-left">
               <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
-                {showArchived ? "Archived Tickets" : "Support Tickets"}
+                {showArchived ? "Archived Tickets" : "PiP Support"}
               </h1>
               <p className="text-white/90">
                 {showArchived 
@@ -321,7 +321,7 @@ export default function TicketBoard() {
               </p>
             </div>
           </div>
-          <div className="flex gap-3 flex-wrap items-center">
+          <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
             {/* Search Bar (Desktop) / Button (Mobile) */}
             <div className="hidden md:block">
               <Input
