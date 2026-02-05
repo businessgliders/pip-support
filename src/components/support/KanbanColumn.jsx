@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ const headerColors = {
 
 export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveAll, viewMode }) {
   return (
-    <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col h-[calc(100vh-250px)] md:h-[calc(100vh-250px)] min-h-[500px] md:min-h-[600px]`}>
+    <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col md:h-[calc(100vh-250px)] md:min-h-[600px]`}>
       {/* Column Header */}
       <div className={`backdrop-blur-md ${headerColors[status]} border-b px-3 md:px-4 py-3 md:py-4 flex-shrink-0`}>
         <div className="flex items-center justify-between mb-2">
