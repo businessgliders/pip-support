@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Bell, BellOff, Archive, X, Search, Edit } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -24,8 +24,6 @@ export default function TicketBoard() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [seenTicketIds, setSeenTicketIds] = useState(new Set());
   const [showArchived, setShowArchived] = useState(false);
   const [viewMode, setViewMode] = useState("status"); // "status" or "category"
   const [hiddenColumns, setHiddenColumns] = useState(["Private Events"]); // Hidden columns in category view
@@ -39,75 +37,7 @@ export default function TicketBoard() {
     refetchInterval: 5000
   });
 
-  // Request notification permission
-  const requestNotificationPermission = async () => {
-    if (!("Notification" in window)) {
-      alert("This browser does not support desktop notifications");
-      return;
-    }
 
-    if (Notification.permission === "granted") {
-      setNotificationsEnabled(true);
-      return;
-    }
-
-    if (Notification.permission !== "denied") {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        setNotificationsEnabled(true);
-        new Notification("Notifications Enabled! 🔔", {
-          body: "You'll now receive alerts for new support tickets",
-          icon: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
-        });
-      }
-    }
-  };
-
-  // Check for new tickets and show notifications
-  useEffect(() => {
-    if (!notificationsEnabled || tickets.length === 0) return;
-
-    // Initialize seen tickets on first load
-    if (seenTicketIds.size === 0) {
-      setSeenTicketIds(new Set(tickets.map(t => t.id)));
-      return;
-    }
-
-    // Check for new tickets
-    tickets.forEach(ticket => {
-      if (!seenTicketIds.has(ticket.id) && ticket.status === "New") {
-        // Show notification
-        const notification = new Notification(`🎫 New ${ticket.inquiry_type}`, {
-          body: `From: ${ticket.client_name}\n${ticket.client_email}`,
-          icon: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png",
-          badge: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png",
-          tag: ticket.id,
-          requireInteraction: ticket.inquiry_type === "Cancellation"
-        });
-
-        // Click to open ticket
-        notification.onclick = () => {
-          window.focus();
-          setHighlightedTicketId(ticket.id);
-          setTimeout(() => setSelectedTicket(ticket), 500);
-          setTimeout(() => setHighlightedTicketId(null), 3000);
-          notification.close();
-        };
-
-        // Mark as seen
-        setSeenTicketIds(prev => new Set([...prev, ticket.id]));
-      }
-    });
-  }, [tickets, notificationsEnabled, seenTicketIds]);
-
-  // Check notification permission on load
-  useEffect(() => {
-    if (Notification.permission === "granted") {
-      setNotificationsEnabled(true);
-      // Initialize seen tickets
-      setSeenTicketIds(new Set(tickets.map(t => t.id)));
-    }
-  }, []);
 
   // Check URL for ticket parameter
   useEffect(() => {
@@ -347,7 +277,7 @@ export default function TicketBoard() {
                 onClick={() => setShowColumnEditor(!showColumnEditor)}
                 className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3 md:px-6"
               >
-                <Edit className="w-4 h-4 md:mr-2" />
+                <Columns className="w-4 h-4 md:mr-2" />
                 <span className="hidden md:inline">Edit Columns</span>
               </Button>
             )}
@@ -380,28 +310,6 @@ export default function TicketBoard() {
               <span className="hidden md:inline">
                 {showArchived ? "Close Archive" : `Archive (${archivedTickets.length})`}
               </span>
-            </Button>
-
-            {/* Notification Toggle */}
-            <Button
-              onClick={() => {
-                if (notificationsEnabled) {
-                  setNotificationsEnabled(false);
-                } else {
-                  requestNotificationPermission();
-                }
-              }}
-              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
-                notificationsEnabled
-                  ? "bg-green-500/80 border-green-400/80 text-white hover:bg-green-500/90"
-                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
-              }`}
-            >
-              {notificationsEnabled ? (
-                <Bell className="w-4 h-4" />
-              ) : (
-                <BellOff className="w-4 h-4" />
-              )}
             </Button>
             
             <a href="https://support.pilatesinpinkstudio.com" target="_blank" rel="noopener noreferrer">
