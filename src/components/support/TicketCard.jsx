@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,12 +40,12 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
   return (
     <div
       onClick={onClick}
-      className={`backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-3 md:p-4 transition-all group ${
+      className={`backdrop-blur-md bg-white/70 border border-white/80 rounded-xl p-3 md:p-4 transition-all group ${
         isDragging 
-          ? "shadow-2xl scale-105 bg-white/60 border-white/70 rotate-2 cursor-grabbing ring-4 ring-white/40" 
+          ? "shadow-2xl scale-105 bg-white/90 border-white rotate-2 cursor-grabbing ring-4 ring-white/40" 
           : isHighlighted
-          ? "shadow-2xl bg-white/60 border-yellow-400/80 ring-4 ring-yellow-400/50 animate-shake cursor-grab"
-          : "hover:bg-white/40 shadow-lg hover:shadow-xl cursor-grab"
+          ? "shadow-2xl bg-white/90 border-yellow-400/80 ring-4 ring-yellow-400/50 animate-shake cursor-grab"
+          : "hover:bg-white/80 shadow-lg hover:shadow-xl cursor-grab"
       }`}
     >
       {/* Header */}
