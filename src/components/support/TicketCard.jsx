@@ -101,9 +101,14 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
               <span className="text-lg">{inquiryTypeIcons[ticket.inquiry_type]}</span>
               <h4 className="text-gray-900 font-semibold truncate text-base">{ticket.client_name}</h4>
             </div>
-            <Badge className={`${priorityColors[ticket.priority]} border text-xs`}>
-              {ticket.priority}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={`${priorityColors[ticket.priority]} border text-xs`}>
+                {ticket.priority}
+              </Badge>
+              <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">
+                {ticket.inquiry_type}
+              </Badge>
+            </div>
           </div>
           
           {!isDragging && (
@@ -135,14 +140,8 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           )}
         </div>
 
-        <div className="mb-3">
-          <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">
-            {ticket.inquiry_type}
-          </Badge>
-        </div>
-
         {ticket.inquiry_type === "Cancellation" && ticket.discount_offered && (
-          <div className="mb-3 space-y-2">
+          <div className="mt-3 mb-3 space-y-2">
             <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 flex items-center gap-2">
               <Gift className="w-4 h-4 text-gray-900 flex-shrink-0" />
               <span className="text-gray-900 text-xs font-medium">
@@ -165,20 +164,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           </div>
         )}
 
-        <div className="space-y-1.5 mb-3">
-          <div className="flex items-center gap-2 text-gray-800 text-sm">
-            <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">{ticket.client_email}</span>
-          </div>
-          {ticket.client_phone && (
-            <div className="flex items-center gap-2 text-gray-800 text-sm">
-              <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-              <span className="truncate">{ticket.client_phone}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="text-gray-700 text-xs">
+        <div className="text-gray-700 text-xs mt-3">
           {formatDateEST(ticket.created_date)} EST
         </div>
       </div>
