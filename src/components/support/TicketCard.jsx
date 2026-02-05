@@ -102,11 +102,11 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
               <h4 className="text-gray-900 font-semibold truncate text-base">{ticket.client_name}</h4>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className={`${priorityColors[ticket.priority]} border text-xs`}>
-                {ticket.priority}
-              </Badge>
               <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">
                 {ticket.inquiry_type}
+              </Badge>
+              <Badge className={`${priorityColors[ticket.priority]} border text-xs`}>
+                {ticket.priority}
               </Badge>
             </div>
           </div>
