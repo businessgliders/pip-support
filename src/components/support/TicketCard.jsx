@@ -53,7 +53,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         <div className="flex items-center justify-between gap-2 mb-1">
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             <span className="text-sm">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-            <h4 className="text-white font-medium truncate text-xs">{ticket.client_name}</h4>
+            <h4 className="text-gray-900 font-medium truncate text-xs">{ticket.client_name}</h4>
           </div>
           {!isDragging && (
             <DropdownMenu>
@@ -84,10 +84,10 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           )}
         </div>
         <div className="flex items-center justify-between gap-2">
-          <Badge variant="outline" className="bg-white/20 text-white border-white/40 text-[10px] px-1.5 py-0">
+          <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-[10px] px-1.5 py-0">
             {ticket.inquiry_type}
           </Badge>
-          <span className="text-white/70 text-[10px]">
+          <span className="text-gray-700 text-[10px]">
             {new Date(ticket.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
         </div>
@@ -99,7 +99,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-lg">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-              <h4 className="text-white font-semibold truncate text-base">{ticket.client_name}</h4>
+              <h4 className="text-gray-900 font-semibold truncate text-base">{ticket.client_name}</h4>
             </div>
             <Badge className={`${priorityColors[ticket.priority]} border text-xs`}>
               {ticket.priority}
@@ -136,7 +136,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         </div>
 
         <div className="mb-3">
-          <Badge variant="outline" className="bg-white/20 text-white border-white/40 text-xs">
+          <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">
             {ticket.inquiry_type}
           </Badge>
         </div>
@@ -144,8 +144,8 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         {ticket.inquiry_type === "Cancellation" && ticket.discount_offered && (
           <div className="mb-3 space-y-2">
             <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 flex items-center gap-2">
-              <Gift className="w-4 h-4 text-white flex-shrink-0" />
-              <span className="text-white text-xs font-medium">
+              <Gift className="w-4 h-4 text-gray-900 flex-shrink-0" />
+              <span className="text-gray-900 text-xs font-medium">
                 {ticket.discount_offered} offer
               </span>
             </div>
@@ -157,7 +157,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
                   : 'bg-gray-400/30 border border-gray-300/50'
               }`}>
                 <span className="text-sm">{ticket.discount_accepted ? '🎉' : '😔'}</span>
-                <span className="text-white text-xs font-medium">
+                <span className="text-gray-900 text-xs font-medium">
                   {ticket.discount_accepted ? 'Accepted!' : 'Declined'}
                 </span>
               </div>
@@ -166,19 +166,19 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         )}
 
         <div className="space-y-1.5 mb-3">
-          <div className="flex items-center gap-2 text-white/90 text-sm">
+          <div className="flex items-center gap-2 text-gray-800 text-sm">
             <Mail className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">{ticket.client_email}</span>
           </div>
           {ticket.client_phone && (
-            <div className="flex items-center gap-2 text-white/90 text-sm">
+            <div className="flex items-center gap-2 text-gray-800 text-sm">
               <Phone className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="truncate">{ticket.client_phone}</span>
             </div>
           )}
         </div>
 
-        <div className="text-white/70 text-xs">
+        <div className="text-gray-700 text-xs">
           {formatDateEST(ticket.created_date)} EST
         </div>
       </div>
