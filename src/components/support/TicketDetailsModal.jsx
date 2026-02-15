@@ -34,9 +34,12 @@ const statusColors = {
 };
 
 const formatDateEST = (dateString) => {
-  // Ensure we're treating the date as UTC
-  const date = new Date(dateString);
-  // Format directly to EST/EDT timezone
+  // Force UTC interpretation by ensuring ISO format with Z suffix
+  let isoString = dateString;
+  if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+    isoString = dateString + 'Z';
+  }
+  const date = new Date(isoString);
   return date.toLocaleString('en-US', {
     timeZone: 'America/New_York',
     month: 'long',
@@ -49,9 +52,12 @@ const formatDateEST = (dateString) => {
 };
 
 const formatShortDateEST = (dateString) => {
-  // Ensure we're treating the date as UTC
-  const date = new Date(dateString);
-  // Format directly to EST/EDT timezone
+  // Force UTC interpretation by ensuring ISO format with Z suffix
+  let isoString = dateString;
+  if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+    isoString = dateString + 'Z';
+  }
+  const date = new Date(isoString);
   return date.toLocaleString('en-US', {
     timeZone: 'America/New_York',
     month: 'short',
