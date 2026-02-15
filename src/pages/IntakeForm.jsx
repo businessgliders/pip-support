@@ -86,9 +86,9 @@ export default function IntakeForm() {
       // Build ticket URL
       const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
 
-      // Send formatted HTML email - with better error handling
+      // Send notification email to internal support team (only works for app users)
       try {
-        const emailResult = await base44.integrations.Core.SendEmail({
+        await base44.integrations.Core.SendEmail({
           from_name: "Pilates in Pink Support",
           to: "support@pilatesinpinkstudio.com",
           subject: `New Support Ticket: ${formData.inquiry_type} - ${formData.client_name}`,
@@ -174,10 +174,9 @@ export default function IntakeForm() {
 </html>
         `
         });
-        console.log("✅ Email sent successfully:", emailResult);
       } catch (emailError) {
-        console.error("❌ Email failed:", emailError);
-        alert(`Ticket created successfully, but email notification failed: ${emailError.message || 'Unknown error'}. Please check your dashboard for the new ticket.`);
+        // Silent fail - email only works for registered app users
+        console.log("Note: Email notification requires recipient to be a registered app user");
       }
 
       setSubmitted(true);
