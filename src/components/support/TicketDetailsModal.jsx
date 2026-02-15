@@ -33,8 +33,10 @@ const statusColors = {
   "Closed": "bg-gray-500/20 text-gray-700 border-gray-400/40"
 };
 
-const formatDateEST = (date) => {
-  return new Date(date).toLocaleString('en-US', {
+const formatDateEST = (dateString) => {
+  // Parse the ISO string and format in EST/EDT
+  const date = new Date(dateString);
+  return date.toLocaleString('en-US', {
     timeZone: 'America/New_York',
     month: 'long',
     day: 'numeric',
@@ -45,8 +47,10 @@ const formatDateEST = (date) => {
   });
 };
 
-const formatShortDateEST = (date) => {
-  return new Date(date).toLocaleString('en-US', {
+const formatShortDateEST = (dateString) => {
+  // Parse the ISO string and format in EST/EDT
+  const date = new Date(dateString);
+  return date.toLocaleString('en-US', {
     timeZone: 'America/New_York',
     month: 'short',
     day: 'numeric',

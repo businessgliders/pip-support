@@ -197,8 +197,10 @@ export default function TicketBoard() {
     return filtered;
   };
 
-  const formatDateEST = (date) => {
-    return new Date(date).toLocaleString('en-US', {
+  const formatDateEST = (dateString) => {
+    // Parse the ISO string and format in EST/EDT
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
       timeZone: 'America/New_York',
       month: 'short',
       day: 'numeric',
