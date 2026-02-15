@@ -198,8 +198,9 @@ export default function TicketBoard() {
   };
 
   const formatDateEST = (dateString) => {
-    // Parse the ISO string and format in EST/EDT
+    // Ensure we're treating the date as UTC
     const date = new Date(dateString);
+    // Format directly to EST/EDT timezone
     return date.toLocaleString('en-US', {
       timeZone: 'America/New_York',
       month: 'short',
