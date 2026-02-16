@@ -314,7 +314,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Left Section - Main Content */}
-                      <div className="flex-1 space-y-6">
+                      <div className="flex-1 md:flex-[3] space-y-6">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -592,7 +592,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               <Separator orientation="vertical" className="hidden md:block h-auto" />
 
               {/* Right Section - Assignment & Comments */}
-              <div className="w-full md:w-80 space-y-4">
+              <div className="w-full md:flex-[2] space-y-4">
               {/* Quick Actions */}
               <div className="space-y-2">
                 <Button
