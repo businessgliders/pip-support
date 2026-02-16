@@ -364,7 +364,9 @@ export default function TicketBoard() {
               >
                 <option value="all">All Users</option>
                 {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                  <option key={u.id} value={u.email}>{u.email.split('@')[0]}</option>
+                  <option key={u.id} value={u.email}>
+                    {u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]}
+                  </option>
                 ))}
               </select>
             )}
@@ -391,18 +393,25 @@ export default function TicketBoard() {
               <Archive className="w-4 h-4" />
             </Button>
 
-            {/* User Info & Logout */}
-            <div className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
-              <span className="text-gray-900 text-sm">{user.email.split('@')[0]}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => base44.auth.logout()}
-                className="h-7 w-7 text-gray-900 hover:bg-white/50"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
+            {/* User Initials */}
+            <div className="hidden md:flex items-center backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
+              <span className="text-gray-900 text-sm font-semibold">
+                {user.full_name 
+                  ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
+                  : user.email.substring(0, 2).toUpperCase()
+                }
+              </span>
             </div>
+
+            {/* Logout Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => base44.auth.logout()}
+              className="hidden md:flex backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 w-11 shadow-lg"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
