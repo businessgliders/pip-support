@@ -114,7 +114,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [newComment, setNewComment] = useState("");
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
-  const [showContactInfo, setShowContactInfo] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(true);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
   const [showStatusHistory, setShowStatusHistory] = useState(false);
 
@@ -494,7 +494,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                                 </Badge>
                               </div>
                               <p className="text-xs text-gray-600">
-                                {formatShortDateEST(relatedTicket.created_date)} EST
+                                {formatRelativeTime(relatedTicket.created_date)}
                               </p>
                               {relatedTicket.inquiry_type === "Cancellation" && relatedTicket.discount_offered && (
                                 <p className="text-xs text-[#b67651] font-medium mt-1">
@@ -540,7 +540,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-gray-900">{entry.status}</span>
                           <span className="text-xs text-gray-500">
-                            {formatShortDateEST(entry.timestamp)} EST
+                            {formatRelativeTime(entry.timestamp)}
                           </span>
                         </div>
                         {entry.note && (
