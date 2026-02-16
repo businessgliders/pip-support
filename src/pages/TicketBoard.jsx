@@ -42,26 +42,13 @@ export default function TicketBoard() {
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const queryClient = useQueryClient();
 
-  // Check authentication and domain restriction
+  // Temporary: Skip auth check for testing
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        // Check if email is from @pilatesinpinkstudio.com domain
-        if (!currentUser.email.endsWith('@pilatesinpinkstudio.com')) {
-          alert('Access restricted to @pilatesinpinkstudio.com domain only');
-          base44.auth.redirectToLogin();
-          return;
-        }
-        setUser(currentUser);
-      } catch (error) {
-        // Not logged in - show UserSelection instead of redirecting
-        setShowUserSelection(true);
-      } finally {
-        setIsAuthLoading(false);
-      }
-    };
-    checkAuth();
+    setUser({
+      email: 'info@pilatesinpinkstudio.com',
+      full_name: 'Front Desk'
+    });
+    setIsAuthLoading(false);
   }, []);
 
   const { data: tickets = [], isLoading } = useQuery({
