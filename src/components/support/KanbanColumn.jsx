@@ -31,7 +31,7 @@ const headerColors = {
 
 export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveAll, viewMode, allUsers }) {
   return (
-    <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col md:h-[calc(100vh-250px)] md:min-h-[600px]`} style={{ position: 'static' }}>
+    <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col md:h-[calc(100vh-250px)] md:min-h-[600px]`} style={{ position: 'relative', zIndex: 1 }}>
       {/* Column Header */}
       <div className={`backdrop-blur-md ${headerColors[status]} border-b px-3 md:px-4 py-3 md:py-4 flex-shrink-0`}>
         <div className="flex items-center justify-between mb-2">
@@ -76,7 +76,10 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                   {...provided.dragHandleProps}
                   style={{
                     ...provided.draggableProps.style,
-                    zIndex: snapshot.isDragging ? 9999 : 'auto'
+                    ...(snapshot.isDragging && {
+                      zIndex: 10000,
+                      position: 'fixed'
+                    })
                   }}
                 >
                   <TicketCard
