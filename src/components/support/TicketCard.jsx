@@ -170,8 +170,15 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           </div>
         )}
 
-        <div className="text-gray-700 text-xs mt-3">
-          {formatDateEST(ticket.created_date)} EST
+        <div className="flex items-center justify-between mt-3">
+          <div className="text-gray-700 text-xs">
+            {formatDateEST(ticket.created_date)} EST
+          </div>
+          {ticket.assigned_to && (
+            <Badge variant="outline" className="bg-blue-500/20 text-blue-900 border-blue-400/40 text-xs">
+              👤 {ticket.assigned_to.split('@')[0]}
+            </Badge>
+          )}
         </div>
       </div>
 

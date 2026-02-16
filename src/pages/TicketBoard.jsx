@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -21,6 +21,8 @@ import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 
 export default function TicketBoard() {
+  const [user, setUser] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
@@ -29,12 +31,41 @@ export default function TicketBoard() {
   const [hiddenColumns, setHiddenColumns] = useState(["Private Events"]); // Hidden columns in category view
   const [showColumnEditor, setShowColumnEditor] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const queryClient = useQueryClient();
+
+  // Check authentication and domain restriction
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        // Check if email is from @pilatesinpinkstudio.com domain
+        if (!currentUser.email.endsWith('@pilatesinpinkstudio.com')) {
+          alert('Access restricted to @pilatesinpinkstudio.com domain only');
+          base44.auth.redirectToLogin();
+          return;
+        }
+        setUser(currentUser);
+      } catch (error) {
+        base44.auth.redirectToLogin();
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: () => base44.entities.SupportTicket.list("-created_date"),
-    refetchInterval: 5000
+    refetchInterval: 5000,
+    enabled: !!user
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: !!user
   });
 
 
@@ -172,6 +203,8 @@ export default function TicketBoard() {
     ? allStatusColumns.filter(col => !hiddenColumns.includes(col))
     : allCategoryColumns.filter(col => !hiddenColumns.includes(col));
 
+  const isOwner = user?.email === 'info@pilatesinpinkstudio.com';
+
   const getTicketsByColumn = (column) => {
     // This function is only called when showArchived is false,
     // as the archived view has its own rendering logic.
@@ -182,6 +215,13 @@ export default function TicketBoard() {
       filtered = tickets.filter(ticket => ticket.inquiry_type === column && !ticket.archived);
     }
     
+    // Apply user filter (owner sees all or filtered, regular users only see their tickets)
+    if (!isOwner) {
+      filtered = filtered.filter(ticket => ticket.assigned_to === user?.email);
+    } else if (userFilter !== "all") {
+      filtered = filtered.filter(ticket => ticket.assigned_to === userFilter);
+    }
+    
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -190,7 +230,8 @@ export default function TicketBoard() {
         ticket.client_email?.toLowerCase().includes(query) ||
         ticket.client_phone?.toLowerCase().includes(query) ||
         ticket.inquiry_type?.toLowerCase().includes(query) ||
-        ticket.notes?.toLowerCase().includes(query)
+        ticket.notes?.toLowerCase().includes(query) ||
+        ticket.assigned_to?.toLowerCase().includes(query)
       );
     }
     
@@ -215,8 +256,17 @@ export default function TicketBoard() {
     });
   };
 
-  const activeTickets = tickets.filter(t => !t.archived);
+  let activeTickets = tickets.filter(t => !t.archived);
   let archivedTickets = tickets.filter(t => t.archived);
+  
+  // Apply user filter for non-owners
+  if (!isOwner) {
+    activeTickets = activeTickets.filter(t => t.assigned_to === user?.email);
+    archivedTickets = archivedTickets.filter(t => t.assigned_to === user?.email);
+  } else if (userFilter !== "all") {
+    activeTickets = activeTickets.filter(t => t.assigned_to === userFilter);
+    archivedTickets = archivedTickets.filter(t => t.assigned_to === userFilter);
+  }
   
   // Apply search filter to archived tickets
   if (searchQuery.trim()) {
@@ -226,8 +276,21 @@ export default function TicketBoard() {
       ticket.client_email?.toLowerCase().includes(query) ||
       ticket.client_phone?.toLowerCase().includes(query) ||
       ticket.inquiry_type?.toLowerCase().includes(query) ||
-      ticket.notes?.toLowerCase().includes(query)
+      ticket.notes?.toLowerCase().includes(query) ||
+      ticket.assigned_to?.toLowerCase().includes(query)
     );
+  }
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ff899b] via-[#f7b1bd] to-[#fbe0e2]">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -258,6 +321,33 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
+            {/* User Info & Logout */}
+            <div className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
+              <span className="text-gray-900 text-sm">{user.email.split('@')[0]}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => base44.auth.logout()}
+                className="h-7 w-7 text-gray-900 hover:bg-white/50"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* User Filter (Owner only) */}
+            {isOwner && (
+              <select
+                value={userFilter}
+                onChange={(e) => setUserFilter(e.target.value)}
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 rounded-xl h-11 px-4 cursor-pointer"
+              >
+                <option value="all">All Users</option>
+                {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                  <option key={u.id} value={u.email}>{u.email.split('@')[0]}</option>
+                ))}
+              </select>
+            )}
+
             {/* Search Bar (Desktop) / Button (Mobile) */}
             <div className="hidden md:block">
               <Input
@@ -466,6 +556,9 @@ export default function TicketBoard() {
           onClose={() => setSelectedTicket(null)}
           onStatusChange={handleStatusChange}
           onTicketClick={setSelectedTicket}
+          currentUser={user}
+          isOwner={isOwner}
+          allUsers={allUsers}
         />
       )}
     </div>

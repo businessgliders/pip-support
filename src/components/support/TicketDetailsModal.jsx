@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink } from "lucide-react";
+import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -17,7 +17,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // Added Select imports
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const priorityColors = {
   "Low": "bg-green-500/20 text-green-700 border-green-400/40",
@@ -66,9 +68,12 @@ const formatShortDateEST = (dateString) => {
   });
 };
 
-export default function TicketDetailsModal({ ticket, onClose, onStatusChange, onTicketClick }) {
+export default function TicketDetailsModal({ ticket, onClose, onStatusChange, onTicketClick, currentUser, isOwner, allUsers }) {
   const [relatedTickets, setRelatedTickets] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(true);
+  const [newComment, setNewComment] = useState("");
+  const [isAddingComment, setIsAddingComment] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
 
   useEffect(() => {
     const fetchRelatedTickets = async () => {
@@ -93,6 +98,52 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
     fetchRelatedTickets();
   }, [ticket]);
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    
+    setIsAddingComment(true);
+    try {
+      const comments = ticket.comments || [];
+      comments.push({
+        user_email: currentUser.email,
+        comment: newComment,
+        timestamp: new Date().toISOString()
+      });
+      
+      await base44.entities.SupportTicket.update(ticket.id, { comments });
+      ticket.comments = comments;
+      setNewComment("");
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    } finally {
+      setIsAddingComment(false);
+    }
+  };
+
+  const handleAssignment = async () => {
+    if (selectedAssignee === ticket.assigned_to) return;
+    
+    try {
+      await base44.entities.SupportTicket.update(ticket.id, { 
+        assigned_to: selectedAssignee 
+      });
+      
+      // Send assignment email
+      await base44.functions.sendAssignmentEmail({
+        ticketId: ticket.id,
+        assignedTo: selectedAssignee,
+        assignedBy: currentUser.email
+      });
+      
+      ticket.assigned_to = selectedAssignee;
+      alert('Ticket assigned successfully!');
+      onClose();
+    } catch (error) {
+      console.error("Failed to assign ticket:", error);
+      alert('Failed to assign ticket');
+    }
+  };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -238,6 +289,87 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               <p className="text-gray-700 whitespace-pre-wrap">{ticket.notes}</p>
             </div>
           )}
+
+          {/* Assignment Section (Owner only) */}
+          {isOwner && (
+            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Assign Ticket
+              </h3>
+              <div className="flex gap-2">
+                <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                      <SelectItem key={u.id} value={u.email}>
+                        {u.full_name || u.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleAssignment}
+                  disabled={selectedAssignee === ticket.assigned_to}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  Assign
+                </Button>
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                Currently assigned to: {ticket.assigned_to?.split('@')[0] || 'Unassigned'}
+              </p>
+            </div>
+          )}
+
+          {/* Comments Section */}
+          <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Comments
+            </h3>
+            
+            {/* Existing Comments */}
+            {ticket.comments && ticket.comments.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {ticket.comments.map((comment, index) => (
+                  <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {comment.user_email.split('@')[0]}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatShortDateEST(comment.timestamp)} EST
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Add Comment */}
+            <div className="space-y-2">
+              <Label htmlFor="new-comment">Add Comment</Label>
+              <Textarea
+                id="new-comment"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Type your comment here..."
+                className="min-h-20"
+              />
+              <Button
+                onClick={handleAddComment}
+                disabled={isAddingComment || !newComment.trim()}
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Add Comment
+              </Button>
+            </div>
+          </div>
 
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (
