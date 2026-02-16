@@ -74,6 +74,10 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
+                  style={{
+                    ...provided.draggableProps.style,
+                    zIndex: snapshot.isDragging ? 9999 : 'auto'
+                  }}
                 >
                   <TicketCard
                     ticket={ticket}

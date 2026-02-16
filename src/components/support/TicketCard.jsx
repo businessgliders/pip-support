@@ -77,6 +77,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           ? "shadow-2xl bg-white/70 ring-4 ring-yellow-400/50 animate-shake cursor-grab transition-all"
           : "hover:bg-white/50 shadow-lg hover:shadow-xl cursor-grab transition-all"
       }`}
+      style={isDragging ? { zIndex: 9999 } : {}}
     >
       {/* Mobile Compact View */}
       <div className="md:hidden">
