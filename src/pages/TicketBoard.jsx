@@ -56,6 +56,8 @@ export default function TicketBoard() {
         setUser(currentUser);
       } catch (error) {
         // Not logged in - show UserSelection instead of redirecting
+        setShowUserSelection(true);
+      } finally {
         setIsAuthLoading(false);
       }
     };
