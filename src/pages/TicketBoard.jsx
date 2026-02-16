@@ -60,7 +60,10 @@ export default function TicketBoard() {
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const response = await base44.functions.invoke('getAllUsers', {});
+      return response.users || [];
+    },
     enabled: !!user
   });
 
