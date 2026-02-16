@@ -511,7 +511,7 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6" style={{ position: 'static' }}>
               {columns.map((column) => (
                 <Droppable key={column} droppableId={column}>
                   {(provided, snapshot) => (
@@ -521,6 +521,7 @@ export default function TicketBoard() {
                       className={`transition-all duration-200 ${
                         snapshot.isDraggingOver ? 'ring-4 ring-white/50 scale-102' : ''
                       }`}
+                      style={{ position: 'static' }}
                     >
                       <KanbanColumn
                         status={column}
