@@ -17,14 +17,14 @@ const priorityBorderColors = {
 };
 
 const userColors = {
-  0: "bg-pink-350",
-  1: "bg-purple-350",
-  2: "bg-blue-350",
-  3: "bg-teal-350",
-  4: "bg-green-350",
-  5: "bg-amber-350",
-  6: "bg-rose-350",
-  7: "bg-indigo-350"
+  0: "bg-pink-300",
+  1: "bg-purple-300",
+  2: "bg-blue-300",
+  3: "bg-teal-300",
+  4: "bg-green-300",
+  5: "bg-amber-300",
+  6: "bg-rose-300",
+  7: "bg-indigo-300"
 };
 
 const inquiryTypeIcons = {
@@ -237,8 +237,8 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           </div>
           {ticket.assigned_to && (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
-              <User className="w-3 h-3 text-gray-900" />
-              <span className="text-gray-900 text-xs font-semibold">
+              <User className="w-3 h-3 text-white" />
+              <span className="text-white text-xs font-semibold">
                 {getInitials(ticket.assigned_to)}
               </span>
             </div>
