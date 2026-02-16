@@ -163,7 +163,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               ` : ''}
               
               <div style="text-align: center; margin-top: 30px;">
-                <a href="${window.location.origin}/TicketBoard?ticket=${ticket.id}" style="display: inline-block; background: #f1899b; color: white; padding: 14px 32px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">View Ticket Details</a>
+                <a href="https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}" style="display: inline-block; background: #f1899b; color: white; padding: 14px 32px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">View Ticket Details</a>
               </div>
               
               <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
