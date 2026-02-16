@@ -55,8 +55,7 @@ export default function TicketBoard() {
         }
         setUser(currentUser);
       } catch (error) {
-        base44.auth.redirectToLogin();
-      } finally {
+        // Not logged in - show UserSelection instead of redirecting
         setIsAuthLoading(false);
       }
     };
