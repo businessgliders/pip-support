@@ -29,7 +29,7 @@ const headerColors = {
   "Other": "bg-gray-500/30 border-gray-400/40"
 };
 
-export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveAll, viewMode }) {
+export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveAll, viewMode, allUsers }) {
   return (
     <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col md:h-[calc(100vh-250px)] md:min-h-[600px]`}>
       {/* Column Header */}
@@ -82,6 +82,7 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                       onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
                       isDragging={snapshot.isDragging}
                       isHighlighted={ticket.id === highlightedTicketId}
+                      allUsers={allUsers}
                     />
                   </div>
                 </>

@@ -42,7 +42,15 @@ const formatDateEST = (dateString) => {
   });
 };
 
-export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted }) {
+export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [] }) {
+  const getInitials = (email) => {
+    if (email === 'info@pilatesinpinkstudio.com') return 'FD';
+    const user = allUsers.find(u => u.email === email);
+    if (user?.full_name) {
+      return user.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
+  };
   return (
     <div
       onClick={onClick}
@@ -175,8 +183,8 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
             {formatDateEST(ticket.created_date)} EST
           </div>
           {ticket.assigned_to && (
-            <Badge variant="outline" className="bg-blue-500/20 text-blue-900 border-blue-400/40 text-xs">
-              👤 {ticket.assigned_to.split('@')[0]}
+            <Badge variant="outline" className="bg-blue-500/20 text-blue-900 border-blue-400/40 text-xs font-semibold">
+              {getInitials(ticket.assigned_to)}
             </Badge>
           )}
         </div>
