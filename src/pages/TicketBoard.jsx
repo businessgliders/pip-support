@@ -418,7 +418,7 @@ export default function TicketBoard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="backdrop-blur-xl bg-white/95 border-white/40">
-                <DropdownMenuItem onClick={() => base44.auth.redirectToLogin()}>
+                <DropdownMenuItem onClick={() => setShowUserSelection(true)}>
                   Switch User
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => base44.auth.logout()}>
