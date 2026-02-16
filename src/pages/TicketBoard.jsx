@@ -340,16 +340,6 @@ export default function TicketBoard() {
               <Search className="w-4 h-4" />
             </Button>
 
-            {/* Edit Columns Button */}
-            {!showArchived && (
-              <Button
-                onClick={() => setShowColumnEditor(!showColumnEditor)}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
-              >
-                <Columns className="w-4 h-4" />
-              </Button>
-            )}
-
             {/* View Mode Toggle */}
             {!showArchived && (
               <Button
@@ -365,18 +355,6 @@ export default function TicketBoard() {
               </Button>
             )}
 
-            {/* Archive Toggle Button */}
-            <Button
-              onClick={() => setShowArchived(!showArchived)}
-              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
-                showArchived
-                  ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
-                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
-              }`}
-            >
-              <Archive className="w-4 h-4" />
-            </Button>
-
             {/* User Filter (Owner only) */}
             {isOwner && (
               <select
@@ -391,6 +369,28 @@ export default function TicketBoard() {
               </select>
             )}
 
+            {/* Edit Columns Button */}
+            {!showArchived && (
+              <Button
+                onClick={() => setShowColumnEditor(!showColumnEditor)}
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
+              >
+                <Columns className="w-4 h-4" />
+              </Button>
+            )}
+
+            {/* Archive Toggle Button */}
+            <Button
+              onClick={() => setShowArchived(!showArchived)}
+              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
+                showArchived
+                  ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
+                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
+              }`}
+            >
+              <Archive className="w-4 h-4" />
+            </Button>
+
             {/* User Info & Logout */}
             <div className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
               <span className="text-gray-900 text-sm">{user.email.split('@')[0]}</span>
@@ -403,12 +403,6 @@ export default function TicketBoard() {
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>
-            
-            <a href="https://support.pilatesinpinkstudio.com" target="_blank" rel="noopener noreferrer">
-              <Button className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3">
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-            </a>
           </div>
         </div>
 
