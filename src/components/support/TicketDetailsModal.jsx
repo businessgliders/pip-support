@@ -129,13 +129,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
         assigned_to: selectedAssignee 
       });
       
-      // Send assignment email
-      await base44.functions.sendAssignmentEmail({
-        ticketId: ticket.id,
-        assignedTo: selectedAssignee,
-        assignedBy: currentUser.email
-      });
-      
       ticket.assigned_to = selectedAssignee;
       alert('Ticket assigned successfully!');
       onClose();
