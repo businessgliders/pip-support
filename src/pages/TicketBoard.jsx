@@ -321,33 +321,6 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
-            {/* User Info & Logout */}
-            <div className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
-              <span className="text-gray-900 text-sm">{user.email.split('@')[0]}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => base44.auth.logout()}
-                className="h-7 w-7 text-gray-900 hover:bg-white/50"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* User Filter (Owner only) */}
-            {isOwner && (
-              <select
-                value={userFilter}
-                onChange={(e) => setUserFilter(e.target.value)}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 rounded-xl h-11 px-4 cursor-pointer"
-              >
-                <option value="all">All Users</option>
-                {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                  <option key={u.id} value={u.email}>{u.email.split('@')[0]}</option>
-                ))}
-              </select>
-            )}
-
             {/* Search Bar (Desktop) / Button (Mobile) */}
             <div className="hidden md:block">
               <Input
@@ -371,10 +344,9 @@ export default function TicketBoard() {
             {!showArchived && (
               <Button
                 onClick={() => setShowColumnEditor(!showColumnEditor)}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3 md:px-6"
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
               >
-                <Columns className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">Edit Columns</span>
+                <Columns className="w-4 h-4" />
               </Button>
             )}
 
@@ -402,11 +374,35 @@ export default function TicketBoard() {
                   : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
               }`}
             >
-              <Archive className="w-4 h-4 md:mr-2" />
-              <span className="hidden md:inline">
-                {showArchived ? "Close Archive" : `Archive (${archivedTickets.length})`}
-              </span>
+              <Archive className="w-4 h-4" />
             </Button>
+
+            {/* User Filter (Owner only) */}
+            {isOwner && (
+              <select
+                value={userFilter}
+                onChange={(e) => setUserFilter(e.target.value)}
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 rounded-xl h-11 px-4 cursor-pointer"
+              >
+                <option value="all">All Users</option>
+                {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                  <option key={u.id} value={u.email}>{u.email.split('@')[0]}</option>
+                ))}
+              </select>
+            )}
+
+            {/* User Info & Logout */}
+            <div className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
+              <span className="text-gray-900 text-sm">{user.email.split('@')[0]}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => base44.auth.logout()}
+                className="h-7 w-7 text-gray-900 hover:bg-white/50"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
             
             <a href="https://support.pilatesinpinkstudio.com" target="_blank" rel="noopener noreferrer">
               <Button className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3">
