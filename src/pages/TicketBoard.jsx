@@ -355,25 +355,6 @@ export default function TicketBoard() {
               </Button>
             )}
 
-            {/* User Filter (Owner only) */}
-            {isOwner && (
-              <select
-                value={userFilter}
-                onChange={(e) => setUserFilter(e.target.value)}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 rounded-xl h-11 px-4 cursor-pointer"
-              >
-                <option value="all">All Users</option>
-                {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                  <option key={u.id} value={u.email}>
-                    {u.email === 'info@pilatesinpinkstudio.com' 
-                      ? 'Front Desk' 
-                      : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
-                    }
-                  </option>
-                ))}
-              </select>
-            )}
-
             {/* Edit Columns Button */}
             {!showArchived && (
               <Button
@@ -395,6 +376,25 @@ export default function TicketBoard() {
             >
               <Archive className="w-4 h-4" />
             </Button>
+
+            {/* User Filter (Owner only) */}
+            {isOwner && (
+              <select
+                value={userFilter}
+                onChange={(e) => setUserFilter(e.target.value)}
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 rounded-xl h-11 px-4 cursor-pointer"
+              >
+                <option value="all">All Users</option>
+                {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                  <option key={u.id} value={u.email}>
+                    {u.email === 'info@pilatesinpinkstudio.com' 
+                      ? 'Front Desk' 
+                      : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
+                    }
+                  </option>
+                ))}
+              </select>
+            )}
 
             {/* User Initials */}
             <div className="hidden md:flex items-center backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
