@@ -464,7 +464,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           {/* Update Status - Dropdown on Mobile, Pipeline on Desktop */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Update Status</h3>
-            
+
             {/* Desktop View - Pipeline */}
             <div className="hidden md:flex items-center gap-2">
               {["New", "In Progress", "Resolved", "Closed"].map((status, index) => (
@@ -520,38 +520,38 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </Select>
             </div>
           </div>
-
-          {/* Quick Actions */}
-          <div className="flex gap-3">
-            <Button
-              asChild
-              className="flex-1 bg-[#b67651] hover:bg-[#a56541] text-white"
-            >
-              <a href={`mailto:${ticket.client_email}`}>
-                <Mail className="w-4 h-4 mr-2" />
-                Email Client
-              </a>
-            </Button>
-            {ticket.client_phone && (
-              <Button
-                asChild
-                variant="outline"
-                className="flex-1"
-              >
-                <a href={`tel:${ticket.client_phone}`}>
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Client
-                </a>
-              </Button>
-              )}
-              </div>
-              </div>
+          </div>
 
               {/* Divider */}
               <Separator orientation="vertical" className="h-auto" />
 
               {/* Right Section - Assignment & Comments */}
               <div className="w-80 space-y-4">
+              {/* Quick Actions */}
+              <div className="space-y-2">
+                <Button
+                  asChild
+                  className="w-full bg-[#b67651] hover:bg-[#a56541] text-white"
+                >
+                  <a href={`mailto:${ticket.client_email}`}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Email Client
+                  </a>
+                </Button>
+                {ticket.client_phone && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <a href={`tel:${ticket.client_phone}`}>
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call Client
+                    </a>
+                  </Button>
+                )}
+              </div>
+
               {/* Assignment Section (Owner only) */}
               {isOwner && (
               <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
