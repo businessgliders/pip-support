@@ -74,6 +74,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
     if (!selectedUser) return;
     try {
       sessionStorage.setItem('selectedUserEmail', selectedUser.email);
+      onUserSelected?.();
       await base44.auth.redirectToLogin();
     } catch (err) {
       setError('Authentication failed');
