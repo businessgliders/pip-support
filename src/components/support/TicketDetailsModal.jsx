@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus } from "lucide-react";
+import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -114,6 +114,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [newComment, setNewComment] = useState("");
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
+  const [showContactInfo, setShowContactInfo] = useState(false);
+  const [showRelatedTickets, setShowRelatedTickets] = useState(false);
+  const [showStatusHistory, setShowStatusHistory] = useState(false);
 
   useEffect(() => {
     const fetchRelatedTickets = async () => {
@@ -317,32 +320,40 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                       <div className="flex-1 md:flex-[3] space-y-6">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Contact Information
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 text-gray-700">
-                <Mail className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                <a href={`mailto:${ticket.client_email}`} className="hover:underline">
-                  {ticket.client_email}
-                </a>
-              </div>
-              {ticket.client_phone && (
+            <button
+              onClick={() => setShowContactInfo(!showContactInfo)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Contact Information
+              </h3>
+              {showContactInfo ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+            {showContactInfo && (
+              <div className="space-y-2 mt-3">
                 <div className="flex items-center gap-3 text-gray-700">
-                  <Phone className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                  <a href={`tel:${ticket.client_phone}`} className="hover:underline">
-                    {ticket.client_phone}
+                  <Mail className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                  <a href={`mailto:${ticket.client_email}`} className="hover:underline">
+                    {ticket.client_email}
                   </a>
                 </div>
-              )}
-              <div className="flex items-center gap-3 text-gray-700">
-                <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                <span>
-                  Submitted {formatDateEST(ticket.created_date)} EST
-                </span>
+                {ticket.client_phone && (
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <Phone className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                    <a href={`tel:${ticket.client_phone}`} className="hover:underline">
+                      {ticket.client_phone}
+                    </a>
+                  </div>
+                )}
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                  <span>
+                    Submitted {formatDateEST(ticket.created_date)} EST
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Cancellation Details */}
@@ -440,55 +451,63 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (
             <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <History className="w-4 h-4" />
-                Client Ticket History
-                <Badge variant="outline" className="ml-auto">
-                  {relatedTickets.length} previous ticket{relatedTickets.length !== 1 ? 's' : ''}
-                </Badge>
-              </h3>
-              
-              {loadingRelated ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {relatedTickets.map((relatedTicket) => (
-                    <div
-                      key={relatedTicket.id}
-                      onClick={() => {
-                        onClose();
-                        // Give a slight delay to allow the current modal to close completely
-                        // before attempting to open a new one with the new ticket data.
-                        setTimeout(() => onTicketClick(relatedTicket), 100);
-                      }}
-                      className="bg-white/60 rounded-lg p-3 border border-purple-200/50 hover:bg-white/80 transition-all cursor-pointer hover:border-purple-300"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="text-xs">
-                              {relatedTicket.inquiry_type}
-                            </Badge>
-                            <Badge className={`${statusColors[relatedTicket.status]} border text-xs`}>
-                              {relatedTicket.status}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-gray-600">
-                            {formatShortDateEST(relatedTicket.created_date)} EST
-                          </p>
-                          {relatedTicket.inquiry_type === "Cancellation" && relatedTicket.discount_offered && (
-                            <p className="text-xs text-[#b67651] font-medium mt-1">
-                              🎁 {relatedTicket.discount_offered} discount offered
-                            </p>
-                          )}
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      </div>
+              <button
+                onClick={() => setShowRelatedTickets(!showRelatedTickets)}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  Client Ticket History
+                  <Badge variant="outline">
+                    {relatedTickets.length} previous ticket{relatedTickets.length !== 1 ? 's' : ''}
+                  </Badge>
+                </h3>
+                {showRelatedTickets ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {showRelatedTickets && (
+                <div className="mt-3">
+                  {loadingRelated ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-16 w-full" />
+                      <Skeleton className="h-16 w-full" />
                     </div>
-                  ))}
+                  ) : (
+                    <div className="space-y-2">
+                      {relatedTickets.map((relatedTicket) => (
+                        <div
+                          key={relatedTicket.id}
+                          onClick={() => {
+                            onClose();
+                            setTimeout(() => onTicketClick(relatedTicket), 100);
+                          }}
+                          className="bg-white/60 rounded-lg p-3 border border-purple-200/50 hover:bg-white/80 transition-all cursor-pointer hover:border-purple-300"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {relatedTicket.inquiry_type}
+                                </Badge>
+                                <Badge className={`${statusColors[relatedTicket.status]} border text-xs`}>
+                                  {relatedTicket.status}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-gray-600">
+                                {formatShortDateEST(relatedTicket.created_date)} EST
+                              </p>
+                              {relatedTicket.inquiry_type === "Cancellation" && relatedTicket.discount_offered && (
+                                <p className="text-xs text-[#b67651] font-medium mt-1">
+                                  🎁 {relatedTicket.discount_offered} discount offered
+                                </p>
+                              )}
+                            </div>
+                            <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -497,33 +516,41 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           {/* Status History Timeline */}
           {ticket.status_history && ticket.status_history.length > 0 && (
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <History className="w-4 h-4" />
-                Status History
-              </h3>
-              <div className="space-y-3">
-                {[...ticket.status_history].reverse().map((entry, index) => (
-                  <div key={index} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
-                      {index !== ticket.status_history.length - 1 && (
-                        <div className="w-0.5 h-full bg-gray-300 mt-1" />
-                      )}
-                    </div>
-                    <div className="flex-1 pb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-gray-900">{entry.status}</span>
-                        <span className="text-xs text-gray-500">
-                          {formatShortDateEST(entry.timestamp)} EST
-                        </span>
+              <button
+                onClick={() => setShowStatusHistory(!showStatusHistory)}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  Status History
+                </h3>
+                {showStatusHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+              {showStatusHistory && (
+                <div className="space-y-3 mt-3">
+                  {[...ticket.status_history].reverse().map((entry, index) => (
+                    <div key={index} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
+                        {index !== ticket.status_history.length - 1 && (
+                          <div className="w-0.5 h-full bg-gray-300 mt-1" />
+                        )}
                       </div>
-                      {entry.note && (
-                        <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
-                      )}
+                      <div className="flex-1 pb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-gray-900">{entry.status}</span>
+                          <span className="text-xs text-gray-500">
+                            {formatShortDateEST(entry.timestamp)} EST
+                          </span>
+                        </div>
+                        {entry.note && (
+                          <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
