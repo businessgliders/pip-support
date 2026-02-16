@@ -376,19 +376,23 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             {/* Existing Comments */}
             {ticket.comments && ticket.comments.length > 0 && (
               <div className="space-y-3 mb-4">
-                {ticket.comments.map((comment, index) => (
-                  <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-900">
-                        {comment.user_email.split('@')[0]}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {formatShortDateEST(comment.timestamp)} EST
-                      </span>
+                {ticket.comments.map((comment, index) => {
+                  const commentUser = allUsers.find(u => u.email === comment.user_email);
+                  const displayName = commentUser?.full_name || comment.user_email.split('@')[0];
+                  return (
+                    <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-900">
+                          {displayName}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formatDateEST(comment.timestamp)} EST
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
                     </div>
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
             
