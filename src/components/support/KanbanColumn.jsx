@@ -70,22 +70,24 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
           tickets.map((ticket, index) => (
             <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
               {(provided, snapshot) => (
-                <>
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    <TicketCard
-                      ticket={ticket}
-                      onStatusChange={onStatusChange}
-                      onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
-                      isDragging={snapshot.isDragging}
-                      isHighlighted={ticket.id === highlightedTicketId}
-                      allUsers={allUsers}
-                    />
-                  </div>
-                </>
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  style={{
+                    ...provided.draggableProps.style,
+                    opacity: snapshot.isDragging ? 1 : undefined,
+                  }}
+                >
+                  <TicketCard
+                    ticket={ticket}
+                    onStatusChange={onStatusChange}
+                    onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
+                    isDragging={snapshot.isDragging}
+                    isHighlighted={ticket.id === highlightedTicketId}
+                    allUsers={allUsers}
+                  />
+                </div>
               )}
             </Draggable>
           ))
