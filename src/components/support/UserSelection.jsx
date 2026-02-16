@@ -44,10 +44,7 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await base44.functions.invoke('getAllUsers', {});
-        console.log('UserSelection fetchUsers response:', response);
-        const allUsers = response.users || [];
-        console.log('AllUsers:', allUsers);
+        const allUsers = await base44.entities.User.list();
         // Sort with Front Desk (owner accounts) first
         const sortedUsers = allUsers.sort((a, b) => {
           const aIsOwner = a.email === 'info@pilatesinpinkstudio.com';
@@ -56,7 +53,6 @@ export default function UserSelection({ onUserSelected, onClose, currentGradient
           if (!aIsOwner && bIsOwner) return 1;
           return 0;
         });
-        console.log('SortedUsers:', sortedUsers);
         setUsers(sortedUsers);
       } catch (err) {
         console.error('Failed to fetch users:', err);
