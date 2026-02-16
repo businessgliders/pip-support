@@ -70,12 +70,12 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
   return (
     <div
       onClick={onClick}
-      className={`backdrop-blur-md bg-white/40 border-2 ${priorityBorderColors[ticket.priority]} rounded-xl p-2 md:p-4 transition-all group ${
+      className={`backdrop-blur-md bg-white/40 border-2 ${priorityBorderColors[ticket.priority]} rounded-xl p-2 md:p-4 group ${
         isDragging 
-          ? "shadow-2xl scale-105 bg-white/70 rotate-2 cursor-grabbing ring-4 ring-white/40" 
+          ? "shadow-2xl bg-white/90 cursor-grabbing ring-4 ring-white/60" 
           : isHighlighted
-          ? "shadow-2xl bg-white/70 ring-4 ring-yellow-400/50 animate-shake cursor-grab"
-          : "hover:bg-white/50 shadow-lg hover:shadow-xl cursor-grab"
+          ? "shadow-2xl bg-white/70 ring-4 ring-yellow-400/50 animate-shake cursor-grab transition-all"
+          : "hover:bg-white/50 shadow-lg hover:shadow-xl cursor-grab transition-all"
       }`}
     >
       {/* Mobile Compact View */}
