@@ -7,13 +7,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Mail, Phone, MoreVertical, Gift } from "lucide-react";
+import { Mail, Phone, MoreVertical, Gift, User } from "lucide-react";
 
-const priorityColors = {
-  "Low": "bg-green-500/20 text-green-100 border-green-400/40",
-  "Medium": "bg-yellow-500/20 text-yellow-100 border-yellow-400/40",
-  "High": "bg-orange-500/20 text-orange-100 border-orange-400/40",
-  "Urgent": "bg-red-500/20 text-red-100 border-red-400/40"
+const priorityBorderColors = {
+  "Low": "border-green-500",
+  "Medium": "border-yellow-500",
+  "High": "border-orange-500",
+  "Urgent": "border-red-500"
+};
+
+const userColors = {
+  0: "bg-pink-500",
+  1: "bg-purple-500",
+  2: "bg-blue-500",
+  3: "bg-teal-500",
+  4: "bg-green-500",
+  5: "bg-orange-500",
+  6: "bg-red-500",
+  7: "bg-indigo-500"
 };
 
 const inquiryTypeIcons = {
@@ -51,14 +62,19 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
     }
     return email.substring(0, 2).toUpperCase();
   };
+
+  const getUserColor = (email) => {
+    const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return userColors[hash % 8];
+  };
   return (
     <div
       onClick={onClick}
-      className={`backdrop-blur-md bg-white/40 border border-white/50 rounded-xl p-2 md:p-4 transition-all group ${
+      className={`backdrop-blur-md bg-white/40 border-2 ${priorityBorderColors[ticket.priority]} rounded-xl p-2 md:p-4 transition-all group ${
         isDragging 
-          ? "shadow-2xl scale-105 bg-white/70 border-white/80 rotate-2 cursor-grabbing ring-4 ring-white/40" 
+          ? "shadow-2xl scale-105 bg-white/70 rotate-2 cursor-grabbing ring-4 ring-white/40" 
           : isHighlighted
-          ? "shadow-2xl bg-white/70 border-yellow-400/80 ring-4 ring-yellow-400/50 animate-shake cursor-grab"
+          ? "shadow-2xl bg-white/70 ring-4 ring-yellow-400/50 animate-shake cursor-grab"
           : "hover:bg-white/50 shadow-lg hover:shadow-xl cursor-grab"
       }`}
     >
@@ -118,9 +134,6 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">
                 {ticket.inquiry_type}
-              </Badge>
-              <Badge className={`${priorityColors[ticket.priority]} border text-xs`}>
-                {ticket.priority}
               </Badge>
             </div>
           </div>
@@ -183,9 +196,12 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
             {formatDateEST(ticket.created_date)} EST
           </div>
           {ticket.assigned_to && (
-            <Badge variant="outline" className="bg-blue-500/20 text-blue-900 border-blue-400/40 text-xs font-semibold">
-              {getInitials(ticket.assigned_to)}
-            </Badge>
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
+              <User className="w-3 h-3 text-white" />
+              <span className="text-white text-xs font-semibold">
+                {getInitials(ticket.assigned_to)}
+              </span>
+            </div>
           )}
         </div>
       </div>
