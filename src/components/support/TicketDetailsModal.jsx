@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp, Sparkles, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -554,42 +554,59 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          {/* Update Status - Dropdown on Mobile, Pipeline on Desktop */}
+          {/* Update Status - Redesigned */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Update Status</h3>
 
-            {/* Desktop View - Pipeline */}
-            <div className="hidden md:flex items-center gap-2">
-              {["New", "In Progress", "Resolved", "Closed"].map((status, index) => (
-                <React.Fragment key={status}>
-                  <button
-                    onClick={() => {
-                      if (ticket.status !== status) {
-                        const note = prompt(`Add a note for moving to ${status} (optional):`);
-                        onStatusChange(ticket.id, status, note || "");
-                        onClose();
-                      }
-                    }}
-                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all ${
-                      ticket.status === status
-                        ? `${statusColors[status]} border-2 shadow-lg`
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300"
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-sm">{status}</div>
+            {/* Desktop View - Modern Cards */}
+            <div className="hidden md:grid grid-cols-2 gap-3">
+              {[
+                { status: "New", icon: Sparkles, gradient: "from-pink-500 to-pink-600", bg: "bg-pink-50", border: "border-pink-200" },
+                { status: "In Progress", icon: Clock, gradient: "from-blue-500 to-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
+                { status: "Resolved", icon: CheckCircle, gradient: "from-green-500 to-green-600", bg: "bg-green-50", border: "border-green-200" },
+                { status: "Closed", icon: XCircle, gradient: "from-gray-500 to-gray-600", bg: "bg-gray-50", border: "border-gray-200" }
+              ].map(({ status, icon: Icon, gradient, bg, border }) => (
+                <button
+                  key={status}
+                  onClick={() => {
+                    if (ticket.status !== status) {
+                      const note = prompt(`Add a note for moving to ${status} (optional):`);
+                      onStatusChange(ticket.id, status, note || "");
+                      onClose();
+                    }
+                  }}
+                  disabled={ticket.status === status}
+                  className={`group relative overflow-hidden rounded-xl p-4 transition-all duration-300 ${
+                    ticket.status === status
+                      ? `${bg} ${border} border-2 shadow-lg scale-105`
+                      : "bg-white border-2 border-gray-200 hover:border-gray-300 hover:shadow-md hover:scale-102"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} ${
+                      ticket.status === status ? "shadow-md" : "opacity-60 group-hover:opacity-100"
+                    } transition-all`}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                  </button>
-                  {index < 3 && (
-                    <div className="text-gray-400">
-                      →
+                    <div className="flex-1 text-left">
+                      <div className={`font-semibold ${ticket.status === status ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"}`}>
+                        {status}
+                      </div>
+                      {ticket.status === status && (
+                        <div className="text-xs text-gray-600 mt-0.5">Current</div>
+                      )}
+                    </div>
+                  </div>
+                  {ticket.status === status && (
+                    <div className="absolute top-2 right-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
                     </div>
                   )}
-                </React.Fragment>
+                </button>
               ))}
             </div>
 
-            {/* Mobile View - Dropdown */}
+            {/* Mobile View - Enhanced Dropdown */}
             <div className="md:hidden">
               <Select
                 value={ticket.status}
@@ -601,14 +618,14 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   }
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-12 bg-gradient-to-r from-pink-50 to-purple-50 border-2">
                   <SelectValue placeholder="Select Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="New">New</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Resolved">Resolved</SelectItem>
-                  <SelectItem value="Closed">Closed</SelectItem>
+                  <SelectItem value="New">✨ New</SelectItem>
+                  <SelectItem value="In Progress">🕒 In Progress</SelectItem>
+                  <SelectItem value="Resolved">✅ Resolved</SelectItem>
+                  <SelectItem value="Closed">❌ Closed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
