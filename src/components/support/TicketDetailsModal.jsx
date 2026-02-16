@@ -186,27 +186,29 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
+      <DialogContent className="max-w-6xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="text-left">
               <DialogTitle className="text-lg md:text-2xl mb-2">{ticket.client_name}</DialogTitle>
-              <div className="flex gap-2">
-                <Badge className={`${statusColors[ticket.status]} border`}>
-                  {ticket.status}
-                </Badge>
-                <Badge className={`${priorityColors[ticket.priority]} border`}>
-                  {ticket.priority}
-                </Badge>
-                <Badge variant="outline" className="bg-gray-50">
-                  {ticket.inquiry_type}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </DialogHeader>
+                          <div className="flex gap-2">
+                            <Badge className={`${statusColors[ticket.status]} border`}>
+                              {ticket.status}
+                            </Badge>
+                            <Badge className={`${priorityColors[ticket.priority]} border`}>
+                              {ticket.priority}
+                            </Badge>
+                            <Badge variant="outline" className="bg-gray-50">
+                              {ticket.inquiry_type}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogHeader>
 
-        <div className="space-y-6">
+                    <div className="flex gap-6">
+                      {/* Left Section - Main Content */}
+                      <div className="flex-1 space-y-6">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -329,96 +331,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          {/* Assignment Section (Owner only) */}
-          {isOwner && (
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <UserPlus className="w-4 h-4" />
-                Assign Ticket
-              </h3>
-              <div className="flex gap-2">
-                <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select user" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                      <SelectItem key={u.id} value={u.email}>
-                        {u.email === 'info@pilatesinpinkstudio.com' 
-                          ? 'Front Desk'
-                          : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
-                        }
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button 
-                  onClick={handleAssignment}
-                  disabled={selectedAssignee === ticket.assigned_to}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                  Assign
-                </Button>
-              </div>
-              <p className="text-xs text-gray-600 mt-2">
-                Currently assigned to: {ticket.assigned_to?.split('@')[0] || 'Unassigned'}
-              </p>
-            </div>
-          )}
-
-          {/* Comments Section */}
-          <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              Comments
-            </h3>
-            
-            {/* Existing Comments */}
-            {ticket.comments && ticket.comments.length > 0 && (
-              <div className="space-y-3 mb-4">
-                {ticket.comments.map((comment, index) => {
-                  const commentUser = allUsers.find(u => u.email === comment.user_email);
-                  const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
-                    ? 'Front Desk' 
-                    : (commentUser?.full_name || comment.user_email.split('@')[0]);
-                  return (
-                    <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900">
-                          {displayName}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatDateEST(comment.timestamp)} EST
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            
-            {/* Add Comment */}
-            <div className="space-y-2">
-              <Label htmlFor="new-comment">Add Comment</Label>
-              <Textarea
-                id="new-comment"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Type your comment here..."
-                className="min-h-20"
-              />
-              <Button
-                onClick={handleAddComment}
-                disabled={isAddingComment || !newComment.trim()}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Add Comment
-              </Button>
-            </div>
-          </div>
-
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (
             <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
@@ -509,8 +421,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          <Separator />
-
           {/* Update Status - Dropdown on Mobile, Pipeline on Desktop */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Update Status</h3>
@@ -593,10 +503,107 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   Call Client
                 </a>
               </Button>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+              )}
+              </div>
+              </div>
+
+              {/* Divider */}
+              <Separator orientation="vertical" className="h-auto" />
+
+              {/* Right Section - Assignment & Comments */}
+              <div className="w-80 space-y-4">
+              {/* Assignment Section (Owner only) */}
+              {isOwner && (
+              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Assign Ticket
+              </h3>
+              <div className="flex gap-2">
+                <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                      <SelectItem key={u.id} value={u.email}>
+                        {u.email === 'info@pilatesinpinkstudio.com' 
+                          ? 'Front Desk'
+                          : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
+                        }
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleAssignment}
+                  disabled={selectedAssignee === ticket.assigned_to}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  Assign
+                </Button>
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                Currently assigned to: {ticket.assigned_to?.split('@')[0] || 'Unassigned'}
+              </p>
+              </div>
+              )}
+
+              {/* Comments Section */}
+              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Comments
+              </h3>
+
+              {/* Existing Comments */}
+              {ticket.comments && ticket.comments.length > 0 && (
+              <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                {ticket.comments.map((comment, index) => {
+                  const commentUser = allUsers.find(u => u.email === comment.user_email);
+                  const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
+                    ? 'Front Desk' 
+                    : (commentUser?.full_name || comment.user_email.split('@')[0]);
+                  return (
+                    <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-900">
+                          {displayName}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formatDateEST(comment.timestamp)} EST
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              )}
+
+              {/* Add Comment */}
+              <div className="space-y-2">
+              <Label htmlFor="new-comment">Add Comment</Label>
+              <Textarea
+                id="new-comment"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Type your comment here..."
+                className="min-h-20"
+              />
+              <Button
+                onClick={handleAddComment}
+                disabled={isAddingComment || !newComment.trim()}
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Add Comment
+              </Button>
+              </div>
+              </div>
+              </div>
+              </div>
+              </DialogContent>
+              </Dialog>
   );
 }
