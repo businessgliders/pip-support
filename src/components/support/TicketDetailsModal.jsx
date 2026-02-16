@@ -68,6 +68,46 @@ const formatShortDateEST = (dateString) => {
   });
 };
 
+const formatRelativeTime = (dateString) => {
+  let isoString = dateString;
+  if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+    isoString = dateString + 'Z';
+  }
+  const date = new Date(isoString);
+  const now = new Date();
+  
+  // Get dates in EST
+  const dateEST = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const nowEST = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  
+  const diffMs = nowEST - dateEST;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  const time = date.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24 && dateEST.getDate() === nowEST.getDate()) return `Today ${time}`;
+  if (diffDays === 1) return `Yesterday ${time}`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  
+  return date.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 export default function TicketDetailsModal({ ticket, onClose, onStatusChange, onTicketClick, currentUser, isOwner, allUsers }) {
   const [relatedTickets, setRelatedTickets] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(true);
@@ -558,27 +598,24 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
               {/* Existing Comments */}
               {ticket.comments && ticket.comments.length > 0 && (
-              <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                {ticket.comments.map((comment, index) => {
-                  const commentUser = allUsers.find(u => u.email === comment.user_email);
-                  const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
-                    ? 'Front Desk' 
-                    : (commentUser?.full_name || comment.user_email.split('@')[0]);
-                  return (
-                    <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900">
-                          {displayName}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatDateEST(comment.timestamp)} EST
-                        </span>
+                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                  {ticket.comments.map((comment, index) => {
+                    const commentUser = allUsers.find(u => u.email === comment.user_email);
+                    const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
+                      ? 'Front Desk' 
+                      : (commentUser?.full_name || comment.user_email.split('@')[0]);
+                    return (
+                      <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
+                        <p className="text-base text-gray-900 whitespace-pre-wrap mb-2">{comment.comment}</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span className="font-medium">{displayName}</span>
+                          <span>•</span>
+                          <span>{formatRelativeTime(comment.timestamp)}</span>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
               )}
 
               {/* Add Comment */}
