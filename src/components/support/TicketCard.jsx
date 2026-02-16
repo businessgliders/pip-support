@@ -53,6 +53,46 @@ const formatDateEST = (dateString) => {
   });
 };
 
+const formatRelativeTime = (dateString) => {
+  let isoString = dateString;
+  if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
+    isoString = dateString + 'Z';
+  }
+  const date = new Date(isoString);
+  const now = new Date();
+  
+  // Get dates in EST
+  const dateEST = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const nowEST = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  
+  const diffMs = nowEST - dateEST;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  const time = date.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24 && dateEST.getDate() === nowEST.getDate()) return `Today ${time}`;
+  if (diffDays === 1) return `Yesterday ${time}`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  
+  return date.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+};
+
 export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [] }) {
   const getInitials = (email) => {
     if (email === 'info@pilatesinpinkstudio.com') return 'FD';
@@ -118,7 +158,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
             {ticket.inquiry_type}
           </Badge>
           <span className="text-gray-700 text-[10px]">
-            {formatDateEST(ticket.created_date).split(',')[0]}
+            {formatRelativeTime(ticket.created_date)}
           </span>
         </div>
       </div>
@@ -193,7 +233,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
 
         <div className="flex items-center justify-between mt-3">
           <div className="text-gray-700 text-xs">
-            {formatDateEST(ticket.created_date)} EST
+            {formatRelativeTime(ticket.created_date)}
           </div>
           {ticket.assigned_to && (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
