@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
+import UserSelection from "../components/support/UserSelection";
 
 export default function TicketBoard() {
   const [user, setUser] = useState(null);
