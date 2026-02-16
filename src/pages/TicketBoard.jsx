@@ -365,7 +365,10 @@ export default function TicketBoard() {
                 <option value="all">All Users</option>
                 {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
                   <option key={u.id} value={u.email}>
-                    {u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]}
+                    {u.email === 'info@pilatesinpinkstudio.com' 
+                      ? 'Front Desk' 
+                      : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
+                    }
                   </option>
                 ))}
               </select>
