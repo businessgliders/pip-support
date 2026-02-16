@@ -531,6 +531,7 @@ export default function TicketBoard() {
                         highlightedTicketId={highlightedTicketId}
                         onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
                         viewMode={viewMode}
+                        allUsers={allUsers}
                       />
                       {provided.placeholder}
                     </div>
