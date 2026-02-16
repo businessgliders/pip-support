@@ -298,7 +298,7 @@ export default function TicketBoard() {
   }
 
   if (!user || showUserSelection) {
-    return <UserSelection />;
+    return <UserSelection onUserSelected={() => setShowUserSelection(false)} />;
   }
 
   return (
