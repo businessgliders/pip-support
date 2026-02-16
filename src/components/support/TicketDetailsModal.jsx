@@ -145,14 +145,80 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
     setIsAddingComment(true);
     try {
       const comments = ticket.comments || [];
-      comments.push({
+      const newCommentObj = {
         user_email: currentUser.email,
         comment: newComment,
         timestamp: new Date().toISOString()
-      });
+      };
+      comments.push(newCommentObj);
       
       await base44.entities.SupportTicket.update(ticket.id, { comments });
       ticket.comments = comments;
+      
+      // Send email notification to assigned user
+      if (ticket.assigned_to && ticket.assigned_to !== currentUser.email) {
+        const assignedUser = allUsers.find(u => u.email === ticket.assigned_to);
+        const assignedUserName = assignedUser?.full_name || ticket.assigned_to.split('@')[0];
+        const commenterName = currentUser.full_name || currentUser.email.split('@')[0];
+        
+        // Build comments trail HTML
+        const commentsTrailHTML = comments.slice(-5).reverse().map(c => {
+          const commentUser = allUsers.find(u => u.email === c.user_email);
+          const displayName = c.user_email === 'info@pilatesinpinkstudio.com' 
+            ? 'Front Desk' 
+            : (commentUser?.full_name || c.user_email.split('@')[0]);
+          
+          return `
+            <div style="background: ${c.user_email === currentUser.email ? '#f1899b20' : '#f8f9fa'}; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 4px solid ${c.user_email === currentUser.email ? '#f1899b' : '#e0e0e0'};">
+              <p style="color: #333; margin: 0 0 8px 0; white-space: pre-wrap; line-height: 1.6;">${c.comment}</p>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: #666; font-size: 12px; font-weight: 600;">${displayName}</span>
+                <span style="color: #999; font-size: 12px;">•</span>
+                <span style="color: #999; font-size: 12px;">${formatRelativeTime(c.timestamp)}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        await base44.integrations.Core.SendEmail({
+          from_name: "Pilates in Pink Support",
+          to: ticket.assigned_to,
+          subject: `New Comment on Ticket: ${ticket.client_name}`,
+          body: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f1899b 0%, #f7b1bd 50%, #fbe0e2 100%); padding: 40px 20px;">
+              <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div style="text-align: center; margin-bottom: 30px;">
+                  <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png" alt="Pilates in Pink" style="width: 80px; height: 80px;">
+                  <h1 style="color: #f1899b; margin: 15px 0 10px 0; font-size: 28px;">💬 New Comment</h1>
+                  <p style="color: #666; margin: 0;">${commenterName} commented on your ticket</p>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #f1899b20, #fbe0e220); border-left: 4px solid #f1899b; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                  <h2 style="color: #333; margin: 0 0 15px 0; font-size: 20px;">${ticket.client_name}</h2>
+                  <p style="margin: 8px 0; color: #555;"><strong>Email:</strong> ${ticket.client_email}</p>
+                  ${ticket.client_phone ? `<p style="margin: 8px 0; color: #555;"><strong>Phone:</strong> ${ticket.client_phone}</p>` : ''}
+                  <p style="margin: 8px 0; color: #555;"><strong>Status:</strong> <span style="background: #e3f2fd; padding: 4px 12px; border-radius: 12px; color: #1976d2;">${ticket.status}</span></p>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                  <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px;">Recent Comments</h3>
+                  ${commentsTrailHTML}
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}" style="display: inline-block; background: #f1899b; color: white; padding: 14px 32px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">View Ticket & Reply</a>
+                </div>
+                
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                  <p style="color: #999; margin: 5px 0; font-size: 13px;">Pilates in Pink Support System</p>
+                  <p style="color: #999; margin: 5px 0; font-size: 12px;">You're receiving this because you're assigned to this ticket</p>
+                </div>
+              </div>
+            </div>
+          `
+        });
+      }
+      
       setNewComment("");
     } catch (error) {
       console.error("Failed to add comment:", error);
