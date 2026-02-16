@@ -677,7 +677,11 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </Button>
               </div>
               <p className="text-xs text-gray-600 mt-2">
-                Currently assigned to: {ticket.assigned_to?.split('@')[0] || 'Unassigned'}
+                Currently assigned to: {
+                  ticket.assigned_to === 'info@pilatesinpinkstudio.com' 
+                    ? 'Front Desk'
+                    : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
+                }
               </p>
               </div>
               )}
