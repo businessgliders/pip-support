@@ -299,7 +299,7 @@ export default function TicketBoard() {
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#b67651]/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       
-      <div className="max-w-7xl mx-auto relative" style={{ zIndex: 10 }}>
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
@@ -511,7 +511,7 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {columns.map((column) => (
                 <Droppable key={column} droppableId={column}>
                   {(provided, snapshot) => (
