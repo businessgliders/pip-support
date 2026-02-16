@@ -31,6 +31,7 @@ export default function TicketBoard() {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showUserSelection, setShowUserSelection] = useState(false);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
