@@ -378,7 +378,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               <div className="space-y-3 mb-4">
                 {ticket.comments.map((comment, index) => {
                   const commentUser = allUsers.find(u => u.email === comment.user_email);
-                  const displayName = commentUser?.full_name || comment.user_email.split('@')[0];
+                  const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
+                    ? 'Front Desk' 
+                    : (commentUser?.full_name || comment.user_email.split('@')[0]);
                   return (
                     <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
                       <div className="flex items-center justify-between mb-1">
