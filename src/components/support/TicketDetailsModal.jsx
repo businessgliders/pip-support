@@ -246,7 +246,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                       </div>
                     </DialogHeader>
 
-                    <div className="flex gap-6">
+                    <div className="flex flex-col md:flex-row gap-6">
                       {/* Left Section - Main Content */}
                       <div className="flex-1 space-y-6">
           {/* Contact Information */}
@@ -523,10 +523,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           </div>
 
               {/* Divider */}
-              <Separator orientation="vertical" className="h-auto" />
+              <Separator orientation="vertical" className="hidden md:block h-auto" />
 
               {/* Right Section - Assignment & Comments */}
-              <div className="w-80 space-y-4">
+              <div className="w-full md:w-80 space-y-4">
               {/* Quick Actions */}
               <div className="space-y-2">
                 <Button
