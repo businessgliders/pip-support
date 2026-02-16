@@ -291,7 +291,7 @@ export default function TicketBoard() {
   }
 
   if (!user) {
-    return null;
+    return <UserSelection />;
   }
 
   return (
