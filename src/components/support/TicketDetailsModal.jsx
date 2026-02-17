@@ -116,7 +116,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
   const [showContactInfo, setShowContactInfo] = useState(true);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
-  const [showStatusHistory, setShowStatusHistory] = useState(false);
+  const [showStatusHistory, setShowStatusHistory] = useState(true);
 
   useEffect(() => {
     const fetchRelatedTickets = async () => {
@@ -513,46 +513,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          {/* Status History Timeline */}
-          {ticket.status_history && ticket.status_history.length > 0 && (
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
-              <button
-                onClick={() => setShowStatusHistory(!showStatusHistory)}
-                className="w-full flex items-center justify-between text-left"
-              >
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <History className="w-4 h-4" />
-                  Status History
-                </h3>
-                {showStatusHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {showStatusHistory && (
-                <div className="space-y-3 mt-3">
-                  {[...ticket.status_history].reverse().map((entry, index) => (
-                    <div key={index} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
-                        {index !== ticket.status_history.length - 1 && (
-                          <div className="w-0.5 h-full bg-gray-300 mt-1" />
-                        )}
-                      </div>
-                      <div className="flex-1 pb-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-gray-900">{entry.status}</span>
-                          <span className="text-xs text-gray-500">
-                            {formatRelativeTime(entry.timestamp)}
-                          </span>
-                        </div>
-                        {entry.note && (
-                          <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+
 
           {/* Update Status - Redesigned */}
           <div>
@@ -638,30 +599,46 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
               {/* Right Section - Assignment & Comments */}
               <div className="w-full md:flex-[2] space-y-4">
-              {/* Quick Actions */}
-              <div className="space-y-2">
-                <Button
-                  asChild
-                  className="w-full bg-[#b67651] hover:bg-[#a56541] text-white"
-                >
-                  <a href={`mailto:${ticket.client_email}`}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email Client
-                  </a>
-                </Button>
-                {ticket.client_phone && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full"
+              {/* Status History Timeline */}
+              {ticket.status_history && ticket.status_history.length > 0 && (
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+                  <button
+                    onClick={() => setShowStatusHistory(!showStatusHistory)}
+                    className="w-full flex items-center justify-between text-left"
                   >
-                    <a href={`tel:${ticket.client_phone}`}>
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call Client
-                    </a>
-                  </Button>
-                )}
-              </div>
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                      <History className="w-4 h-4" />
+                      Status History
+                    </h3>
+                    {showStatusHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  {showStatusHistory && (
+                    <div className="space-y-3 mt-3">
+                      {[...ticket.status_history].reverse().map((entry, index) => (
+                        <div key={index} className="flex gap-3">
+                          <div className="flex flex-col items-center">
+                            <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
+                            {index !== ticket.status_history.length - 1 && (
+                              <div className="w-0.5 h-full bg-gray-300 mt-1" />
+                            )}
+                          </div>
+                          <div className="flex-1 pb-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-gray-900">{entry.status}</span>
+                              <span className="text-xs text-gray-500">
+                                {formatRelativeTime(entry.timestamp)}
+                              </span>
+                            </div>
+                            {entry.note && (
+                              <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Assignment Section (Owner only) */}
               {isOwner && (
@@ -703,6 +680,31 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </p>
               </div>
               )}
+
+              {/* Quick Actions */}
+              <div className="space-y-2">
+                <Button
+                  asChild
+                  className="w-full bg-[#b67651] hover:bg-[#a56541] text-white"
+                >
+                  <a href={`mailto:${ticket.client_email}`}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Email Client
+                  </a>
+                </Button>
+                {ticket.client_phone && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <a href={`tel:${ticket.client_phone}`}>
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call Client
+                    </a>
+                  </Button>
+                )}
+              </div>
 
               {/* Comments Section */}
               <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
