@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns, LogOut } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns, LogOut, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -27,6 +27,17 @@ import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
 
+const userColors = {
+  0: "bg-pink-400",
+  1: "bg-purple-400",
+  2: "bg-blue-400",
+  3: "bg-teal-400",
+  4: "bg-green-400",
+  5: "bg-amber-400",
+  6: "bg-rose-400",
+  7: "bg-indigo-400"
+};
+
 export default function TicketBoard() {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -40,6 +51,20 @@ export default function TicketBoard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const queryClient = useQueryClient();
+
+  const getInitials = (email) => {
+    if (email === 'info@pilatesinpinkstudio.com') return 'FD';
+    const foundUser = allUsers.find(u => u.email === email);
+    if (foundUser?.full_name) {
+      return foundUser.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
+  };
+
+  const getUserColor = (email) => {
+    const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return userColors[hash % 8];
+  };
 
   // Check authentication and domain restriction
   useEffect(() => {
@@ -389,12 +414,10 @@ export default function TicketBoard() {
                 <Button
                   className="md:hidden backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#f1899b] flex items-center justify-center">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(user.email)} shadow-sm`}>
+                    <User className="w-3 h-3 text-white" />
                     <span className="text-white text-xs font-semibold">
-                      {user.full_name 
-                        ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
-                        : user.email.substring(0, 2).toUpperCase()
-                      }
+                      {getInitials(user.email)}
                     </span>
                   </div>
                 </Button>
@@ -438,12 +461,10 @@ export default function TicketBoard() {
                   variant="ghost"
                   className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-4 shadow-lg"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#f1899b] flex items-center justify-center">
-                    <span className="text-white text-sm font-semibold">
-                      {user.full_name 
-                        ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
-                        : user.email.substring(0, 2).toUpperCase()
-                      }
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(user.email)} shadow-sm`}>
+                    <User className="w-3 h-3 text-white" />
+                    <span className="text-white text-xs font-semibold">
+                      {getInitials(user.email)}
                     </span>
                   </div>
                   <span className="text-gray-900 font-medium">Menu</span>
