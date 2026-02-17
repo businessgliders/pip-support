@@ -665,8 +665,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 )}
               </div>
 
-              {/* Assignment Section (Owner only) */}
-              {isOwner && (
+              {/* Assignment Section */}
               <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <UserPlus className="w-4 h-4" />
@@ -704,7 +703,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 }
               </p>
               </div>
-              )}
 
               {/* Comments Section */}
               <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
