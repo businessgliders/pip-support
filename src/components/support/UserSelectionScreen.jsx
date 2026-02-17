@@ -20,7 +20,13 @@ export default function UserSelectionScreen() {
       try {
         const response = await base44.functions.invoke('getUsersForSelection', {});
         console.log("Fetched users:", response.data.users);
-        setUsers(response.data.users);
+        // Sort users to put Front Desk first
+        const sortedUsers = response.data.users.sort((a, b) => {
+          if (a.email === 'info@pilatesinpinkstudio.com') return -1;
+          if (b.email === 'info@pilatesinpinkstudio.com') return 1;
+          return 0;
+        });
+        setUsers(sortedUsers);
       } catch (error) {
         console.error("Failed to fetch users:", error);
         setError(error.message);
