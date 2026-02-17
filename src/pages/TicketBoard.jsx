@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns, LogOut, User } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -467,8 +467,8 @@ export default function TicketBoard() {
                       {getInitials(user.email)}
                     </span>
                   </div>
-                  <span className="text-gray-900 font-medium">Menu</span>
-                </Button>
+                  <Menu className="w-4 h-4 text-gray-900" />
+                  </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={() => {
