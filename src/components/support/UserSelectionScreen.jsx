@@ -13,14 +13,17 @@ const pinkVariants = [
 export default function UserSelectionScreen() {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const allUsers = await base44.entities.User.list();
+        console.log("Fetched users:", allUsers);
         setUsers(allUsers);
       } catch (error) {
         console.error("Failed to fetch users:", error);
+        setError(error.message);
       } finally {
         setIsLoading(false);
       }
@@ -74,7 +77,9 @@ export default function UserSelectionScreen() {
         </h1>
         
         <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-4xl">
-          {users.length === 0 ? (
+          {error ? (
+            <div className="text-red-400 text-xl">Error: {error}</div>
+          ) : users.length === 0 ? (
             <div className="text-gray-400 text-xl">No users available</div>
           ) : (
             users.map((user, index) => (
