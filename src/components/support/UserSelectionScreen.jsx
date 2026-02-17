@@ -101,7 +101,7 @@ export default function UserSelectionScreen() {
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/9fc97775a_PiPSupport.png"
           alt="PiP Support"
-          className="w-32 h-32"
+          className="w-48 h-48"
         />
         <p className="text-gray-500 text-sm">
           © 2026 Pilates in Pink™ • All rights reserved
