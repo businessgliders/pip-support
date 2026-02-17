@@ -371,7 +371,7 @@ export default function IntakeForm() {
   }
 
   return (
-    <div className={`p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden ${isEmbedded ? '' : 'min-h-screen'}`}>
+    <div className={`p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden ${isEmbedded ? 'min-h-[800px]' : 'min-h-screen'}`}>
       {/* Decorative background elements - hide in embed */}
       {!isEmbedded && (
         <>
