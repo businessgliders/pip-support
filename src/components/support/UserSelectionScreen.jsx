@@ -78,11 +78,11 @@ export default function UserSelectionScreen() {
       `}</style>
       
       <div className="flex-1 flex flex-col items-center justify-center px-4 pb-32">
-        <h1 className="cursive-text text-5xl md:text-6xl text-white mb-16">
+        <h1 className="cursive-text text-4xl md:text-5xl text-white mb-12">
           Select User
         </h1>
-        
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-4xl">
+
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6 max-w-3xl">
           {error ? (
             <div className="text-red-400 text-xl">Error: {error}</div>
           ) : users.length === 0 ? (
@@ -92,14 +92,14 @@ export default function UserSelectionScreen() {
             <button
               key={user.id}
               onClick={handleUserClick}
-              className="group flex flex-col items-center transition-transform hover:scale-110"
+              className="group flex flex-col items-center transition-transform hover:scale-105"
             >
-              <div className={`w-32 h-32 md:w-40 md:h-40 ${getUserColor(index)} rounded-2xl flex items-center justify-center shadow-2xl border-4 border-transparent group-hover:border-white transition-all`}>
-                <span className="text-white text-4xl md:text-5xl font-bold">
+              <div className={`w-24 h-24 md:w-28 md:h-28 ${getUserColor(index)} rounded-xl flex items-center justify-center shadow-lg border-4 border-transparent group-hover:border-white transition-all`}>
+                <span className="text-white text-3xl md:text-4xl font-bold">
                   {getInitials(user)}
                 </span>
               </div>
-              <span className="text-gray-300 text-lg md:text-xl mt-4 group-hover:text-white transition-colors">
+              <span className="text-gray-300 text-sm md:text-base mt-3 group-hover:text-white transition-colors">
                 {getDisplayName(user)}
               </span>
             </button>
