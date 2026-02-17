@@ -601,31 +601,31 @@ export default function TicketBoard() {
 
       {/* Ticket Details Modal */}
       {selectedTicket && (
-      <TicketDetailsModal
-        ticket={selectedTicket}
-        onClose={() => setSelectedTicket(null)}
-        onStatusChange={handleStatusChange}
-        onTicketClick={setSelectedTicket}
-        currentUser={user}
-        isOwner={isOwner}
-        allUsers={allUsers}
-      />
+        <TicketDetailsModal
+          ticket={selectedTicket}
+          onClose={() => setSelectedTicket(null)}
+          onStatusChange={handleStatusChange}
+          onTicketClick={setSelectedTicket}
+          currentUser={user}
+          isOwner={isOwner}
+          allUsers={allUsers}
+        />
       )}
-      </div>
 
       {/* Footer */}
-      <div className="mt-12 pb-8 flex flex-col items-center gap-4 relative z-10">
-      <img 
-      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
-      alt="Pilates in Pink"
-      className="w-16 h-16 rounded-lg shadow-lg"
-      />
-      <p className="text-gray-500 text-sm">
-      © 2026 Pilates in Pink™ • All rights reserved
-      </p>
+      <div className="mt-12 pb-8 flex flex-col items-center gap-4">
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
+          alt="Pilates in Pink"
+          className="w-16 h-16 rounded-lg shadow-lg"
+        />
+        <p className="text-gray-500 text-sm">
+          © 2026 Pilates in Pink™ • All rights reserved
+        </p>
       </div>
-      );
-      }
+    </div>
+  );
+}
 
 function StatusChangeDialog({ data, onConfirm, onCancel }) {
   const [note, setNote] = useState("");
