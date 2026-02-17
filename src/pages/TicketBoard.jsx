@@ -3,13 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns, LogOut, Menu } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ExternalLink, Archive, X, Search, Columns, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -25,13 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
-import UserSelection from "../components/support/UserSelection";
 
 export default function TicketBoard() {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const [showUserSelection, setShowUserSelection] = useState(false);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -42,13 +34,25 @@ export default function TicketBoard() {
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const queryClient = useQueryClient();
 
-  // Temporary: Skip auth check for testing
+  // Check authentication and domain restriction
   useEffect(() => {
-    setUser({
-      email: 'info@pilatesinpinkstudio.com',
-      full_name: 'Front Desk'
-    });
-    setIsAuthLoading(false);
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        // Check if email is from @pilatesinpinkstudio.com domain
+        if (!currentUser.email.endsWith('@pilatesinpinkstudio.com')) {
+          alert('Access restricted to @pilatesinpinkstudio.com domain only');
+          base44.auth.redirectToLogin();
+          return;
+        }
+        setUser(currentUser);
+      } catch (error) {
+        base44.auth.redirectToLogin();
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+    checkAuth();
   }, []);
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -60,10 +64,7 @@ export default function TicketBoard() {
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['users'],
-    queryFn: async () => {
-      const response = await base44.functions.invoke('getAllUsers', {});
-      return response.data?.users || [];
-    },
+    queryFn: () => base44.entities.User.list(),
     enabled: !!user
   });
 
@@ -288,8 +289,8 @@ export default function TicketBoard() {
     );
   }
 
-  if (!user || showUserSelection) {
-    return <UserSelection onUserSelected={() => setShowUserSelection(false)} />;
+  if (!user) {
+    return null;
   }
 
   return (
@@ -339,6 +340,21 @@ export default function TicketBoard() {
               <Search className="w-4 h-4" />
             </Button>
 
+            {/* View Mode Toggle */}
+            {!showArchived && (
+              <Button
+                onClick={() => setViewMode(viewMode === "status" ? "category" : "status")}
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 md:px-6 shadow-lg"
+              >
+                <span className="hidden md:inline">
+                  {viewMode === "status" ? "View by Category" : "View by Status"}
+                </span>
+                <span className="md:hidden">
+                  {viewMode === "status" ? "📂" : "📊"}
+                </span>
+              </Button>
+            )}
+
             {/* Edit Columns Button */}
             {!showArchived && (
               <Button
@@ -361,21 +377,6 @@ export default function TicketBoard() {
               <Archive className="w-4 h-4" />
             </Button>
 
-            {/* View Mode Toggle */}
-            {!showArchived && (
-              <Button
-                onClick={() => setViewMode(viewMode === "status" ? "category" : "status")}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 md:px-6 shadow-lg"
-              >
-                <span className="hidden md:inline">
-                  {viewMode === "status" ? "View by Category" : "View by Status"}
-                </span>
-                <span className="md:hidden">
-                  {viewMode === "status" ? "📂" : "📊"}
-                </span>
-              </Button>
-            )}
-
             {/* User Filter (Owner only) */}
             {isOwner && (
               <select
@@ -395,29 +396,25 @@ export default function TicketBoard() {
               </select>
             )}
 
-            {/* User Menu with Switch User and Logout */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-4 shadow-lg hidden md:flex items-center gap-2">
-                  <span className="text-sm font-semibold">
-                    {user.full_name 
-                      ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
-                      : user.email.substring(0, 2).toUpperCase()
-                    }
-                  </span>
-                  <Menu className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="backdrop-blur-xl bg-white/95 border-white/40">
-                <DropdownMenuItem onClick={() => setShowUserSelection(true)}>
-                  Switch User
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => base44.auth.logout()}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* User Initials */}
+            <div className="hidden md:flex items-center backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
+              <span className="text-gray-900 text-sm font-semibold">
+                {user.full_name 
+                  ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
+                  : user.email.substring(0, 2).toUpperCase()
+                }
+              </span>
+            </div>
+
+            {/* Logout Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => base44.auth.logout()}
+              className="hidden md:flex backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 w-11 shadow-lg"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
