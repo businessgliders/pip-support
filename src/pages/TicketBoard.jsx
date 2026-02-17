@@ -303,14 +303,14 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-[#f1899b] to-white relative">
+    <div className="min-h-screen p-3 md:p-4 bg-gradient-to-b from-[#f1899b] to-white relative">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-3 mb-4">
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/a1b923375_PiPSupport.png"
@@ -466,7 +466,7 @@ export default function TicketBoard() {
 
         {/* Column Editor Dialog */}
         {showColumnEditor && (
-          <div className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl p-6 mb-6 shadow-xl">
+          <div className="backdrop-blur-xl bg-white/90 border border-white/40 rounded-2xl p-4 mb-4 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {viewMode === "status" ? "Edit Status Columns" : "Edit Category Columns"}
             </h3>
@@ -557,7 +557,7 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {columns.map((column) => (
                 <Droppable key={column} droppableId={column}>
                   {(provided, snapshot) => (
