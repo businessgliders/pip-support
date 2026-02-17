@@ -62,7 +62,7 @@ export default function TicketBoard() {
     queryKey: ['users'],
     queryFn: async () => {
       const response = await base44.functions.invoke('getAllUsers', {});
-      return response.users || [];
+      return response.data?.users || [];
     },
     enabled: !!user
   });
