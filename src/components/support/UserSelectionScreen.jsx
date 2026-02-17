@@ -88,22 +88,38 @@ export default function UserSelectionScreen() {
           ) : users.length === 0 ? (
             <div className="text-gray-400 text-xl">No users available</div>
           ) : (
-            users.map((user, index) => (
-            <button
-              key={user.id}
-              onClick={handleUserClick}
-              className="group flex flex-col items-center transition-transform hover:scale-105"
-            >
-              <div className={`w-24 h-24 md:w-28 md:h-28 ${getUserColor(index)} rounded-xl flex items-center justify-center shadow-lg border-4 border-transparent group-hover:border-white transition-all`}>
-                <span className="text-white text-3xl md:text-4xl font-bold">
-                  {getInitials(user)}
+            <>
+              {users.map((user, index) => (
+                <button
+                  key={user.id}
+                  onClick={handleUserClick}
+                  className="group flex flex-col items-center transition-transform hover:scale-105"
+                >
+                  <div className={`w-24 h-24 md:w-28 md:h-28 ${getUserColor(index)} rounded-xl flex items-center justify-center shadow-lg border-4 border-transparent group-hover:border-white transition-all`}>
+                    <span className="text-white text-3xl md:text-4xl font-bold">
+                      {getInitials(user)}
+                    </span>
+                  </div>
+                  <span className="text-gray-300 text-sm md:text-base mt-3 group-hover:text-white transition-colors">
+                    {getDisplayName(user)}
+                  </span>
+                </button>
+              ))}
+
+              {/* New User Tile */}
+              <button
+                onClick={handleUserClick}
+                className="group flex flex-col items-center transition-transform hover:scale-105"
+              >
+                <div className="w-24 h-24 md:w-28 md:h-28 bg-gray-700 rounded-xl flex items-center justify-center shadow-lg border-4 border-dashed border-gray-600 group-hover:border-white transition-all">
+                  <span className="text-white text-4xl md:text-5xl font-bold">+</span>
+                </div>
+                <span className="text-gray-300 text-sm md:text-base mt-3 group-hover:text-white transition-colors">
+                  New User
                 </span>
-              </div>
-              <span className="text-gray-300 text-sm md:text-base mt-3 group-hover:text-white transition-colors">
-                {getDisplayName(user)}
-              </span>
-            </button>
-          )))}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
