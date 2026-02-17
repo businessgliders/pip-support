@@ -613,7 +613,7 @@ export default function TicketBoard() {
       )}
 
       {/* Footer */}
-      <div className="mt-12 pb-8 flex flex-col items-center gap-4">
+      <div className="mt-8 pb-4 flex flex-col items-center gap-4">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
           alt="Pilates in Pink"
