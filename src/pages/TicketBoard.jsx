@@ -313,14 +313,11 @@ export default function TicketBoard() {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
-              alt="Pilates in Pink"
-              className="w-16 h-16 drop-shadow-xl"
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/a1b923375_PiPSupport.png"
+              alt="PiP Support"
+              className="h-12 md:h-16 drop-shadow-xl"
             />
             <div className="text-center md:text-left">
-              <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
-                {showArchived ? "Archived Tickets" : "PiP Support"}
-              </h1>
               <p className="text-white/90">
                 {showArchived 
                   ? `${archivedTickets.length} archived tickets`
