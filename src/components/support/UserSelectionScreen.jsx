@@ -18,8 +18,7 @@ export default function UserSelectionScreen() {
     const fetchUsers = async () => {
       try {
         const allUsers = await base44.entities.User.list();
-        const filteredUsers = allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com'));
-        setUsers(filteredUsers);
+        setUsers(allUsers);
       } catch (error) {
         console.error("Failed to fetch users:", error);
       } finally {
@@ -75,7 +74,10 @@ export default function UserSelectionScreen() {
         </h1>
         
         <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-4xl">
-          {users.map((user, index) => (
+          {users.length === 0 ? (
+            <div className="text-gray-400 text-xl">No users available</div>
+          ) : (
+            users.map((user, index) => (
             <button
               key={user.id}
               onClick={handleUserClick}
@@ -90,16 +92,16 @@ export default function UserSelectionScreen() {
                 {getDisplayName(user)}
               </span>
             </button>
-          ))}
+          )))}
         </div>
       </div>
 
       {/* Footer */}
       <div className="pb-8 flex flex-col items-center gap-4">
         <img 
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/e13390064_PiPSupport.png"
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/9fc97775a_PiPSupport.png"
           alt="PiP Support"
-          className="w-16 h-16"
+          className="w-32 h-32"
         />
         <p className="text-gray-500 text-sm">
           © 2026 Pilates in Pink™ • All rights reserved
