@@ -613,13 +613,13 @@ export default function TicketBoard() {
       )}
 
       {/* Footer */}
-      <div className="mt-8 pb-4 flex flex-col items-center gap-4">
+      <div className="mt-4 pb-2 flex flex-col items-center gap-2">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
           alt="Pilates in Pink"
-          className="w-16 h-16 rounded-lg shadow-lg"
+          className="w-12 h-12 rounded-lg shadow-lg"
         />
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-xs">
           © 2026 Pilates in Pink™ • All rights reserved
         </p>
       </div>
