@@ -386,6 +386,35 @@ export default function TicketBoard() {
               <Archive className="w-4 h-4" />
             </Button>
 
+            {/* Mobile User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="md:hidden backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[#f1899b] flex items-center justify-center">
+                    <span className="text-white text-xs font-semibold">
+                      {user.full_name 
+                        ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
+                        : user.email.substring(0, 2).toUpperCase()
+                      }
+                    </span>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => {
+                  base44.auth.logout();
+                  window.location.reload();
+                }}>
+                  Switch User
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {/* User Filter (Owner only) */}
             {isOwner && (
               <select
