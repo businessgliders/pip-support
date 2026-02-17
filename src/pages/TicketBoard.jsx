@@ -14,6 +14,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -399,25 +405,36 @@ export default function TicketBoard() {
               </select>
             )}
 
-            {/* User Initials */}
-            <div className="hidden md:flex items-center backdrop-blur-md bg-white/70 border border-white/80 rounded-xl h-11 px-4">
-              <span className="text-gray-900 text-sm font-semibold">
-                {user.full_name 
-                  ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
-                  : user.email.substring(0, 2).toUpperCase()
-                }
-              </span>
-            </div>
-
-            {/* Logout Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => base44.auth.logout()}
-              className="hidden md:flex backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 w-11 shadow-lg"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
+            {/* User Menu Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-4 shadow-lg"
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#f1899b] flex items-center justify-center">
+                    <span className="text-white text-sm font-semibold">
+                      {user.full_name 
+                        ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()
+                        : user.email.substring(0, 2).toUpperCase()
+                      }
+                    </span>
+                  </div>
+                  <span className="text-gray-900 font-medium">Menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => {
+                  base44.auth.logout();
+                  window.location.reload();
+                }}>
+                  Switch User
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
