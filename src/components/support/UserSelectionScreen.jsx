@@ -18,9 +18,9 @@ export default function UserSelectionScreen() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const allUsers = await base44.entities.User.list();
-        console.log("Fetched users:", allUsers);
-        setUsers(allUsers);
+        const response = await base44.functions.invoke('getUsersForSelection', {});
+        console.log("Fetched users:", response.data.users);
+        setUsers(response.data.users);
       } catch (error) {
         console.error("Failed to fetch users:", error);
         setError(error.message);
