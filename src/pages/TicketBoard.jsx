@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
+import UserSelectionScreen from "../components/support/UserSelectionScreen";
 
 export default function TicketBoard() {
   const [user, setUser] = useState(null);
@@ -42,12 +43,14 @@ export default function TicketBoard() {
         // Check if email is from @pilatesinpinkstudio.com domain
         if (!currentUser.email.endsWith('@pilatesinpinkstudio.com')) {
           alert('Access restricted to @pilatesinpinkstudio.com domain only');
-          base44.auth.redirectToLogin();
+          setUser(null);
+          setIsAuthLoading(false);
           return;
         }
         setUser(currentUser);
       } catch (error) {
-        base44.auth.redirectToLogin();
+        // Not authenticated - show user selection
+        setUser(null);
       } finally {
         setIsAuthLoading(false);
       }
@@ -290,7 +293,7 @@ export default function TicketBoard() {
   }
 
   if (!user) {
-    return null;
+    return <UserSelectionScreen />;
   }
 
   return (
