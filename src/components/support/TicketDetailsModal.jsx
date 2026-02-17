@@ -640,6 +640,31 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </div>
               )}
 
+              {/* Quick Actions */}
+              <div className="space-y-2">
+                <Button
+                  asChild
+                  className="w-full bg-[#b67651] hover:bg-[#a56541] text-white"
+                >
+                  <a href={`mailto:${ticket.client_email}`}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Email Client
+                  </a>
+                </Button>
+                {ticket.client_phone && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <a href={`tel:${ticket.client_phone}`}>
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call Client
+                    </a>
+                  </Button>
+                )}
+              </div>
+
               {/* Assignment Section (Owner only) */}
               {isOwner && (
               <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
@@ -680,31 +705,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </p>
               </div>
               )}
-
-              {/* Quick Actions */}
-              <div className="space-y-2">
-                <Button
-                  asChild
-                  className="w-full bg-[#b67651] hover:bg-[#a56541] text-white"
-                >
-                  <a href={`mailto:${ticket.client_email}`}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email Client
-                  </a>
-                </Button>
-                {ticket.client_phone && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <a href={`tel:${ticket.client_phone}`}>
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call Client
-                    </a>
-                  </Button>
-                )}
-              </div>
 
               {/* Comments Section */}
               <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
