@@ -155,15 +155,26 @@ export default function TicketBoard() {
   };
 
   const handleArchiveAll = async () => {
-    const closedTickets = tickets.filter(t => t.status === "Closed" && !t.archived);
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const ticketsToArchive = tickets.filter(t => {
+      if (t.status !== "Closed" || t.archived) return false;
+      const ticketDate = new Date(t.updated_date || t.created_date);
+      return ticketDate.getMonth() !== currentMonth || ticketDate.getFullYear() !== currentYear;
+    });
     
-    if (closedTickets.length === 0) return;
+    if (ticketsToArchive.length === 0) {
+      alert("There are no closed tickets from previous months to archive.");
+      return;
+    }
     
-    if (!confirm(`Archive ${closedTickets.length} closed ticket(s)? They can be restored later from the archive.`)) {
+    if (!confirm(`Archive ${ticketsToArchive.length} closed ticket(s) from previous months? (Current month tickets will remain)`)) {
       return;
     }
 
-    for (const ticket of closedTickets) {
+    for (const ticket of ticketsToArchive) {
       await updateTicketMutation.mutateAsync({
         id: ticket.id,
         data: { archived: true }
