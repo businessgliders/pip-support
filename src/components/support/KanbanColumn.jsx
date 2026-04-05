@@ -29,7 +29,7 @@ const headerColors = {
   "Other": "bg-gray-500/30 border-gray-400/40"
 };
 
-export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveAll, viewMode, allUsers }) {
+export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveSome, onArchiveAll, viewMode, allUsers }) {
   return (
     <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col h-[calc(100vh-260px)]`}>
       {/* Column Header */}
@@ -42,15 +42,29 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
         </div>
         
         {/* Clear All Button for Closed Column */}
-        {status === "Closed" && onArchiveAll && tickets.length > 0 && (
-          <Button
-            onClick={onArchiveAll}
-            size="sm"
-            className="w-full mt-2 h-7 md:h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs"
-          >
-            <Archive className="w-3 h-3 mr-1.5" />
-            Archive Older Months
-          </Button>
+        {status === "Closed" && (onArchiveSome || onArchiveAll) && tickets.length > 0 && (
+          <div className="flex gap-2 mt-2 w-full">
+            {onArchiveSome && (
+              <Button
+                onClick={onArchiveSome}
+                size="sm"
+                className="flex-1 h-7 md:h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs px-1"
+              >
+                <Archive className="w-3 h-3 md:mr-1.5 mr-1 hidden sm:inline-block" />
+                Archive Some
+              </Button>
+            )}
+            {onArchiveAll && (
+              <Button
+                onClick={onArchiveAll}
+                size="sm"
+                className="flex-1 h-7 md:h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs px-1"
+              >
+                <Archive className="w-3 h-3 md:mr-1.5 mr-1 hidden sm:inline-block" />
+                Archive All
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

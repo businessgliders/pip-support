@@ -46,6 +46,7 @@ export default function TicketBoard() {
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
   const [alertDialog, setAlertDialog] = useState(null);
+  const [archiveAllConfirmDialog, setArchiveAllConfirmDialog] = useState(null);
   const [mobileSearchDialog, setMobileSearchDialog] = useState(false);
   const [mobileSearchInput, setMobileSearchInput] = useState("");
   const [viewMode, setViewMode] = useState("status"); // "status" or "category"
@@ -157,7 +158,7 @@ export default function TicketBoard() {
     });
   };
 
-  const handleArchiveAll = async () => {
+  const handleArchiveSome = async () => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -181,6 +182,32 @@ export default function TicketBoard() {
     }
     
     setAlertDialog(`Successfully archived ${ticketsToArchive.length} ticket(s) from previous months.`);
+  };
+
+  const handleArchiveAll = () => {
+    const ticketsToArchive = tickets.filter(t => t.status === "Closed" && !t.archived);
+    
+    if (ticketsToArchive.length === 0) {
+      setAlertDialog("There are no closed tickets to archive.");
+      return;
+    }
+
+    setArchiveAllConfirmDialog({
+      ticketsToArchive,
+      message: `Are you sure you want to archive all ${ticketsToArchive.length} closed ticket(s), including those from this month?`
+    });
+  };
+
+  const confirmArchiveAll = async () => {
+    if (!archiveAllConfirmDialog) return;
+    for (const ticket of archiveAllConfirmDialog.ticketsToArchive) {
+      await updateTicketMutation.mutateAsync({
+        id: ticket.id,
+        data: { archived: true }
+      });
+    }
+    setArchiveAllConfirmDialog(null);
+    setAlertDialog(`Successfully archived ${archiveAllConfirmDialog.ticketsToArchive.length} ticket(s).`);
   };
 
   const handleRestoreTicket = (ticketId) => {
@@ -612,6 +639,7 @@ export default function TicketBoard() {
                         onTicketClick={setSelectedTicket}
                         isLoading={isLoading}
                         highlightedTicketId={highlightedTicketId}
+                        onArchiveSome={column === "Closed" && viewMode === "status" ? handleArchiveSome : undefined}
                         onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
                         viewMode={viewMode}
                         allUsers={allUsers}
@@ -649,6 +677,13 @@ export default function TicketBoard() {
       )}
 
       {/* System Dialogs */}
+      <ConfirmDialog 
+        isOpen={!!archiveAllConfirmDialog}
+        title="Confirm Archive All"
+        message={archiveAllConfirmDialog?.message}
+        onConfirm={confirmArchiveAll}
+        onCancel={() => setArchiveAllConfirmDialog(null)}
+      />
       <AlertDialogComponent
         isOpen={!!alertDialog}
         message={alertDialog}
