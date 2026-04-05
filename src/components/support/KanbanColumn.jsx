@@ -51,7 +51,7 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                 className="flex-1 h-7 md:h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs px-1"
               >
                 <Archive className="w-3 h-3 md:mr-1.5 mr-1 hidden sm:inline-block" />
-                Archive Some
+                Clean Up
               </Button>
             )}
             {onArchiveAll && (

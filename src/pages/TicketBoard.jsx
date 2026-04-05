@@ -379,11 +379,20 @@ export default function TicketBoard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/a1b923375_PiPSupport.png"
-              alt="PiP Support"
-              className="h-12 md:h-16 drop-shadow-xl"
-            />
+            <Link 
+              to={createPageUrl("TicketBoard")} 
+              onClick={() => { 
+                setShowArchived(false); 
+                setSearchQuery(""); 
+                setViewMode("status"); 
+              }}
+            >
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/a1b923375_PiPSupport.png"
+                alt="PiP Support"
+                className="h-12 md:h-16 drop-shadow-xl hover:scale-105 transition-transform"
+              />
+            </Link>
             <div className="text-center md:text-left">
               <p className="text-white/90">
                 {showArchived 
@@ -568,31 +577,31 @@ export default function TicketBoard() {
 
         {/* Kanban Board or Archived List */}
         {showArchived ? (
-          <div className="backdrop-blur-xl bg-purple-500/20 border border-purple-400/30 rounded-2xl p-6">
+          <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl p-6 shadow-xl">
             {archivedTickets.length === 0 ? (
               <div className="text-center py-12">
-                <Archive className="w-16 h-16 text-white/40 mx-auto mb-4" />
-                <p className="text-white/80 text-lg">No archived tickets</p>
+                <Archive className="w-16 h-16 text-white/50 mx-auto mb-4" />
+                <p className="text-white/90 text-lg font-medium">No archived tickets</p>
               </div>
             ) : (
               <div className="grid gap-4">
                 {archivedTickets.map(ticket => (
                   <div
                     key={ticket.id}
-                    className="backdrop-blur-md bg-purple-500/30 border border-purple-400/50 rounded-xl p-4 flex items-center justify-between hover:bg-purple-500/40 transition-all"
+                    className="backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 flex items-center justify-between hover:bg-white/40 transition-all shadow-sm"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="text-white font-semibold">{ticket.client_name}</h4>
-                        <Badge className="bg-purple-400/30 text-white border-purple-300/40">
+                        <h4 className="text-gray-900 font-bold">{ticket.client_name}</h4>
+                        <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
                           {ticket.inquiry_type}
                         </Badge>
-                        <Badge className="bg-purple-600/30 text-white border-purple-500/40">
+                        <Badge className="bg-gray-500/20 text-gray-800 border-gray-400/40 shadow-sm">
                           {ticket.status}
                         </Badge>
                       </div>
-                      <p className="text-white/80 text-sm">{ticket.client_email}</p>
-                      <p className="text-white/60 text-xs mt-1">
+                      <p className="text-gray-800 font-medium text-sm">{ticket.client_email}</p>
+                      <p className="text-gray-600 text-xs mt-1 font-medium">
                         Archived from {ticket.status} • {formatDateEST(ticket.updated_date)} EST
                       </p>
                     </div>
@@ -601,14 +610,14 @@ export default function TicketBoard() {
                         onClick={() => setSelectedTicket(ticket)}
                         variant="outline"
                         size="sm"
-                        className="backdrop-blur-md bg-purple-400/30 border-purple-300/50 text-white hover:bg-purple-400/40"
+                        className="backdrop-blur-md bg-white/50 border-white/60 text-gray-900 hover:bg-white/70 shadow-sm"
                       >
                         View
                       </Button>
                       <Button
                         onClick={() => handleRestoreTicket(ticket.id)}
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
+                        className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
                       >
                         Restore
                       </Button>
