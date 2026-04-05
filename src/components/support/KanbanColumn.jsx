@@ -49,7 +49,7 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
             className="w-full mt-2 h-7 md:h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs"
           >
             <Archive className="w-3 h-3 mr-1.5" />
-            Archive All ({tickets.length})
+            Archive Older Months
           </Button>
         )}
       </div>

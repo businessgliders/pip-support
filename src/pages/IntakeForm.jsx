@@ -35,6 +35,7 @@ export default function IntakeForm() {
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState(""); // Initialize with an empty string
   const [isEmbedded, setIsEmbedded] = useState(false);
+  const [systemAlert, setSystemAlert] = useState(null);
 
   const navigate = useNavigate();
 
@@ -244,7 +245,7 @@ export default function IntakeForm() {
     } catch (error) {
       console.error("Error submitting form:", error);
       setIsSubmitting(false);
-      alert("There was an error submitting your request. Please try again or contact us directly.");
+      setSystemAlert("There was an error submitting your request. Please try again or contact us directly.");
     }
   };
 
@@ -432,7 +433,7 @@ export default function IntakeForm() {
     } catch (error) {
       console.error("Error submitting cancellation:", error);
       setIsSubmitting(false);
-      alert("There was an error submitting your cancellation request. Please try again or contact us directly.");
+      setSystemAlert("There was an error submitting your cancellation request. Please try again or contact us directly.");
     }
   };
 
@@ -465,6 +466,24 @@ export default function IntakeForm() {
 
   return (
     <div className={`p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden ${isEmbedded ? 'min-h-[800px]' : 'min-h-screen'}`}>
+      
+      {systemAlert && (
+        <Dialog open={true} onOpenChange={() => setSystemAlert(null)}>
+          <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+            <DialogHeader>
+              <DialogTitle>Notification</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-gray-700">{systemAlert}</p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setSystemAlert(null)} className="bg-[#b67651] hover:bg-[#a56541] text-white">
+                OK
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
       {/* Decorative background elements - hide in embed */}
       {!isEmbedded && (
         <>

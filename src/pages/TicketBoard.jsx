@@ -45,6 +45,10 @@ export default function TicketBoard() {
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [archiveConfirmDialog, setArchiveConfirmDialog] = useState(null);
+  const [alertDialog, setAlertDialog] = useState(null);
+  const [mobileSearchDialog, setMobileSearchDialog] = useState(false);
+  const [mobileSearchInput, setMobileSearchInput] = useState("");
   const [viewMode, setViewMode] = useState("status"); // "status" or "category"
   const [hiddenColumns, setHiddenColumns] = useState(["Private Events"]); // Hidden columns in category view
   const [showColumnEditor, setShowColumnEditor] = useState(false);
@@ -73,7 +77,7 @@ export default function TicketBoard() {
         const currentUser = await base44.auth.me();
         // Check if email is from @pilatesinpinkstudio.com domain
         if (!currentUser.email.endsWith('@pilatesinpinkstudio.com')) {
-          alert('Access restricted to @pilatesinpinkstudio.com domain only');
+          setAlertDialog('Access restricted to @pilatesinpinkstudio.com domain only');
           setUser(null);
           setIsAuthLoading(false);
           return;
@@ -166,20 +170,25 @@ export default function TicketBoard() {
     });
     
     if (ticketsToArchive.length === 0) {
-      alert("There are no closed tickets from previous months to archive.");
+      setAlertDialog("There are no closed tickets from previous months to archive.");
       return;
     }
     
-    if (!confirm(`Archive ${ticketsToArchive.length} closed ticket(s) from previous months? (Current month tickets will remain)`)) {
-      return;
-    }
+    setArchiveConfirmDialog({
+      ticketsToArchive,
+      message: `Archive ${ticketsToArchive.length} closed ticket(s) from previous months? (Current month tickets will remain)`
+    });
+  };
 
-    for (const ticket of ticketsToArchive) {
+  const confirmArchiveAll = async () => {
+    if (!archiveConfirmDialog) return;
+    for (const ticket of archiveConfirmDialog.ticketsToArchive) {
       await updateTicketMutation.mutateAsync({
         id: ticket.id,
         data: { archived: true }
       });
     }
+    setArchiveConfirmDialog(null);
   };
 
   const handleRestoreTicket = (ticketId) => {
@@ -377,8 +386,8 @@ export default function TicketBoard() {
             </div>
             <Button
               onClick={() => {
-                const query = prompt("Search tickets:", searchQuery);
-                if (query !== null) setSearchQuery(query);
+                setMobileSearchInput(searchQuery);
+                setMobileSearchDialog(true);
               }}
               className="md:hidden backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
             >
@@ -647,6 +656,29 @@ export default function TicketBoard() {
         />
       )}
 
+      {/* System Dialogs */}
+      <ConfirmDialog 
+        isOpen={!!archiveConfirmDialog}
+        title="Confirm Archive"
+        message={archiveConfirmDialog?.message}
+        onConfirm={confirmArchiveAll}
+        onCancel={() => setArchiveConfirmDialog(null)}
+      />
+      <AlertDialogComponent
+        isOpen={!!alertDialog}
+        message={alertDialog}
+        onClose={() => setAlertDialog(null)}
+      />
+      <MobileSearchDialog
+        isOpen={mobileSearchDialog}
+        initialValue={mobileSearchInput}
+        onSearch={(val) => {
+          setSearchQuery(val);
+          setMobileSearchDialog(false);
+        }}
+        onClose={() => setMobileSearchDialog(false)}
+      />
+
       {/* Footer */}
       <div className="mt-4 pb-2 flex items-center justify-center gap-3">
         <img 
@@ -659,6 +691,86 @@ export default function TicketBoard() {
         </p>
       </div>
     </div>
+  );
+}
+
+function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }) {
+  if (!isOpen) return null;
+  return (
+    <Dialog open={isOpen} onOpenChange={onCancel}>
+      <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-gray-700">{message}</p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={onConfirm} className="bg-[#b67651] hover:bg-[#a56541] text-white">
+            Confirm
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AlertDialogComponent({ isOpen, message, onClose }) {
+  if (!isOpen) return null;
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+        <DialogHeader>
+          <DialogTitle>Notification</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-gray-700">{message}</p>
+        </div>
+        <DialogFooter>
+          <Button onClick={onClose} className="bg-[#b67651] hover:bg-[#a56541] text-white">
+            OK
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MobileSearchDialog({ isOpen, initialValue, onSearch, onClose }) {
+  const [val, setVal] = useState(initialValue);
+  if (!isOpen) return null;
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+        <DialogHeader>
+          <DialogTitle>Search Tickets</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <Input 
+            autoFocus
+            value={val} 
+            onChange={e => setVal(e.target.value)} 
+            placeholder="Enter search term..."
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                onSearch(val);
+              }
+            }}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={() => onSearch(val)} className="bg-[#b67651] hover:bg-[#a56541] text-white">
+            Search
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

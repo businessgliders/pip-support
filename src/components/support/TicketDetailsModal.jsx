@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -117,6 +118,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [showContactInfo, setShowContactInfo] = useState(true);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
   const [showStatusHistory, setShowStatusHistory] = useState(true);
+  const [systemAlert, setSystemAlert] = useState(null);
+  const [statusPrompt, setStatusPrompt] = useState(null);
+  const [statusNote, setStatusNote] = useState("");
 
   useEffect(() => {
     const fetchRelatedTickets = async () => {
@@ -285,11 +289,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
       });
       
       ticket.assigned_to = selectedAssignee;
-      alert('Ticket assigned successfully!');
-      onClose();
+      setSystemAlert({ message: 'Ticket assigned successfully!', onClose: onClose });
     } catch (error) {
       console.error("Failed to assign ticket:", error);
-      alert('Failed to assign ticket');
+      setSystemAlert({ message: 'Failed to assign ticket' });
     }
   };
 
@@ -531,9 +534,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   <button
                     onClick={() => {
                       if (ticket.status !== status) {
-                        const note = prompt(`Add a note for moving to ${status} (optional):`);
-                        onStatusChange(ticket.id, status, note || "");
-                        onClose();
+                        setStatusPrompt({ ticketId: ticket.id, newStatus: status });
+                        setStatusNote("");
                       }
                     }}
                     disabled={ticket.status === status}
@@ -574,9 +576,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 value={ticket.status}
                 onValueChange={(newStatus) => {
                   if (ticket.status !== newStatus) {
-                    const note = prompt(`Add a note for moving to ${newStatus} (optional):`);
-                    onStatusChange(ticket.id, newStatus, note || "");
-                    onClose();
+                    setStatusPrompt({ ticketId: ticket.id, newStatus });
+                    setStatusNote("");
                   }
                 }}
               >
@@ -755,6 +756,65 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </div>
               </div>
               </div>
+              
+              {/* Nested System Dialogs */}
+              {systemAlert && (
+                <Dialog open={true} onOpenChange={() => {
+                  if (systemAlert.onClose) systemAlert.onClose();
+                  setSystemAlert(null);
+                }}>
+                  <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+                    <DialogHeader>
+                      <DialogTitle>Notification</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <p className="text-gray-700">{systemAlert.message}</p>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={() => {
+                        if (systemAlert.onClose) systemAlert.onClose();
+                        setSystemAlert(null);
+                      }} className="bg-[#b67651] hover:bg-[#a56541] text-white">
+                        OK
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+
+              {statusPrompt && (
+                <Dialog open={true} onOpenChange={() => setStatusPrompt(null)}>
+                  <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
+                    <DialogHeader>
+                      <DialogTitle>Update Status</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <p className="text-gray-700">
+                        Add a note for moving to <span className="font-medium text-green-600">{statusPrompt.newStatus}</span> (optional):
+                      </p>
+                      <Textarea
+                        value={statusNote}
+                        onChange={(e) => setStatusNote(e.target.value)}
+                        placeholder="e.g., Spoke with client, confirmed resolution..."
+                        className="min-h-24"
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setStatusPrompt(null)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={() => {
+                        onStatusChange(statusPrompt.ticketId, statusPrompt.newStatus, statusNote);
+                        setStatusPrompt(null);
+                        onClose();
+                      }} className="bg-[#b67651] hover:bg-[#a56541] text-white">
+                        Confirm
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+
               </DialogContent>
               </Dialog>
   );
