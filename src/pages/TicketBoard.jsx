@@ -45,7 +45,6 @@ export default function TicketBoard() {
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
-  const [archiveConfirmDialog, setArchiveConfirmDialog] = useState(null);
   const [alertDialog, setAlertDialog] = useState(null);
   const [mobileSearchDialog, setMobileSearchDialog] = useState(false);
   const [mobileSearchInput, setMobileSearchInput] = useState("");
@@ -173,22 +172,15 @@ export default function TicketBoard() {
       setAlertDialog("There are no closed tickets from previous months to archive.");
       return;
     }
-    
-    setArchiveConfirmDialog({
-      ticketsToArchive,
-      message: `Archive ${ticketsToArchive.length} closed ticket(s) from previous months? (Current month tickets will remain)`
-    });
-  };
 
-  const confirmArchiveAll = async () => {
-    if (!archiveConfirmDialog) return;
-    for (const ticket of archiveConfirmDialog.ticketsToArchive) {
+    for (const ticket of ticketsToArchive) {
       await updateTicketMutation.mutateAsync({
         id: ticket.id,
         data: { archived: true }
       });
     }
-    setArchiveConfirmDialog(null);
+    
+    setAlertDialog(`Successfully archived ${ticketsToArchive.length} ticket(s) from previous months.`);
   };
 
   const handleRestoreTicket = (ticketId) => {
@@ -657,13 +649,6 @@ export default function TicketBoard() {
       )}
 
       {/* System Dialogs */}
-      <ConfirmDialog 
-        isOpen={!!archiveConfirmDialog}
-        title="Confirm Archive"
-        message={archiveConfirmDialog?.message}
-        onConfirm={confirmArchiveAll}
-        onCancel={() => setArchiveConfirmDialog(null)}
-      />
       <AlertDialogComponent
         isOpen={!!alertDialog}
         message={alertDialog}
