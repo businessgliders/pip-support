@@ -67,8 +67,10 @@ const formatRelativeTime = (dateString) => {
   
   const diffMs = nowEST - dateEST;
   const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+  
+  const dateESTOnly = new Date(dateEST.getFullYear(), dateEST.getMonth(), dateEST.getDate());
+  const nowESTOnly = new Date(nowEST.getFullYear(), nowEST.getMonth(), nowEST.getDate());
+  const diffDays = Math.round((nowESTOnly - dateESTOnly) / 86400000);
   
   const time = date.toLocaleString('en-US', {
     timeZone: 'America/New_York',
@@ -78,10 +80,10 @@ const formatRelativeTime = (dateString) => {
   });
   
   if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24 && dateEST.getDate() === nowEST.getDate()) return `Today ${time}`;
-  if (diffDays === 1) return `Yesterday ${time}`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffMins < 60) return `${diffMins} mins ago`;
+  if (diffDays === 0) return `Today, ${time}`;
+  if (diffDays === 1) return `Yesterday, ${time}`;
+  if (diffDays < 7) return `${diffDays} days ago`;
   
   return date.toLocaleString('en-US', {
     timeZone: 'America/New_York',
