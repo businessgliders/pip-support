@@ -268,7 +268,7 @@ export default function IntakeForm() {
         await base44.integrations.Core.SendEmail({
           from_name: "Pilates in Pink Support",
           to: "info@pilatesinpinkstudio.com",
-          subject: `🚨 URGENT: New Cancellation Ticket Assigned`,
+          subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
           body: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f1899b 0%, #f7b1bd 50%, #fbe0e2 100%); padding: 40px 20px;">
               <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
