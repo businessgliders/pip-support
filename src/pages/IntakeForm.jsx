@@ -610,7 +610,7 @@ export default function IntakeForm() {
                         For private event inquiries and bookings, please visit our dedicated events page:
                       </p>
                       <a
-                        href="https://68e7f88493bea0ec207ab95e.blocks-app.diy/68e7f94faa69e69923c41264"
+                        href="https://events.pilatesinpinkstudio.com"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-[#b67651] hover:bg-[#a56541] text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"
