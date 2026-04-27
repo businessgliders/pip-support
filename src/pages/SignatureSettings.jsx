@@ -204,9 +204,6 @@ export default function SignatureSettings() {
                         <a href="https://pilatesinpinkstudio.com/schedule" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginRight: "6px", marginBottom: "6px" }}>
                           Schedule
                         </a>
-                        <a href="https://pilatesinpinkstudio.com/pricing" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginRight: "6px", marginBottom: "6px" }}>
-                          Pricing
-                        </a>
                         <a href="https://events.pilatesinpinkstudio.com" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginBottom: "6px" }}>
                           Host Events
                         </a>
