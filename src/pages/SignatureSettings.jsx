@@ -152,21 +152,21 @@ export default function SignatureSettings() {
           </div>
 
           {/* The rendered signature - this is what gets copied */}
-          <div className="border border-gray-200 rounded-xl p-6 bg-white">
+          <div className="border border-gray-200 rounded-xl p-6 bg-white overflow-x-auto">
             <div ref={signatureRef}>
               <table cellPadding="0" cellSpacing="0" border="0" style={{ fontFamily: "Arial, Helvetica, sans-serif", color: "#333333", fontSize: "14px", lineHeight: "1.5" }}>
                 <tbody>
                   <tr>
-                    <td style={{ paddingRight: "20px", verticalAlign: "middle", borderRight: "3px solid #f1899b" }}>
+                    <td style={{ paddingRight: "24px", verticalAlign: "middle", borderRight: "3px solid #f1899b" }}>
                       <img
                         src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
-                        alt="Pilates in Pink"
-                        width="80"
-                        height="80"
+                        alt="Pilates in Pink Studio"
+                        width="90"
+                        height="90"
                         style={{ display: "block", border: "0" }}
                       />
                     </td>
-                    <td style={{ paddingLeft: "20px", verticalAlign: "middle" }}>
+                    <td style={{ paddingLeft: "24px", verticalAlign: "middle" }}>
                       {fullName && (
                         <div style={{ fontSize: "16px", fontWeight: "bold", color: "#333333", marginBottom: "1px" }}>
                           {fullName}
@@ -177,39 +177,58 @@ export default function SignatureSettings() {
                           {title}
                         </div>
                       )}
-                      <div style={{ fontSize: "18px", fontWeight: "bold", color: "#f1899b", marginBottom: "2px" }}>
-                        Pilates in Pink
+                      <div style={{ fontSize: "20px", fontWeight: "bold", color: "#f1899b", marginBottom: "2px" }}>
+                        Pilates in Pink&trade; Studio
                       </div>
-                      <div style={{ fontSize: "12px", color: "#b67651", fontStyle: "italic", marginBottom: "10px", letterSpacing: "0.5px" }}>
-                        Strength • Grace • Community
+                      <div style={{ fontSize: "13px", color: "#b67651", fontStyle: "italic", marginBottom: "12px", letterSpacing: "0.5px" }}>
+                        Pretty • Powerful • Pilates
                       </div>
+
                       {email && (
-                        <div style={{ fontSize: "13px", color: "#555555" }}>
-                          <a href={`mailto:${email}`} style={{ color: "#b67651", textDecoration: "none" }}>
+                        <div style={{ fontSize: "13px", color: "#555555", marginBottom: "3px" }}>
+                          <span style={{ display: "inline-block", width: "16px", marginRight: "8px", verticalAlign: "middle" }}>
+                            <img src="https://img.icons8.com/ios-filled/16/b67651/new-post.png" alt="Email" width="14" height="14" style={{ verticalAlign: "middle", border: "0" }} />
+                          </span>
+                          <a href={`mailto:${email}`} style={{ color: "#b67651", textDecoration: "none", verticalAlign: "middle" }}>
                             {email}
                           </a>
                         </div>
                       )}
-                      <div style={{ fontSize: "13px", color: "#555555" }}>
-                        <a href="https://pilatesinpinkstudio.com" style={{ color: "#b67651", textDecoration: "none" }}>
+                      <div style={{ fontSize: "13px", color: "#555555", marginBottom: "12px" }}>
+                        <span style={{ display: "inline-block", width: "16px", marginRight: "8px", verticalAlign: "middle" }}>
+                          <img src="https://img.icons8.com/ios-filled/16/b67651/domain.png" alt="Website" width="14" height="14" style={{ verticalAlign: "middle", border: "0" }} />
+                        </span>
+                        <a href="https://pilatesinpinkstudio.com" style={{ color: "#b67651", textDecoration: "none", verticalAlign: "middle" }}>
                           pilatesinpinkstudio.com
                         </a>
                       </div>
-                      <div style={{ marginTop: "10px" }}>
-                        <a
-                          href="https://events.pilatesinpinkstudio.com"
-                          style={{
-                            display: "inline-block",
-                            background: "#f1899b",
-                            color: "#ffffff",
-                            padding: "6px 14px",
-                            borderRadius: "20px",
-                            textDecoration: "none",
-                            fontSize: "12px",
-                            fontWeight: "bold"
-                          }}
-                        >
+
+                      {/* Action buttons */}
+                      <div style={{ marginBottom: "12px" }}>
+                        <a href="https://pilatesinpinkstudio.com" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginRight: "6px", marginBottom: "6px" }}>
+                          Home
+                        </a>
+                        <a href="https://pilatesinpinkstudio.com/schedule" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginRight: "6px", marginBottom: "6px" }}>
+                          Schedule
+                        </a>
+                        <a href="https://pilatesinpinkstudio.com/pricing" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginRight: "6px", marginBottom: "6px" }}>
+                          Pricing
+                        </a>
+                        <a href="https://events.pilatesinpinkstudio.com" style={{ display: "inline-block", background: "#f1899b", color: "#ffffff", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", marginBottom: "6px" }}>
                           Book a Private Event
+                        </a>
+                      </div>
+
+                      {/* Social icons */}
+                      <div>
+                        <a href="https://www.instagram.com/pilatesinpinkstudio" style={{ textDecoration: "none", marginRight: "8px", display: "inline-block" }}>
+                          <img src="https://img.icons8.com/fluency/24/instagram-new.png" alt="Instagram" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
+                        </a>
+                        <a href="https://www.facebook.com/pilatesinpinkstudio" style={{ textDecoration: "none", marginRight: "8px", display: "inline-block" }}>
+                          <img src="https://img.icons8.com/fluency/24/facebook-new.png" alt="Facebook" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
+                        </a>
+                        <a href="https://www.tiktok.com/@pilatesinpinkstudio" style={{ textDecoration: "none", display: "inline-block" }}>
+                          <img src="https://img.icons8.com/color/24/tiktok--v1.png" alt="TikTok" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
                         </a>
                       </div>
                     </td>
