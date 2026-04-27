@@ -222,13 +222,10 @@ export default function SignatureSettings() {
                       {/* Social icons */}
                       <div>
                         <a href="https://www.instagram.com/pilatesinpinkstudio" style={{ textDecoration: "none", marginRight: "8px", display: "inline-block" }}>
-                          <img src="https://img.icons8.com/fluency/24/instagram-new.png" alt="Instagram" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
+                          <img src="https://img.icons8.com/ios-filled/24/f1899b/instagram-new.png" alt="Instagram" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
                         </a>
-                        <a href="https://www.facebook.com/pilatesinpinkstudio" style={{ textDecoration: "none", marginRight: "8px", display: "inline-block" }}>
-                          <img src="https://img.icons8.com/fluency/24/facebook-new.png" alt="Facebook" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
-                        </a>
-                        <a href="https://www.tiktok.com/@pilatesinpinkstudio" style={{ textDecoration: "none", display: "inline-block" }}>
-                          <img src="https://img.icons8.com/color/24/tiktok--v1.png" alt="TikTok" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
+                        <a href="https://www.tiktok.com/@pilatesinpinkstudio1" style={{ textDecoration: "none", display: "inline-block" }}>
+                          <img src="https://img.icons8.com/ios-filled/24/f1899b/tiktok--v1.png" alt="TikTok" width="22" height="22" style={{ border: "0", verticalAlign: "middle" }} />
                         </a>
                       </div>
                     </td>
