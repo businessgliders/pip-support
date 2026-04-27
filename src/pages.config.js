@@ -47,16 +47,12 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Home from './pages/Home';
-import IntakeFormEmbed from './pages/IntakeFormEmbed';
 import IntakeForm from './pages/IntakeForm';
 import TicketBoard from './pages/TicketBoard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "IntakeFormEmbed": IntakeFormEmbed,
     "IntakeForm": IntakeForm,
     "TicketBoard": TicketBoard,
 }
