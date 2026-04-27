@@ -157,7 +157,7 @@ export default function SignatureSettings() {
               <table cellPadding="0" cellSpacing="0" border="0" style={{ fontFamily: "Arial, Helvetica, sans-serif", color: "#333333", fontSize: "14px", lineHeight: "1.5" }}>
                 <tbody>
                   <tr>
-                    <td style={{ paddingRight: "24px", verticalAlign: "middle", borderRight: "3px solid #f1899b" }}>
+                    <td style={{ paddingRight: "20px", verticalAlign: "middle" }}>
                       <img
                         src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
                         alt="Pilates in Pink Studio"
@@ -166,17 +166,10 @@ export default function SignatureSettings() {
                         style={{ display: "block", border: "0" }}
                       />
                     </td>
-                    <td style={{ paddingLeft: "24px", verticalAlign: "middle" }}>
-                      {fullName && (
-                        <div style={{ fontSize: "16px", fontWeight: "bold", color: "#333333", marginBottom: "1px" }}>
-                          {fullName}
-                        </div>
-                      )}
-                      {title && (
-                        <div style={{ fontSize: "13px", color: "#666666", marginBottom: "8px" }}>
-                          {title}
-                        </div>
-                      )}
+                    <td style={{ width: "1px", padding: "0", verticalAlign: "middle" }}>
+                      <div style={{ width: "1px", height: "110px", background: "#f1899b" }}></div>
+                    </td>
+                    <td style={{ paddingLeft: "20px", verticalAlign: "middle" }}>
                       <div style={{ fontSize: "20px", fontWeight: "bold", color: "#f1899b", marginBottom: "2px" }}>
                         Pilates in Pink&trade; Studio
                       </div>
@@ -214,8 +207,8 @@ export default function SignatureSettings() {
                         <a href="https://pilatesinpinkstudio.com/pricing" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginRight: "6px", marginBottom: "6px" }}>
                           Pricing
                         </a>
-                        <a href="https://events.pilatesinpinkstudio.com" style={{ display: "inline-block", background: "#f1899b", color: "#ffffff", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", marginBottom: "6px" }}>
-                          Book a Private Event
+                        <a href="https://events.pilatesinpinkstudio.com" style={{ display: "inline-block", background: "#ffffff", color: "#f1899b", padding: "6px 14px", borderRadius: "20px", textDecoration: "none", fontSize: "12px", fontWeight: "bold", border: "1.5px solid #f1899b", marginBottom: "6px" }}>
+                          Host Events
                         </a>
                       </div>
 
