@@ -388,7 +388,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                       {/* Left Section - Cancellation + Email */}
                       <div className="w-full md:flex-[3] space-y-4 md:min-w-0 order-2 md:order-1">
           {/* Cancellation Details */}
-          {ticket.inquiry_type === "Cancellation" && (
+          {false && ticket.inquiry_type === "Cancellation" && (
             <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-200">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 ⚠️ Cancellation Request
