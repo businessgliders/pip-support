@@ -74,10 +74,10 @@ export default function EmailMessageItem({ message }) {
     );
   }
 
-  // Show full text up to a generous threshold; only collapse when truly long
+  // Show a smaller preview; only collapse when text is moderately long
   const fullText = message.body_text || message.snippet || "";
-  const isLong = fullText.length > 600;
-  const previewText = isLong ? fullText.slice(0, 600).trimEnd() + "…" : fullText;
+  const isLong = fullText.length > 300;
+  const previewText = isLong ? fullText.slice(0, 300).trimEnd() + "…" : fullText;
 
   return (
     <>
@@ -89,14 +89,14 @@ export default function EmailMessageItem({ message }) {
             className={`text-left rounded-2xl px-3.5 py-2 shadow-sm transition-all hover:shadow-md ${
               isInbound
                 ? "bg-white border border-gray-200 text-gray-800 rounded-bl-sm"
-                : "bg-pink-500 text-white rounded-br-sm"
+                : "bg-pink-100 border border-pink-200 text-gray-800 rounded-br-sm"
             }`}
           >
-            <p className={`text-sm leading-snug whitespace-pre-wrap break-words ${isInbound ? "" : "text-white"}`}>
+            <p className="text-sm leading-snug whitespace-pre-wrap break-words">
               {previewText || "(empty message)"}
             </p>
             {isLong && (
-              <span className={`text-[10px] mt-1 inline-block ${isInbound ? "text-gray-500" : "text-white/80"}`}>
+              <span className="text-[10px] mt-1 inline-block text-gray-500">
                 Tap to view full message
               </span>
             )}
