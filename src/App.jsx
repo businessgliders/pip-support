@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Settings from './pages/Settings';
 import SignatureSettings from './pages/SignatureSettings';
+import Analytics from './pages/Analytics';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
         ))}
         <Route path="/Settings" element={<Settings />} />
         <Route path="/Settings/Signature" element={<SignatureSettings />} />
+        <Route path="/Analytics" element={<Analytics />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>

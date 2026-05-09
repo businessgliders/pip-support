@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu, Settings as SettingsIcon, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -446,6 +446,26 @@ export default function TicketBoard() {
                 <Columns className="w-4 h-4" />
               </Button>
             )}
+
+            {/* Analytics Button */}
+            <Link to={createPageUrl("Analytics")}>
+              <Button
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
+                title="Analytics"
+              >
+                <BarChart3 className="w-4 h-4" />
+              </Button>
+            </Link>
+
+            {/* Settings Button */}
+            <Link to={createPageUrl("Settings")}>
+              <Button
+                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
+                title="Settings"
+              >
+                <SettingsIcon className="w-4 h-4" />
+              </Button>
+            </Link>
 
             {/* Archive Toggle Button */}
             <Button
