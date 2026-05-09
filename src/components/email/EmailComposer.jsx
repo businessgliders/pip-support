@@ -37,7 +37,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
   const [sending, setSending] = useState(false);
   const [polishing, setPolishing] = useState(false);
   const [error, setError] = useState(null);
-  const [showDescribe, setShowDescribe] = useState(false);
+  const [showDescribe, setShowDescribe] = useState(true);
   const [showSuggest, setShowSuggest] = useState(false);
 
   const staffFirstName = currentUser?.full_name?.split(" ")[0] || "";
@@ -110,9 +110,8 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         )}
       </div>
 
-      {/* Action bar: Templates + Describe + Suggest */}
+      {/* Action bar: Describe + Suggest + Templates */}
       <div className="flex flex-wrap gap-2">
-        <TemplatePicker onSelect={applyTemplate} vars={templateVars} />
         <Button
           type="button"
           variant="outline"
@@ -133,6 +132,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
           <Lightbulb className="w-3.5 h-3.5 mr-1.5" />
           Suggest Replies
         </Button>
+        <TemplatePicker onSelect={applyTemplate} vars={templateVars} />
       </div>
 
       <AiAssistBar
