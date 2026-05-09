@@ -28,6 +28,7 @@ import TicketDetailsModal from "../components/support/TicketDetailsModal";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
 import FloatingUserFilter from "../components/support/FloatingUserFilter";
 import NotificationCenter from "../components/support/NotificationCenter";
+import ChangelogPopup from "../components/support/ChangelogPopup";
 
 const userColors = {
   0: "bg-pink-400",
@@ -57,6 +58,7 @@ export default function TicketBoard() {
   const [showColumnEditor, setShowColumnEditor] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
+  const [showChangelog, setShowChangelog] = useState(false);
   const queryClient = useQueryClient();
 
   const getInitials = (email) => {
@@ -86,6 +88,9 @@ export default function TicketBoard() {
           return;
         }
         setUser(currentUser);
+        if (!currentUser.seen_changelog_v1) {
+          setShowChangelog(true);
+        }
       } catch (error) {
         // Not authenticated - show user selection
         setUser(null);
@@ -621,6 +626,10 @@ export default function TicketBoard() {
       </div>
 
       {/* Status Change Note Dialog */}
+      {showChangelog && (
+        <ChangelogPopup onDismiss={() => setShowChangelog(false)} />
+      )}
+
       {dragNoteDialog && (
         <StatusChangeDialog
           data={dragNoteDialog}

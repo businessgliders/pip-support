@@ -9,6 +9,15 @@
     "signature_html": {
       "type": "string",
       "description": "Saved HTML signature appended to outgoing replies"
+    },
+    "seen_changelog_v1": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has dismissed the v1 changelog popup"
     }
-  }
+  },
+  "required": [
+    "title",
+    "signature_html"
+  ]
 }
