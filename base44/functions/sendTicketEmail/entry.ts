@@ -121,10 +121,24 @@ Deno.serve(async (req) => {
     const staffNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(staffName)))}?=`;
     const fromHeader = `${staffNameEncoded} <${fromEmail}>`;
 
-    // Auto-append signature for non-welcome replies
+    // Auto-append signature for non-welcome replies — fetch fresh user record
+    // to guarantee custom fields (signature_html) are present.
     let finalHtml = body_html;
-    if (!is_welcome && user.signature_html) {
-      finalHtml = `${body_html}<br><br>${user.signature_html}`;
+    if (!is_welcome) {
+      let signatureHtml = user.signature_html;
+      if (!signatureHtml) {
+        try {
+          const matches = await base44.asServiceRole.entities.User.filter({ email: user.email }, '-updated_date', 1);
+          signatureHtml = matches?.[0]?.signature_html || '';
+        } catch (e) {
+          console.error('Failed to load user signature:', e);
+        }
+      }
+      if (signatureHtml) {
+        finalHtml = `${body_html}<br><br>${signatureHtml}`;
+      } else {
+        console.log(`No signature found for ${user.email}`);
+      }
     }
 
     // Threading headers — proper References chain (RFC 2822)
