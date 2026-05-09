@@ -411,57 +411,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
         </DialogHeader>
 
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left Section - Email & Escalate */}
+                      {/* Left Section - Contact + Cancellation + Email */}
                       <div className="w-full md:flex-[3] space-y-4 md:min-w-0 order-2 md:order-1">
-
-              {/* Email Communications */}
-              <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
-
-              {/* Escalate Ticket Section */}
-              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <UserPlus className="w-4 h-4" />
-                Escalate Ticket
-              </h3>
-              <div className="flex gap-2">
-                <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select user" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                      <SelectItem key={u.id} value={u.email}>
-                        {u.email === 'info@pilatesinpinkstudio.com' 
-                          ? 'Front Desk'
-                          : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
-                        }
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button 
-                  onClick={handleAssignment}
-                  disabled={selectedAssignee === ticket.assigned_to}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                  Assign
-                </Button>
-              </div>
-              <p className="text-xs text-gray-600 mt-2">
-                Currently assigned to: {
-                  ticket.assigned_to === 'info@pilatesinpinkstudio.com' 
-                    ? 'Front Desk'
-                    : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
-                }
-              </p>
-              </div>
-                      </div>
-
-              {/* Divider */}
-              <Separator orientation="vertical" className="hidden md:block h-auto" />
-
-              {/* Right Section - Contact, Status History, Internal Notes */}
-              <div className="flex-1 md:flex-[2] space-y-4 md:min-w-0 order-1 md:order-2">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <button
@@ -581,6 +532,16 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
+          {/* Email Communications */}
+          <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
+                      </div>
+
+              {/* Divider */}
+              <Separator orientation="vertical" className="hidden md:block h-auto" />
+
+              {/* Right Section - Status History + Escalate + Related + Internal Notes */}
+              <div className="flex-1 md:flex-[2] space-y-4 md:min-w-0 order-1 md:order-2">
+
           {/* Status History Timeline */}
           {ticket.status_history && ticket.status_history.length > 0 && (
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
@@ -621,6 +582,45 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               )}
             </div>
           )}
+
+          {/* Escalate Ticket Section */}
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <UserPlus className="w-4 h-4" />
+              Escalate Ticket
+            </h3>
+            <div className="flex gap-2">
+              <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select user" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                    <SelectItem key={u.id} value={u.email}>
+                      {u.email === 'info@pilatesinpinkstudio.com'
+                        ? 'Front Desk'
+                        : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
+                      }
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={handleAssignment}
+                disabled={selectedAssignee === ticket.assigned_to}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                Assign
+              </Button>
+            </div>
+            <p className="text-xs text-gray-600 mt-2">
+              Currently assigned to: {
+                ticket.assigned_to === 'info@pilatesinpinkstudio.com'
+                  ? 'Front Desk'
+                  : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
+              }
+            </p>
+          </div>
 
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (

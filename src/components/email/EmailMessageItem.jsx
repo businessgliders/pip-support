@@ -33,19 +33,22 @@ export default function EmailMessageItem({ message }) {
   const isInbound = message.direction === "inbound";
   const senderName = message.from_name || message.from_email || (isInbound ? "Client" : "Support");
 
-  // Auto-reply welcome → compact icon-only light-pink bubble
+  // Auto-reply welcome → compact light-pink bubble with icon + short preview
   if (message.is_welcome) {
     return (
       <>
         <div className="flex justify-end mb-1">
-          <div className="flex flex-col items-end">
+          <div className="max-w-[80%] flex flex-col items-end">
             <span className="text-[10px] text-gray-500 mb-0.5 px-1">Auto-reply</span>
             <button
               onClick={() => setOpen(true)}
               title="View auto-reply"
-              className="rounded-full bg-pink-100 hover:bg-pink-200 border border-pink-200 text-pink-600 w-9 h-9 flex items-center justify-center shadow-sm transition-all hover:shadow-md"
+              className="flex items-center gap-2 rounded-2xl bg-pink-100 hover:bg-pink-200 border border-pink-200 text-pink-700 px-3 py-2 shadow-sm transition-all hover:shadow-md rounded-br-sm"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="text-xs leading-snug text-left">
+                We've received your {message.subject?.match(/\] (.+?) -/)?.[1] || "request"} — we'll be in touch within 24 hours.
+              </span>
             </button>
             <span className="text-[10px] text-gray-400 mt-0.5 px-1">{formatTime(message.sent_at)}</span>
           </div>

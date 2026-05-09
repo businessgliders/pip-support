@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Mail, Plus, Loader2 } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import EmailMessageItem from "./EmailMessageItem";
 import EmailComposer from "./EmailComposer";
 
 export default function EmailThreadPanel({ ticket, currentUser }) {
-  const [composing, setComposing] = useState(false);
-
   const { data: fetchedMessages = [], isLoading, refetch } = useQuery({
     queryKey: ["email-messages", ticket.id],
     queryFn: () => base44.entities.EmailMessage.filter({ ticket_id: ticket.id }, "sent_at", 100),
@@ -97,16 +94,7 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
             </span>
           )}
         </h3>
-        {!composing && (
-          <Button
-            size="sm"
-            onClick={() => setComposing(true)}
-            className="bg-[#b67651] hover:bg-[#a56541] text-white h-8"
-          >
-            <Plus className="w-3.5 h-3.5 mr-1" />
-            New Reply
-          </Button>
-        )}
+        <span className="text-xs text-[#b67651]">{ticket.client_email}</span>
       </div>
 
       {isLoading ? (
@@ -121,16 +109,11 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
         </div>
       )}
 
-      {composing && (
-        <div className="mt-3">
-          <EmailComposer
-            ticket={ticket}
-            currentUser={currentUser}
-            onSent={() => { setComposing(false); refetch(); }}
-            onCancel={() => setComposing(false)}
-          />
-        </div>
-      )}
+      <EmailComposer
+        ticket={ticket}
+        currentUser={currentUser}
+        onSent={() => { refetch(); }}
+      />
     </div>
   );
 }
