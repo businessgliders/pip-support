@@ -538,7 +538,7 @@ export default function TicketBoard() {
 
         {/* Kanban Board or Archived List */}
         {showArchived ? (
-          <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl p-6 shadow-xl">
+          <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl p-6 shadow-xl flex-1 overflow-y-auto">
             {archivedTickets.length === 0 ? (
               <div className="text-center py-12">
                 <Archive className="w-16 h-16 text-white/50 mx-auto mb-4" />
