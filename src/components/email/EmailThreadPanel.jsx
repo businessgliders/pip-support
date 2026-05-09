@@ -38,7 +38,47 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
   const hasRealWelcome = fetchedMessages.some(m => m.is_welcome);
 
   const synthetic = [];
-  if (ticket.notes && ticket.notes.trim()) {
+
+  // Build the initial inbound bubble. For cancellations, surface the
+  // cancellation details (reason, satisfaction, feedback) using the same
+  // headings as the right-side "⚠️ Cancellation Request" panel — so staff
+  // see them right inside the email thread, just like notes for other types.
+  const escapeHtml = (s = "") => s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  if (ticket.inquiry_type === "Cancellation") {
+    const parts = [];
+    if (ticket.cancellation_reason) {
+      parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Reason for Cancellation:</p><p style="margin:0 0 12px 0;">${escapeHtml(ticket.cancellation_reason)}</p>`);
+    }
+    if (ticket.cancellation_satisfaction) {
+      parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Satisfaction Level:</p><p style="margin:0 0 12px 0;">${escapeHtml(ticket.cancellation_satisfaction)}</p>`);
+    }
+    if (ticket.cancellation_feedback) {
+      parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Additional Feedback:</p><p style="margin:0 0 12px 0;white-space:pre-wrap;">${escapeHtml(ticket.cancellation_feedback)}</p>`);
+    }
+    if (ticket.notes && ticket.notes.trim()) {
+      parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Additional Notes:</p><p style="margin:0;white-space:pre-wrap;">${escapeHtml(ticket.notes)}</p>`);
+    }
+    if (parts.length > 0) {
+      const snippet = [
+        ticket.cancellation_reason,
+        ticket.cancellation_satisfaction,
+        ticket.cancellation_feedback,
+      ].filter(Boolean).join(" • ");
+      synthetic.push({
+        id: `intake-${ticket.id}`,
+        direction: "inbound",
+        from_name: ticket.client_name,
+        from_email: ticket.client_email,
+        to_email: "info@pilatesinpinkstudio.com",
+        subject: `Cancellation Request - Initial Submission`,
+        body_html: parts.join(""),
+        body_text: snippet,
+        snippet,
+        sent_at: ticket.created_date,
+      });
+    }
+  } else if (ticket.notes && ticket.notes.trim()) {
     synthetic.push({
       id: `intake-${ticket.id}`,
       direction: "inbound",
@@ -46,7 +86,7 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
       from_email: ticket.client_email,
       to_email: "info@pilatesinpinkstudio.com",
       subject: `${ticket.inquiry_type} - Initial Submission`,
-      body_html: `<p style="white-space:pre-wrap;">${ticket.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`,
+      body_html: `<p style="white-space:pre-wrap;">${escapeHtml(ticket.notes)}</p>`,
       body_text: ticket.notes,
       snippet: ticket.notes,
       sent_at: ticket.created_date,
