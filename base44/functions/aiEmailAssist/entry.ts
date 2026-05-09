@@ -44,13 +44,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { mode, ticket_id, description, draft } = await req.json();
+    const { mode, ticket_id, description, draft, force_refresh } = await req.json();
     if (!mode) return Response.json({ error: 'mode required' }, { status: 400 });
 
     const staffName = user.full_name ? user.full_name.split(' ')[0] : 'the team';
 
     if (mode === 'suggest') {
       const { ticket, thread } = await buildContext(base44, ticket_id);
+
+      // Return cached suggestions if they exist and the thread hasn't changed
+      const messages = await base44.asServiceRole.entities.EmailMessage.filter({ ticket_id });
+      const currentMessageCount = messages.length;
+
+      if (
+        !force_refresh &&
+        ticket.ai_suggestions &&
+        ticket.ai_suggestions.length > 0 &&
+        ticket.ai_suggestions_message_count === currentMessageCount
+      ) {
+        return Response.json({
+          suggestions: ticket.ai_suggestions,
+          cached: true,
+          generated_at: ticket.ai_suggestions_generated_at,
+        });
+      }
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `You are drafting reply suggestions for a support ticket at Pilates in Pink.
 
@@ -86,7 +104,17 @@ Return as JSON.`,
           required: ['suggestions']
         }
       });
-      return Response.json(result);
+
+      // Cache result on the ticket
+      if (result?.suggestions?.length) {
+        await base44.asServiceRole.entities.SupportTicket.update(ticket_id, {
+          ai_suggestions: result.suggestions,
+          ai_suggestions_generated_at: new Date().toISOString(),
+          ai_suggestions_message_count: currentMessageCount,
+        });
+      }
+
+      return Response.json({ ...result, cached: false });
     }
 
     if (mode === 'compose') {

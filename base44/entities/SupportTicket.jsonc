@@ -129,6 +129,31 @@
       "type": "string",
       "format": "date-time",
       "description": "Last time a reminder email was sent"
+    },
+    "ai_suggestions": {
+      "type": "array",
+      "description": "Cached AI reply suggestions for this ticket",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "ai_suggestions_generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When AI suggestions were last generated"
+    },
+    "ai_suggestions_message_count": {
+      "type": "integer",
+      "description": "Number of email messages at time of generation (used to detect staleness)"
     }
   },
   "required": [

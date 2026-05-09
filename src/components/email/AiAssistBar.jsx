@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, RefreshCw } from "lucide-react";
 
 // Renders only the expanded panels for "Describe" and "Suggest".
 // Trigger buttons live in the parent (EmailComposer) so they sit beside Templates.
@@ -11,6 +11,8 @@ export default function AiAssistBar({ ticketId, onApply, showDescribe, showSugge
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(null); // 'suggest' | 'compose'
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
+  const [cached, setCached] = useState(false);
+  const [generatedAt, setGeneratedAt] = useState(null);
 
   const callAi = async (mode, payload) => {
     setLoading(mode);
@@ -19,6 +21,15 @@ export default function AiAssistBar({ ticketId, onApply, showDescribe, showSugge
       return res.data;
     } finally {
       setLoading(null);
+    }
+  };
+
+  const fetchSuggestions = async (force = false) => {
+    const data = await callAi("suggest", force ? { force_refresh: true } : {});
+    if (data?.suggestions) {
+      setSuggestions(data.suggestions);
+      setCached(!!data.cached);
+      setGeneratedAt(data.generated_at || null);
     }
   };
 
@@ -35,12 +46,21 @@ export default function AiAssistBar({ ticketId, onApply, showDescribe, showSugge
   useEffect(() => {
     if (showSuggest && !hasFetchedSuggestions && loading !== "suggest") {
       setHasFetchedSuggestions(true);
-      callAi("suggest", {}).then((data) => {
-        if (data?.suggestions) setSuggestions(data.suggestions);
-      });
+      fetchSuggestions(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSuggest]);
+
+  const formatGeneratedAt = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');
+    const diffMins = Math.floor((Date.now() - d.getTime()) / 60000);
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHrs = Math.floor(diffMins / 60);
+    if (diffHrs < 24) return `${diffHrs}h ago`;
+    return d.toLocaleDateString();
+  };
 
   if (!showDescribe && !showSuggest) return null;
 
@@ -81,22 +101,44 @@ export default function AiAssistBar({ ticketId, onApply, showDescribe, showSugge
               Generating suggestions…
             </div>
           ) : suggestions.length > 0 ? (
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-              {suggestions.map((s, idx) => (
-                <button
-                  key={idx}
+            <>
+              <div className="flex items-center justify-between text-xs text-purple-700">
+                <span>
+                  {cached && generatedAt ? (
+                    <>Cached suggestions · generated {formatGeneratedAt(generatedAt)}</>
+                  ) : (
+                    <>Fresh suggestions</>
+                  )}
+                </span>
+                <Button
                   type="button"
-                  onClick={() => onApply(s.body_html)}
-                  className="flex-shrink-0 w-64 text-left bg-white hover:bg-purple-50 border border-purple-200 rounded-lg p-3 transition-colors"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => fetchSuggestions(true)}
+                  className="h-7 text-purple-700 hover:bg-purple-100"
+                  title="Re-generate suggestions (uses credits)"
                 >
-                  <div className="font-semibold text-sm text-purple-700 mb-1">{s.label}</div>
-                  <div
-                    className="text-xs text-gray-600 line-clamp-3 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: s.body_html }}
-                  />
-                </button>
-              ))}
-            </div>
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                  Refresh
+                </Button>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                {suggestions.map((s, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => onApply(s.body_html)}
+                    className="flex-shrink-0 w-64 text-left bg-white hover:bg-purple-50 border border-purple-200 rounded-lg p-3 transition-colors"
+                  >
+                    <div className="font-semibold text-sm text-purple-700 mb-1">{s.label}</div>
+                    <div
+                      className="text-xs text-gray-600 line-clamp-3 prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: s.body_html }}
+                    />
+                  </button>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="text-xs text-gray-500 py-1">No suggestions available.</div>
           )}
