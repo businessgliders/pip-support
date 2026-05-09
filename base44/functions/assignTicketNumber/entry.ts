@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Assigns the next sequential 5-digit ticket_number (starting at 45100) to a ticket.
+// Assigns the next sequential ticket_number (starting at 1) to a ticket.
 // Idempotent: if ticket already has a ticket_number, returns it unchanged.
 Deno.serve(async (req) => {
   try {
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     // Find the highest existing ticket_number
     const all = await base44.asServiceRole.entities.SupportTicket.list('-ticket_number', 1);
     const highest = all.find(t => typeof t.ticket_number === 'number')?.ticket_number;
-    const next = highest && highest >= 45100 ? highest + 1 : 45100;
+    const next = highest && highest >= 1 ? highest + 1 : 1;
 
     await base44.asServiceRole.entities.SupportTicket.update(ticket_id, { ticket_number: next });
     return Response.json({ success: true, ticket_number: next });
