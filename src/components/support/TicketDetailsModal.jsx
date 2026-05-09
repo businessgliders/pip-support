@@ -116,7 +116,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [newComment, setNewComment] = useState("");
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
-  const [showContactInfo, setShowContactInfo] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(true);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
   const [showStatusHistory, setShowStatusHistory] = useState(true); // expanded by default
   const [systemAlert, setSystemAlert] = useState(null);
@@ -411,61 +411,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
         </DialogHeader>
 
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left Section - Contact + Cancellation + Email */}
+                      {/* Left Section - Cancellation + Email */}
                       <div className="w-full md:flex-[3] space-y-4 md:min-w-0 order-2 md:order-1">
-          {/* Contact Information */}
-          <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
-            <button
-              onClick={() => setShowContactInfo(!showContactInfo)}
-              className="w-full flex items-center justify-between text-left gap-3"
-            >
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2 flex-shrink-0">
-                <User className="w-4 h-4" />
-                Contact Information
-              </h3>
-              {!showContactInfo && (
-                <div className="flex-1 flex items-center gap-2 text-xs text-gray-600 min-w-0 justify-end overflow-hidden">
-                  <span className="truncate font-medium text-gray-800">{ticket.client_name}</span>
-                  {ticket.client_phone && (
-                    <>
-                      <span className="text-gray-400">•</span>
-                      <span className="truncate">{ticket.client_phone}</span>
-                    </>
-                  )}
-                  <span className="text-gray-400">•</span>
-                  <span className="truncate">{ticket.client_email}</span>
-                  <span className="text-gray-400">•</span>
-                  <span className="flex-shrink-0 text-gray-500">{formatRelativeTime(ticket.created_date)}</span>
-                </div>
-              )}
-              {showContactInfo ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
-            </button>
-            {showContactInfo && (
-              <div className="space-y-2 mt-3">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Mail className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                  <a href={`mailto:${ticket.client_email}`} className="hover:underline">
-                    {ticket.client_email}
-                  </a>
-                </div>
-                {ticket.client_phone && (
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Phone className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                    <a href={`tel:${ticket.client_phone}`} className="hover:underline">
-                      {ticket.client_phone}
-                    </a>
-                  </div>
-                )}
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                  <span>
-                    Submitted {formatDateEST(ticket.created_date)} EST
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Cancellation Details */}
           {ticket.inquiry_type === "Cancellation" && (
             <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-200">
@@ -554,8 +501,61 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               {/* Divider */}
               <Separator orientation="vertical" className="hidden md:block h-auto" />
 
-              {/* Right Section - Status History + Escalate + Related + Internal Notes */}
+              {/* Right Section - Contact + Status History + Escalate + Related + Internal Notes */}
               <div className="flex-1 md:flex-[2] space-y-4 md:min-w-0 order-1 md:order-2">
+
+          {/* Contact Information */}
+          <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
+            <button
+              onClick={() => setShowContactInfo(!showContactInfo)}
+              className="w-full flex items-center justify-between text-left gap-3"
+            >
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 flex-shrink-0">
+                <User className="w-4 h-4" />
+                Contact Information
+              </h3>
+              {!showContactInfo && (
+                <div className="flex-1 flex items-center gap-2 text-xs text-gray-600 min-w-0 justify-end overflow-hidden">
+                  <span className="truncate font-medium text-gray-800">{ticket.client_name}</span>
+                  {ticket.client_phone && (
+                    <>
+                      <span className="text-gray-400">•</span>
+                      <span className="truncate">{ticket.client_phone}</span>
+                    </>
+                  )}
+                  <span className="text-gray-400">•</span>
+                  <span className="truncate">{ticket.client_email}</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="flex-shrink-0 text-gray-500">{formatRelativeTime(ticket.created_date)}</span>
+                </div>
+              )}
+              {showContactInfo ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
+            </button>
+            {showContactInfo && (
+              <div className="space-y-2 mt-3">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Mail className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                  <a href={`mailto:${ticket.client_email}`} className="hover:underline">
+                    {ticket.client_email}
+                  </a>
+                </div>
+                {ticket.client_phone && (
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <Phone className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                    <a href={`tel:${ticket.client_phone}`} className="hover:underline">
+                      {ticket.client_phone}
+                    </a>
+                  </div>
+                )}
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                  <span>
+                    Submitted {formatDateEST(ticket.created_date)} EST
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Status History Timeline */}
           {ticket.status_history && ticket.status_history.length > 0 && (
