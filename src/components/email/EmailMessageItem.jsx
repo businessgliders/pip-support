@@ -79,9 +79,19 @@ export default function EmailMessageItem({ message, isHighlighted }) {
   // Build preview text — fall back to stripping HTML if body_text/snippet missing
   const stripHtml = (h) => (h || "").replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-  const fullText = message.body_text || message.snippet || stripHtml(message.body_html) || "";
-  const isLong = fullText.length > 300;
-  const previewText = isLong ? fullText.slice(0, 300).trimEnd() + "…" : fullText;
+  const rawText = message.body_text || message.snippet || stripHtml(message.body_html) || "";
+  // Strip quoted reply chains so the inline preview only shows the new content
+  // (e.g. cut at "On <date> ... wrote:" or leading ">" quote markers).
+  const trimQuoted = (t) => {
+    if (!t) return "";
+    const idx = t.search(/On\s.+?\swrote:/i);
+    let cleaned = idx > 0 ? t.slice(0, idx) : t;
+    cleaned = cleaned.split(/\n>+/)[0];
+    return cleaned.trim();
+  };
+  const fullText = trimQuoted(rawText);
+  const isLong = fullText.length > 140 || (fullText.match(/\n/g) || []).length >= 2;
+  const previewText = fullText.length > 200 ? fullText.slice(0, 200).trimEnd() + "…" : fullText;
 
   return (
     <>
@@ -101,7 +111,14 @@ export default function EmailMessageItem({ message, isHighlighted }) {
             {failed && (
               <span className="text-[10px] font-bold text-red-700 block mb-1">⚠️ FAILED TO SEND</span>
             )}
-            <p className="text-sm leading-snug whitespace-pre-wrap break-words">
+            <p
+              className="text-sm leading-snug break-words overflow-hidden"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+              }}
+            >
               {previewText || "(empty message)"}
             </p>
             {isLong && (
