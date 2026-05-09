@@ -277,25 +277,24 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
         <div ref={scrollRef} className="overflow-y-auto max-h-[90vh] p-6">
         <DialogHeader className={`sticky -top-6 -mx-6 -mt-6 px-6 pt-6 pb-3 z-20 bg-white/95 backdrop-blur-xl transition-shadow ${isScrolled ? "shadow-[0_8px_16px_-8px_rgba(0,0,0,0.15)]" : ""} after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-4 after:h-4 after:pointer-events-none after:transition-opacity ${isScrolled ? "after:opacity-100" : "after:opacity-0"} after:bg-gradient-to-b after:from-white/90 after:to-transparent`}>
           <div className="flex items-start justify-between gap-4 pr-8">
-            <div className="text-left min-w-0">
-              <DialogTitle className="text-lg md:text-2xl mb-2 truncate">
-                {ticket.ticket_number && <span className="text-gray-400 font-normal mr-2">#{ticket.ticket_number}</span>}
-                {ticket.client_name}
-              </DialogTitle>
-              <div className="flex gap-2 flex-wrap">
-                <Badge className={`${priorityColors[ticket.priority]} border`}>
-                  {ticket.priority}
-                </Badge>
-                <Badge variant="outline" className="bg-gray-50">
-                  {ticket.inquiry_type}
-                </Badge>
+            <div className="flex items-start gap-3 min-w-0 md:flex-[3]">
+              <div className="text-left min-w-0 flex-1">
+                <DialogTitle className="text-lg md:text-2xl mb-2 truncate">
+                  {ticket.ticket_number && <span className="text-gray-400 font-normal mr-2">#{ticket.ticket_number}</span>}
+                  {ticket.client_name}
+                </DialogTitle>
+                <div className="flex gap-2 flex-wrap">
+                  <Badge className={`${priorityColors[ticket.priority]} border`}>
+                    {ticket.priority}
+                  </Badge>
+                  <Badge variant="outline" className="bg-gray-50">
+                    {ticket.inquiry_type}
+                  </Badge>
+                </div>
               </div>
-            </div>
 
-            {/* Right-aligned: email/call buttons + separator + status pills */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Email/Call buttons */}
-              <div className="flex items-center gap-2">
+              {/* Email/Call buttons - aligned to right edge of left column */}
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <Button
                   asChild
                   size="icon"
@@ -321,10 +320,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   </Button>
                 )}
               </div>
+            </div>
 
-              {/* Separator */}
-              <Separator orientation="vertical" className="hidden md:block h-8 mx-1" />
-
+            {/* Right-aligned: status pills */}
+            <div className="flex items-center gap-2 flex-shrink-0 md:flex-[2] md:justify-start">
               {/* Desktop status pills */}
               <div className="hidden md:flex items-center gap-1.5">
                 {[
