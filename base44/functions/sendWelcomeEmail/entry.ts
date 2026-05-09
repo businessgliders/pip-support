@@ -110,8 +110,11 @@ Deno.serve(async (req) => {
       ticketShortId: ticketRef,
     });
 
-    // Brand sender as "Pilates in Pink™" (matches all other outbound emails)
-    const fromHeader = `"Pilates in Pink\u2122" <info@pilatesinpinkstudio.com>`;
+    // Brand sender as "Pilates in Pink ™" — RFC 2047 encode the display name so non-ASCII (™) renders correctly
+    const fromName = 'Pilates in Pink \u2122';
+    const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
+    const fromEmail = 'support@pilatesinpinkstudio.com';
+    const fromHeader = `${fromNameEncoded} <${fromEmail}>`;
     const raw = buildMime({ from: fromHeader, to: ticket.client_email, subject, htmlBody });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
@@ -128,8 +131,8 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.EmailMessage.create({
         ticket_id,
         direction: 'outbound',
-        from_email: 'info@pilatesinpinkstudio.com',
-        from_name: 'Pilates in Pink\u2122',
+        from_email: fromEmail,
+        from_name: fromName,
         to_email: ticket.client_email,
         subject,
         body_html: htmlBody,
@@ -160,8 +163,8 @@ Deno.serve(async (req) => {
       in_reply_to: '',
       references: '',
       direction: 'outbound',
-      from_email: 'info@pilatesinpinkstudio.com',
-      from_name: 'Pilates in Pink\u2122',
+      from_email: fromEmail,
+      from_name: fromName,
       to_email: ticket.client_email,
       subject,
       body_html: htmlBody,

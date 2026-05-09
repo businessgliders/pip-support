@@ -115,9 +115,11 @@ Deno.serve(async (req) => {
       subject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
     }
 
-    // Always brand sender as "Pilates in Pink™"
-    const staffName = 'Pilates in Pink\u2122';
-    const fromHeader = `"${staffName}" <info@pilatesinpinkstudio.com>`;
+    // Always brand sender as "Pilates in Pink ™" — RFC 2047 encode display name for non-ASCII safety
+    const staffName = 'Pilates in Pink \u2122';
+    const fromEmail = 'support@pilatesinpinkstudio.com';
+    const staffNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(staffName)))}?=`;
+    const fromHeader = `${staffNameEncoded} <${fromEmail}>`;
 
     // Auto-append signature for non-welcome replies
     let finalHtml = body_html;
@@ -165,7 +167,7 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.EmailMessage.create({
         ticket_id,
         direction: 'outbound',
-        from_email: 'info@pilatesinpinkstudio.com',
+        from_email: fromEmail,
         from_name: staffName,
         to_email: ticket.client_email,
         subject,
@@ -199,7 +201,7 @@ Deno.serve(async (req) => {
       in_reply_to: inReplyTo || '',
       references: references || '',
       direction: 'outbound',
-      from_email: 'info@pilatesinpinkstudio.com',
+      from_email: fromEmail,
       from_name: staffName,
       to_email: ticket.client_email,
       subject,

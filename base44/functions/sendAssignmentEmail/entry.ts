@@ -55,7 +55,10 @@ Deno.serve(async (req) => {
 
     // Send via Gmail (works for any address, not just Base44 users)
     const subject = `${isUrgent ? '🚨 URGENT: ' : ''}Ticket Assigned: ${ticket.client_name}`;
-    const fromHeader = `"Pilates in Pink\u2122 Support" <info@pilatesinpinkstudio.com>`;
+    // RFC 2047 encode display name so ™ renders correctly across mail clients
+    const fromName = 'Pilates in Pink \u2122';
+    const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
+    const fromHeader = `${fromNameEncoded} <support@pilatesinpinkstudio.com>`;
 
     const boundary = "____pip_assign_" + Math.random().toString(36).slice(2);
     const headers = [
