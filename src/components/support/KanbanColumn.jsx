@@ -97,6 +97,7 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                     isDragging={snapshot.isDragging}
                     isHighlighted={ticket.id === highlightedTicketId}
                     allUsers={allUsers}
+                    viewMode={viewMode}
                   />
                 </div>
               )}

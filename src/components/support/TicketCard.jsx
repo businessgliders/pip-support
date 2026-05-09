@@ -95,7 +95,9 @@ const formatRelativeTime = (dateString) => {
   });
 };
 
-export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [] }) {
+export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [], viewMode = "status" }) {
+  // Watermark shows the OPPOSITE dimension from the current grouping.
+  const watermarkText = viewMode === "status" ? ticket.inquiry_type : ticket.status;
   const getInitials = (email) => {
     if (email === 'info@pilatesinpinkstudio.com') return 'FD';
     const user = allUsers.find(u => u.email === email);
@@ -112,7 +114,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
   return (
     <div
       onClick={onClick}
-      className={`backdrop-blur-md bg-white/40 border-2 ${priorityBorderColors[ticket.priority]} rounded-xl p-2 md:p-4 group ${
+      className={`relative overflow-hidden backdrop-blur-md bg-white/40 border-2 ${priorityBorderColors[ticket.priority]} rounded-xl p-2 md:p-4 group ${
         isDragging 
           ? "shadow-2xl bg-white/90 cursor-grabbing ring-4 ring-white/60" 
           : isHighlighted
@@ -120,6 +122,16 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           : "hover:bg-white/50 shadow-lg hover:shadow-xl cursor-grab transition-all"
       }`}
     >
+      {/* Watermark - opposite dimension (status <-> category) */}
+      {watermarkText && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1 right-2 text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-900/10 select-none whitespace-nowrap"
+        >
+          {watermarkText}
+        </span>
+      )}
+
       {/* Mobile Compact View */}
       <div className="md:hidden">
         <div className="flex items-center justify-between gap-2 mb-1">
