@@ -2,6 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Sends a branded assignment notification through Gmail (so it works for any
 // recipient, not just registered Base44 users). Used by ticket assignment flows.
+// The email is threaded onto the client conversation AND logged as an
+// EmailMessage so it appears in the ticket's thread panel.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -19,15 +21,14 @@ Deno.serve(async (req) => {
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
-    // Pull the original welcome email (if it exists) so we can thread the
-    // assignment notification onto the same conversation. This way, when staff
-    // reply to the assignment email, their reply goes to the client and stays
-    // in the same Gmail thread that the client sees.
-    let welcomeMsg = null;
-    try {
-      const msgs = await base44.asServiceRole.entities.EmailMessage.filter({ ticket_id, is_welcome: true });
-      welcomeMsg = msgs.find(m => m.rfc_message_id) || null;
-    } catch (_e) { welcomeMsg = null; }
+    // Find the most recent message in the thread to attach this assignment
+    // notification to. Falls back to the welcome email if nothing else exists.
+    // This matches the threading approach used by sendTicketEmail.
+    const existing = await base44.asServiceRole.entities.EmailMessage.filter(
+      { ticket_id }, '-sent_at', 50
+    );
+    const lastMessage = existing[0] || null;
+    const threadAnchor = existing.length > 0 ? existing[existing.length - 1] : null;
 
     const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}`;
     const assignedByName = user.full_name || user.email.split('@')[0];
@@ -63,16 +64,25 @@ Deno.serve(async (req) => {
         </div>
       </div>`;
 
-    // Build subject — keep the same `[Ticket #N] ...` prefix as the welcome email
-    // so Gmail groups assignment + client replies + staff replies in one thread.
+    // Build subject — match the same `[Ticket #N] ...` prefix the rest of the
+    // thread uses so Gmail groups everything in one conversation.
     const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
-    const baseSubject = `[Ticket #${ticketRef}] ${ticket.inquiry_type} - Pilates in Pink`;
+    const subjectTag = `[Ticket #${ticketRef}]`;
+    let baseSubject;
+    if (threadAnchor && threadAnchor.subject) {
+      baseSubject = threadAnchor.subject.startsWith(subjectTag)
+        ? threadAnchor.subject
+        : `${subjectTag} ${threadAnchor.subject}`;
+    } else {
+      baseSubject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
+    }
     const subject = `${isUrgent ? '🚨 URGENT: ' : ''}${baseSubject}`;
 
-    // RFC 2047 encode display name so ™ renders correctly across mail clients
+    // Sender — same branding as sendTicketEmail
     const fromName = 'Pilates in Pink \u2122';
+    const fromEmail = 'support@pilatesinpinkstudio.com';
     const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
-    const fromHeader = `${fromNameEncoded} <support@pilatesinpinkstudio.com>`;
+    const fromHeader = `${fromNameEncoded} <${fromEmail}>`;
 
     const boundary = "____pip_assign_" + Math.random().toString(36).slice(2);
     const headers = [
@@ -83,15 +93,17 @@ Deno.serve(async (req) => {
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
     ];
 
-    // Threading headers — link to the welcome email so this becomes part of the
-    // same conversation thread on both Gmail (staff) and the client's mailbox.
-    if (welcomeMsg?.rfc_message_id) {
-      headers.push(`In-Reply-To: ${welcomeMsg.rfc_message_id}`);
-      const refs = welcomeMsg.references
-        ? `${welcomeMsg.references} ${welcomeMsg.rfc_message_id}`
-        : welcomeMsg.rfc_message_id;
-      headers.push(`References: ${refs}`);
+    // Threading headers — chain off the most recent message in the thread.
+    const inReplyTo = lastMessage?.rfc_message_id || null;
+    let references = null;
+    if (lastMessage) {
+      const prevRefs = lastMessage.references || '';
+      const prevId = lastMessage.rfc_message_id || '';
+      references = (prevRefs + ' ' + prevId).trim();
     }
+    if (inReplyTo) headers.push(`In-Reply-To: ${inReplyTo}`);
+    if (references) headers.push(`References: ${references}`);
+
     const plainText = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
     const body = [
       `--${boundary}`, `Content-Type: text/plain; charset="UTF-8"`, ``, plainText, ``,
@@ -105,9 +117,9 @@ Deno.serve(async (req) => {
     const encoded = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
-    const sendBody = welcomeMsg?.gmail_thread_id
-      ? { raw: encoded, threadId: welcomeMsg.gmail_thread_id }
-      : { raw: encoded };
+    const threadId = lastMessage?.gmail_thread_id || null;
+    const sendBody = threadId ? { raw: encoded, threadId } : { raw: encoded };
+
     const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -117,10 +129,61 @@ Deno.serve(async (req) => {
     if (!sendRes.ok) {
       const err = await sendRes.text();
       console.error('Assignment email send failed:', err);
+      // Log the failed send so it's visible in the thread panel
+      await base44.asServiceRole.entities.EmailMessage.create({
+        ticket_id,
+        direction: 'outbound',
+        from_email: fromEmail,
+        from_name: fromName,
+        to_email: assigned_to,
+        subject,
+        body_html: html,
+        snippet: `Assignment notification to ${assigned_to}`,
+        sent_by: user.email,
+        sent_at: new Date().toISOString(),
+        send_status: 'failed',
+        send_error: err.slice(0, 500),
+      });
       return Response.json({ error: 'Send failed', details: err }, { status: 500 });
     }
 
-    return Response.json({ success: true });
+    const sentMessage = await sendRes.json();
+
+    // Pull Message-ID header so future replies thread correctly off this email
+    let rfcMessageId = '';
+    try {
+      const fetchRes = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${sentMessage.id}?format=metadata&metadataHeaders=Message-ID`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      const fullMsg = await fetchRes.json();
+      const hdrs = fullMsg.payload?.headers || [];
+      rfcMessageId = hdrs.find(h => h.name.toLowerCase() === 'message-id')?.value || '';
+    } catch (_e) { rfcMessageId = ''; }
+
+    // Log the assignment email as part of the ticket's email thread
+    await base44.asServiceRole.entities.EmailMessage.create({
+      ticket_id,
+      gmail_thread_id: sentMessage.threadId,
+      gmail_message_id: sentMessage.id,
+      rfc_message_id: rfcMessageId,
+      in_reply_to: inReplyTo || '',
+      references: references || '',
+      direction: 'outbound',
+      from_email: fromEmail,
+      from_name: fromName,
+      to_email: assigned_to,
+      subject,
+      body_html: html,
+      body_text: plainText,
+      snippet: `Ticket assigned to ${assigned_to} by ${assignedByName}`,
+      sent_by: user.email,
+      sent_at: new Date().toISOString(),
+      send_status: 'sent',
+      read_by: [user.email],
+    });
+
+    return Response.json({ success: true, message_id: sentMessage.id, thread_id: sentMessage.threadId });
   } catch (error) {
     console.error('sendAssignmentEmail error:', error);
     return Response.json({ error: error.message }, { status: 500 });
