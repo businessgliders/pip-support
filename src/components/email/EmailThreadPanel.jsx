@@ -9,11 +9,25 @@ import EmailComposer from "./EmailComposer";
 export default function EmailThreadPanel({ ticket, currentUser }) {
   const [composing, setComposing] = useState(false);
 
-  const { data: messages = [], isLoading, refetch } = useQuery({
+  const { data: fetchedMessages = [], isLoading, refetch } = useQuery({
     queryKey: ["email-messages", ticket.id],
     queryFn: () => base44.entities.EmailMessage.filter({ ticket_id: ticket.id }, "sent_at", 100),
     refetchInterval: 15000,
   });
+
+  // If no real emails exist yet, show a synthetic "initial inquiry" entry built from the ticket
+  const messages = fetchedMessages.length > 0 ? fetchedMessages : [{
+    id: `initial-${ticket.id}`,
+    direction: "inbound",
+    from_name: ticket.client_name,
+    from_email: ticket.client_email,
+    to_email: "info@pilatesinpinkstudio.com",
+    subject: `${ticket.inquiry_type} — ${ticket.client_name}`,
+    body_html: `<p>${(ticket.notes || "Initial inquiry submitted via the support form.").replace(/\n/g, "<br/>")}</p>`,
+    snippet: ticket.notes ? ticket.notes.slice(0, 140) : "Initial inquiry submitted via the support form.",
+    sent_at: ticket.created_date,
+    is_welcome: false,
+  }];
 
   return (
     <div className="bg-gradient-to-br from-amber-50 to-pink-50 rounded-xl p-4 border border-amber-200">
@@ -42,11 +56,6 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
       {isLoading ? (
         <div className="flex items-center justify-center py-6 text-gray-500 text-sm">
           <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading thread…
-        </div>
-      ) : messages.length === 0 ? (
-        <div className="text-center py-6 text-sm text-gray-500">
-          <Mail className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-          No emails yet
         </div>
       ) : (
         <div className="space-y-2 mb-3 max-h-[420px] overflow-y-auto pr-1">

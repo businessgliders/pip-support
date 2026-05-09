@@ -314,8 +314,39 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </div>
             </div>
 
-            {/* Right-aligned: status pills + email/call buttons */}
+            {/* Right-aligned: email/call buttons + separator + status pills */}
             <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Email/Call buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  asChild
+                  size="icon"
+                  variant="outline"
+                  title="Email Client"
+                  className="h-9 w-9"
+                >
+                  <a href={`mailto:${ticket.client_email}`}>
+                    <Mail className="w-4 h-4" />
+                  </a>
+                </Button>
+                {ticket.client_phone && (
+                  <Button
+                    asChild
+                    size="icon"
+                    variant="outline"
+                    title="Call Client"
+                    className="h-9 w-9"
+                  >
+                    <a href={`tel:${ticket.client_phone}`}>
+                      <Phone className="w-4 h-4" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+
+              {/* Separator */}
+              <Separator orientation="vertical" className="hidden md:block h-8 mx-1" />
+
               {/* Desktop status pills */}
               <div className="hidden md:flex items-center gap-1.5">
                 {[
@@ -348,34 +379,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                     </React.Fragment>
                   );
                 })}
-              </div>
-
-              {/* Email/Call buttons */}
-              <div className="flex items-center gap-2 ml-1">
-                <Button
-                  asChild
-                  size="icon"
-                  variant="outline"
-                  title="Email Client"
-                  className="h-9 w-9"
-                >
-                  <a href={`mailto:${ticket.client_email}`}>
-                    <Mail className="w-4 h-4" />
-                  </a>
-                </Button>
-                {ticket.client_phone && (
-                  <Button
-                    asChild
-                    size="icon"
-                    variant="outline"
-                    title="Call Client"
-                    className="h-9 w-9"
-                  >
-                    <a href={`tel:${ticket.client_phone}`}>
-                      <Phone className="w-4 h-4" />
-                    </a>
-                  </Button>
-                )}
               </div>
             </div>
           </div>
