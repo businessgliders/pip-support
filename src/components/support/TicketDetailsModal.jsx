@@ -323,8 +323,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </div>
             </div>
 
-            {/* Status pills - centered, with profile icon pushed to far right */}
-            <div className="flex items-center gap-3 flex-shrink-0 md:flex-[2] md:justify-center md:relative">
+            {/* Status pills - centered in 2nd column */}
+            <div className="flex items-center gap-3 flex-shrink-0 md:flex-[2] md:justify-center">
               {/* Desktop status pills */}
               <div className="hidden md:flex items-center gap-1.5">
                 {[
@@ -369,7 +369,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 const initials = displayName.slice(0, 2).toUpperCase();
                 return (
                   <div
-                    className="hidden md:flex items-center md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2"
+                    className="hidden md:flex items-center"
                     title={`Assigned to ${displayName}`}
                   >
                     {photo ? (
