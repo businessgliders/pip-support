@@ -452,8 +452,46 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          {/* Email Communications */}
-          <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
+          {/* Status History Timeline (moved to left column) */}
+          {ticket.status_history && ticket.status_history.length > 0 && (
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+              <button
+                onClick={() => setShowStatusHistory(!showStatusHistory)}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  Status History
+                </h3>
+                {showStatusHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+              {showStatusHistory && (
+                <div className="space-y-3 mt-3">
+                  {[...ticket.status_history].reverse().map((entry, index) => (
+                    <div key={index} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
+                        {index !== ticket.status_history.length - 1 && (
+                          <div className="w-0.5 h-full bg-gray-300 mt-1" />
+                        )}
+                      </div>
+                      <div className="flex-1 pb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-gray-900">{entry.status}</span>
+                          <span className="text-xs text-gray-500">
+                            {formatRelativeTime(entry.timestamp)}
+                          </span>
+                        </div>
+                        {entry.note && (
+                          <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (
@@ -602,49 +640,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               {/* Divider */}
               <Separator orientation="vertical" className="hidden md:block h-auto" />
 
-              {/* Right Section - Assignment & Comments */}
+              {/* Right Section - Assignment, Email & Internal Notes */}
               <div className="w-full md:flex-[2] space-y-4">
-              {/* Status History Timeline */}
-              {ticket.status_history && ticket.status_history.length > 0 && (
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
-                  <button
-                    onClick={() => setShowStatusHistory(!showStatusHistory)}
-                    className="w-full flex items-center justify-between text-left"
-                  >
-                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <History className="w-4 h-4" />
-                      Status History
-                    </h3>
-                    {showStatusHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </button>
-                  {showStatusHistory && (
-                    <div className="space-y-3 mt-3">
-                      {[...ticket.status_history].reverse().map((entry, index) => (
-                        <div key={index} className="flex gap-3">
-                          <div className="flex flex-col items-center">
-                            <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
-                            {index !== ticket.status_history.length - 1 && (
-                              <div className="w-0.5 h-full bg-gray-300 mt-1" />
-                            )}
-                          </div>
-                          <div className="flex-1 pb-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-gray-900">{entry.status}</span>
-                              <span className="text-xs text-gray-500">
-                                {formatRelativeTime(entry.timestamp)}
-                              </span>
-                            </div>
-                            {entry.note && (
-                              <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Quick Actions */}
               <div className="space-y-2">
                 <Button
@@ -709,11 +706,14 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </p>
               </div>
 
-              {/* Comments Section */}
+              {/* Email Communications Side Panel */}
+              <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
+
+              {/* Internal Notes Section */}
               <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
-              Comments
+              Internal Notes
               </h3>
 
               {/* Existing Comments */}
@@ -738,14 +738,14 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </div>
               )}
 
-              {/* Add Comment */}
+              {/* Add Internal Note */}
               <div className="space-y-2">
-              <Label htmlFor="new-comment">Add Comment</Label>
+              <Label htmlFor="new-comment">Add Note</Label>
               <Textarea
                 id="new-comment"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Type your comment here..."
+                placeholder="Type an internal note here..."
                 className="min-h-20"
               />
               <Button
@@ -754,7 +754,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 className="w-full bg-teal-600 hover:bg-teal-700 text-white"
               >
                 <Send className="w-4 h-4 mr-2" />
-                Add Comment
+                Add Note
               </Button>
               </div>
               </div>
