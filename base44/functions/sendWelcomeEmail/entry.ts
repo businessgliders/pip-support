@@ -85,7 +85,7 @@ function welcomeHtml({ clientName, inquiryType, ticketShortId }) {
       </p>
       <div style="margin-top:30px;padding-top:20px;border-top:1px solid #e0e0e0;text-align:center;">
         <p style="color:#999;margin:5px 0;font-size:13px;">With love,</p>
-        <p style="color:#f1899b;margin:5px 0;font-size:15px;font-weight:bold;">The Pilates in Pink Team 🌸</p>
+        <p style="color:#f1899b;margin:5px 0;font-size:15px;font-weight:bold;">The Pilates in Pink&trade; Team 🌸</p>
       </div>
     </div>
   </div>
@@ -99,10 +99,20 @@ Deno.serve(async (req) => {
     const { ticket_id } = await req.json();
     if (!ticket_id) return Response.json({ error: 'ticket_id required' }, { status: 400 });
 
-    const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
+    let ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
-    const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
+    // Ensure the ticket has a sequential ticket_number before sending — guarantees
+    // a clean numeric reference in the subject (no random ID fallback).
+    if (!ticket.ticket_number) {
+      const all = await base44.asServiceRole.entities.SupportTicket.list('-ticket_number', 1);
+      const highest = all.find(t => typeof t.ticket_number === 'number')?.ticket_number;
+      const next = highest && highest >= 1 ? highest + 1 : 1;
+      await base44.asServiceRole.entities.SupportTicket.update(ticket_id, { ticket_number: next });
+      ticket = { ...ticket, ticket_number: next };
+    }
+
+    const ticketRef = String(ticket.ticket_number);
     const subject = `[Ticket #${ticketRef}] ${ticket.inquiry_type} - Pilates in Pink`;
     const htmlBody = welcomeHtml({
       clientName: ticket.client_name,

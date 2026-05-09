@@ -19,6 +19,16 @@ Deno.serve(async (req) => {
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
+    // Pull the original welcome email (if it exists) so we can thread the
+    // assignment notification onto the same conversation. This way, when staff
+    // reply to the assignment email, their reply goes to the client and stays
+    // in the same Gmail thread that the client sees.
+    let welcomeMsg = null;
+    try {
+      const msgs = await base44.asServiceRole.entities.EmailMessage.filter({ ticket_id, is_welcome: true });
+      welcomeMsg = msgs.find(m => m.rfc_message_id) || null;
+    } catch (_e) { welcomeMsg = null; }
+
     const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}`;
     const assignedByName = user.full_name || user.email.split('@')[0];
     const isUrgent = ticket.priority === 'Urgent' || ticket.inquiry_type === 'Cancellation';
@@ -48,13 +58,17 @@ Deno.serve(async (req) => {
           </div>
           <div style="margin-top:25px;padding-top:20px;border-top:1px solid #e0e0e0;text-align:center;">
             <p style="color:#999;margin:5px 0;font-size:13px;">Assigned by ${assignedByName}</p>
-            <p style="color:#999;margin:5px 0;font-size:13px;">Pilates in Pink Support System</p>
+            <p style="color:#999;margin:5px 0;font-size:13px;">Pilates in Pink&trade; Support System</p>
           </div>
         </div>
       </div>`;
 
-    // Send via Gmail (works for any address, not just Base44 users)
-    const subject = `${isUrgent ? '🚨 URGENT: ' : ''}Ticket Assigned: ${ticket.client_name}`;
+    // Build subject — keep the same `[Ticket #N] ...` prefix as the welcome email
+    // so Gmail groups assignment + client replies + staff replies in one thread.
+    const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
+    const baseSubject = `[Ticket #${ticketRef}] ${ticket.inquiry_type} - Pilates in Pink`;
+    const subject = `${isUrgent ? '🚨 URGENT: ' : ''}${baseSubject}`;
+
     // RFC 2047 encode display name so ™ renders correctly across mail clients
     const fromName = 'Pilates in Pink \u2122';
     const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
@@ -68,6 +82,16 @@ Deno.serve(async (req) => {
       `MIME-Version: 1.0`,
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
     ];
+
+    // Threading headers — link to the welcome email so this becomes part of the
+    // same conversation thread on both Gmail (staff) and the client's mailbox.
+    if (welcomeMsg?.rfc_message_id) {
+      headers.push(`In-Reply-To: ${welcomeMsg.rfc_message_id}`);
+      const refs = welcomeMsg.references
+        ? `${welcomeMsg.references} ${welcomeMsg.rfc_message_id}`
+        : welcomeMsg.rfc_message_id;
+      headers.push(`References: ${refs}`);
+    }
     const plainText = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
     const body = [
       `--${boundary}`, `Content-Type: text/plain; charset="UTF-8"`, ``, plainText, ``,
@@ -81,10 +105,13 @@ Deno.serve(async (req) => {
     const encoded = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
+    const sendBody = welcomeMsg?.gmail_thread_id
+      ? { raw: encoded, threadId: welcomeMsg.gmail_thread_id }
+      : { raw: encoded };
     const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ raw: encoded }),
+      body: JSON.stringify(sendBody),
     });
 
     if (!sendRes.ok) {
