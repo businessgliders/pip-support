@@ -118,7 +118,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
   const [showContactInfo, setShowContactInfo] = useState(true);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
-  const [showStatusHistory, setShowStatusHistory] = useState(true);
+  const [showStatusHistory, setShowStatusHistory] = useState(true); // expanded by default
   const [systemAlert, setSystemAlert] = useState(null);
   const [statusPrompt, setStatusPrompt] = useState(null);
   const [statusNote, setStatusNote] = useState("");
@@ -304,7 +304,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           <div className="flex items-start justify-between">
             <div className="text-left">
               <DialogTitle className="text-lg md:text-2xl mb-2">{ticket.client_name}</DialogTitle>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
                             <Badge className={`${priorityColors[ticket.priority]} border`}>
                               {ticket.priority}
                             </Badge>
@@ -314,11 +314,70 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                           </div>
                         </div>
                       </div>
+
+                      {/* Compact Status Progress Bar */}
+                      <div className="mt-4 pr-8">
+                        {/* Desktop */}
+                        <div className="hidden md:flex items-center gap-1.5">
+                          {[
+                            { status: "New", icon: Sparkles, color: "bg-pink-500" },
+                            { status: "In Progress", icon: Clock, color: "bg-blue-500" },
+                            { status: "Resolved", icon: CheckCircle, color: "bg-green-500" },
+                            { status: "Closed", icon: XCircle, color: "bg-gray-500" }
+                          ].map(({ status, icon: Icon, color }, index) => {
+                            const isActive = ticket.status === status;
+                            return (
+                              <React.Fragment key={status}>
+                                <button
+                                  onClick={() => {
+                                    if (!isActive) {
+                                      setStatusPrompt({ ticketId: ticket.id, newStatus: status });
+                                      setStatusNote("");
+                                    }
+                                  }}
+                                  disabled={isActive}
+                                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                                    isActive
+                                      ? `${color} text-white shadow`
+                                      : "bg-white border border-gray-300 text-gray-600 hover:border-gray-400 hover:shadow-sm"
+                                  }`}
+                                >
+                                  <Icon className="w-3 h-3" />
+                                  {status}
+                                </button>
+                                {index < 3 && <div className="text-gray-300 text-xs">→</div>}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                        {/* Mobile */}
+                        <div className="md:hidden">
+                          <Select
+                            value={ticket.status}
+                            onValueChange={(newStatus) => {
+                              if (ticket.status !== newStatus) {
+                                setStatusPrompt({ ticketId: ticket.id, newStatus });
+                                setStatusNote("");
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-full h-9 bg-gradient-to-r from-pink-50 to-purple-50 border-2 text-xs">
+                              <SelectValue placeholder="Select Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="New">✨ New</SelectItem>
+                              <SelectItem value="In Progress">🕒 In Progress</SelectItem>
+                              <SelectItem value="Resolved">✅ Resolved</SelectItem>
+                              <SelectItem value="Closed">❌ Closed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </DialogHeader>
 
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left Section - Main Content (compact) */}
-                      <div className="flex-1 md:flex-[2] space-y-4">
+                      {/* Left Section - Main Content */}
+                      <div className="flex-1 md:flex-[2] space-y-4 md:min-w-0">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <button
@@ -563,114 +622,33 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               <Separator orientation="vertical" className="hidden md:block h-auto" />
 
               {/* Right Section - Email-focused panel */}
-              <div className="w-full md:flex-[5] space-y-4">
-              {/* Header bar: current status + quick actions */}
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <Badge className={`${statusColors[ticket.status]} border text-sm px-3 py-1`}>
-                  {ticket.status}
-                </Badge>
-                <div className="flex gap-2">
+              <div className="w-full md:flex-[3] space-y-4 md:min-w-0">
+              {/* Quick actions */}
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  asChild
+                  size="icon"
+                  variant="outline"
+                  title="Email Client"
+                  className="h-9 w-9"
+                >
+                  <a href={`mailto:${ticket.client_email}`}>
+                    <Mail className="w-4 h-4" />
+                  </a>
+                </Button>
+                {ticket.client_phone && (
                   <Button
                     asChild
                     size="icon"
                     variant="outline"
-                    title="Email Client"
+                    title="Call Client"
                     className="h-9 w-9"
                   >
-                    <a href={`mailto:${ticket.client_email}`}>
-                      <Mail className="w-4 h-4" />
+                    <a href={`tel:${ticket.client_phone}`}>
+                      <Phone className="w-4 h-4" />
                     </a>
                   </Button>
-                  {ticket.client_phone && (
-                    <Button
-                      asChild
-                      size="icon"
-                      variant="outline"
-                      title="Call Client"
-                      className="h-9 w-9"
-                    >
-                      <a href={`tel:${ticket.client_phone}`}>
-                        <Phone className="w-4 h-4" />
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {/* Update Status */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
-
-                {/* Desktop View - Flow with Arrows */}
-                <div className="hidden md:flex items-center gap-2">
-                  {[
-                    { status: "New", icon: Sparkles, gradient: "from-pink-500 to-pink-600", bg: "bg-pink-50", border: "border-pink-300" },
-                    { status: "In Progress", icon: Clock, gradient: "from-blue-500 to-blue-600", bg: "bg-blue-50", border: "border-blue-300" },
-                    { status: "Resolved", icon: CheckCircle, gradient: "from-green-500 to-green-600", bg: "bg-green-50", border: "border-green-300" },
-                    { status: "Closed", icon: XCircle, gradient: "from-gray-500 to-gray-600", bg: "bg-gray-50", border: "border-gray-300" }
-                  ].map(({ status, icon: Icon, gradient, bg, border }, index) => (
-                    <React.Fragment key={status}>
-                      <button
-                        onClick={() => {
-                          if (ticket.status !== status) {
-                            setStatusPrompt({ ticketId: ticket.id, newStatus: status });
-                            setStatusNote("");
-                          }
-                        }}
-                        disabled={ticket.status === status}
-                        className={`group relative flex-1 rounded-lg p-2 transition-all duration-200 ${
-                          ticket.status === status
-                            ? `${bg} ${border} border-2 shadow-md`
-                            : "bg-white border border-gray-300 hover:border-gray-400 hover:shadow"
-                        }`}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <div className={`flex items-center justify-center w-7 h-7 rounded-md bg-gradient-to-br ${gradient} ${
-                            ticket.status === status ? "shadow" : "opacity-50 group-hover:opacity-90"
-                          } transition-all`}>
-                            <Icon className="w-4 h-4 text-white" />
-                          </div>
-                          <div className={`text-xs font-medium ${ticket.status === status ? "text-gray-900" : "text-gray-600 group-hover:text-gray-800"}`}>
-                            {status}
-                          </div>
-                        </div>
-                        {ticket.status === status && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                      </button>
-                      {index < 3 && (
-                        <div className="text-gray-400 text-lg font-bold">
-                          →
-                        </div>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-
-                {/* Mobile View - Enhanced Dropdown */}
-                <div className="md:hidden">
-                  <Select
-                    value={ticket.status}
-                    onValueChange={(newStatus) => {
-                      if (ticket.status !== newStatus) {
-                        setStatusPrompt({ ticketId: ticket.id, newStatus });
-                        setStatusNote("");
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-full h-11 bg-gradient-to-r from-pink-50 to-purple-50 border-2">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="New">✨ New</SelectItem>
-                      <SelectItem value="In Progress">🕒 In Progress</SelectItem>
-                      <SelectItem value="Resolved">✅ Resolved</SelectItem>
-                      <SelectItem value="Closed">❌ Closed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                )}
               </div>
 
               {/* Assignment Section */}
