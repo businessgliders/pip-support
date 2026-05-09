@@ -50,18 +50,40 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
   </div>
 </body></html>`;
 
-  const messages = fetchedMessages.length > 0 ? fetchedMessages : [{
-    id: `welcome-${ticket.id}`,
-    direction: "outbound",
-    from_name: "Pilates in Pink",
-    from_email: "info@pilatesinpinkstudio.com",
-    to_email: ticket.client_email,
-    subject: `[Ticket #${shortId}] ${ticket.inquiry_type} - Pilates in Pink`,
-    body_html: welcomeHtml,
-    snippet: `We've received your ${ticket.inquiry_type} request and one of our team members will be in touch with you very soon.`,
-    sent_at: ticket.created_date,
-    is_welcome: true,
-  }];
+  // Synthetic initial messages: client's submitted notes (if any) + auto-reply welcome
+  const syntheticMessages = [];
+
+  if (ticket.notes && ticket.notes.trim()) {
+    syntheticMessages.push({
+      id: `intake-${ticket.id}`,
+      direction: "inbound",
+      from_name: ticket.client_name,
+      from_email: ticket.client_email,
+      to_email: "info@pilatesinpinkstudio.com",
+      subject: `${ticket.inquiry_type} - Initial Submission`,
+      body_html: `<p style="white-space:pre-wrap;">${ticket.notes.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`,
+      body_text: ticket.notes,
+      snippet: ticket.notes,
+      sent_at: ticket.created_date,
+    });
+  }
+
+  if (fetchedMessages.length === 0) {
+    syntheticMessages.push({
+      id: `welcome-${ticket.id}`,
+      direction: "outbound",
+      from_name: "Pilates in Pink",
+      from_email: "info@pilatesinpinkstudio.com",
+      to_email: ticket.client_email,
+      subject: `[Ticket #${shortId}] ${ticket.inquiry_type} - Pilates in Pink`,
+      body_html: welcomeHtml,
+      snippet: `We've received your ${ticket.inquiry_type} request and one of our team members will be in touch with you very soon.`,
+      sent_at: ticket.created_date,
+      is_welcome: true,
+    });
+  }
+
+  const messages = [...syntheticMessages, ...fetchedMessages];
 
   return (
     <div className="bg-gradient-to-br from-amber-50 to-pink-50 rounded-xl p-4 border border-amber-200">
