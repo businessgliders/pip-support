@@ -695,7 +695,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 <SelectContent>
                   {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => {
                     const haystack = `${u.full_name || ''} ${u.email || ''}`.toLowerCase();
-                    const titleMap = { sahil: 'CFO', rashmeen: 'CEO', gurpreen: 'CTO' };
+                    const titleMap = { sahil: 'Operations, Finance', rashmeen: 'Operations, Social', gurpreen: 'Technology, Marketing' };
                     const title = Object.keys(titleMap).find(k => haystack.includes(k));
                     const name = u.email === 'info@pilatesinpinkstudio.com'
                       ? 'Front Desk'
