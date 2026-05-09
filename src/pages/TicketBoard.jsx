@@ -763,17 +763,52 @@ function MobileSearchDialog({ isOpen, initialValue, onSearch, onClose }) {
   );
 }
 
+const FD_NAMES_KEY = 'pip_front_desk_recent_names';
+
+function getRecentFrontDeskNames() {
+  try {
+    const stored = localStorage.getItem(FD_NAMES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentFrontDeskName(name) {
+  try {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const existing = getRecentFrontDeskNames();
+    const filtered = existing.filter(n => n.toLowerCase() !== trimmed.toLowerCase());
+    const updated = [trimmed, ...filtered].slice(0, 5);
+    localStorage.setItem(FD_NAMES_KEY, JSON.stringify(updated));
+  } catch {
+    // ignore
+  }
+}
+
 function StatusChangeDialog({ data, currentUser, allUsers, onConfirm, onCancel }) {
   const isFrontDesk = currentUser?.email === 'info@pilatesinpinkstudio.com';
   const matchedUser = allUsers?.find(u => u.email === currentUser?.email);
+  const recentNames = isFrontDesk ? getRecentFrontDeskNames() : [];
   const defaultName = isFrontDesk
-    ? ""
+    ? (recentNames[0] || "")
     : (matchedUser?.full_name || currentUser?.full_name || currentUser?.email?.split('@')[0] || "");
 
   const [name, setName] = useState(defaultName);
   const [note, setNote] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const filteredSuggestions = recentNames.filter(n =>
+    n.toLowerCase().includes(name.toLowerCase()) && n.toLowerCase() !== name.toLowerCase()
+  );
 
   const canSubmit = name.trim().length > 0 && note.trim().length > 0;
+
+  const handleSubmit = () => {
+    if (isFrontDesk) saveRecentFrontDeskName(name);
+    onConfirm(name.trim(), note.trim());
+  };
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
@@ -787,18 +822,39 @@ function StatusChangeDialog({ data, currentUser, allUsers, onConfirm, onCancel }
             <span className="text-blue-600 font-medium">{data.oldColumn}</span> to{" "}
             <span className="text-green-600 font-medium">{data.newColumn}</span>
           </p>
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <Label htmlFor="status-name">
               {isFrontDesk ? "Front Desk Associate Name" : "Name"} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="status-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               placeholder={isFrontDesk ? "Enter your name" : ""}
               readOnly={!isFrontDesk}
               className={!isFrontDesk ? "bg-gray-100" : ""}
+              autoComplete="off"
             />
+            {isFrontDesk && showSuggestions && filteredSuggestions.length > 0 && (
+              <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                {filteredSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setName(suggestion);
+                      setShowSuggestions(false);
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-pink-50 text-sm text-gray-700"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="status-note">
@@ -818,7 +874,7 @@ function StatusChangeDialog({ data, currentUser, allUsers, onConfirm, onCancel }
             Cancel
           </Button>
           <Button
-            onClick={() => onConfirm(name.trim(), note.trim())}
+            onClick={handleSubmit}
             disabled={!canSubmit}
             className="bg-[#b67651] hover:bg-[#a56541] text-white"
           >
