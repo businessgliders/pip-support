@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
+import FloatingUserSwitcher from "../components/support/FloatingUserSwitcher";
 
 const userColors = {
   0: "bg-pink-400",
@@ -447,26 +448,6 @@ export default function TicketBoard() {
               </Button>
             )}
 
-            {/* Analytics Button */}
-            <Link to={createPageUrl("Analytics")}>
-              <Button
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
-                title="Analytics"
-              >
-                <BarChart3 className="w-4 h-4" />
-              </Button>
-            </Link>
-
-            {/* Settings Button */}
-            <Link to={createPageUrl("Settings")}>
-              <Button
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
-                title="Settings"
-              >
-                <SettingsIcon className="w-4 h-4" />
-              </Button>
-            </Link>
-
             {/* Archive Toggle Button */}
             <Button
               onClick={() => setShowArchived(!showArchived)}
@@ -478,33 +459,6 @@ export default function TicketBoard() {
             >
               <Archive className="w-4 h-4" />
             </Button>
-
-            {/* Mobile User Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="md:hidden backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
-                >
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(user.email)} shadow-sm`}>
-                    <User className="w-3 h-3 text-white" />
-                    <span className="text-white text-xs font-semibold">
-                      {getInitials(user.email)}
-                    </span>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => {
-                  base44.auth.logout();
-                  window.location.reload();
-                }}>
-                  Switch User
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => base44.auth.logout()}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
 
             {/* User Filter (Owner only) */}
             {isOwner && (
@@ -525,36 +479,35 @@ export default function TicketBoard() {
               </select>
             )}
 
-            {/* User Menu Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="hidden md:flex items-center gap-2 backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-4 shadow-lg"
-                >
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(user.email)} shadow-sm`}>
-                    <User className="w-3 h-3 text-white" />
-                    <span className="text-white text-xs font-semibold">
-                      {getInitials(user.email)}
-                    </span>
-                  </div>
-                  <Menu className="w-4 h-4 text-gray-900" />
-                  </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => {
-                  base44.auth.logout();
-                  window.location.reload();
-                }}>
-                  Switch User
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => base44.auth.logout()}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
+
+        {/* Floating Action Icons (top-right, like padlock on intake) */}
+        <div className="fixed top-4 right-4 z-40 flex flex-col gap-2">
+          <Link to={createPageUrl("Analytics")}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
+              title="Analytics"
+            >
+              <BarChart3 className="w-4 h-4" />
+            </Button>
+          </Link>
+          <Link to={createPageUrl("Settings")}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
+              title="Settings"
+            >
+              <SettingsIcon className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
+
+        {/* Floating User Switcher (left-center) */}
+        <FloatingUserSwitcher currentUser={user} allUsers={allUsers} />
 
         {/* Column Editor Dialog */}
         {showColumnEditor && (
