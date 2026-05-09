@@ -371,7 +371,7 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="h-screen flex flex-col p-4 md:p-8 bg-gradient-to-b from-[#f1899b] to-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col p-4 md:p-8 bg-gradient-to-b from-[#f1899b] to-white relative overflow-y-auto">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
@@ -590,7 +590,7 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 flex-1 min-h-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 flex-1">
               {columns.map((column) => (
                 <Droppable key={column} droppableId={column}>
                   {(provided, snapshot) => (
