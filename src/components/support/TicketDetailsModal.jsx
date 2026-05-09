@@ -369,7 +369,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 const initials = displayName.slice(0, 2).toUpperCase();
                 return (
                   <div
-                    className="hidden md:flex items-center"
+                    className="hidden md:flex items-center md:ml-auto"
                     title={`Assigned to ${displayName}`}
                   >
                     {photo ? (
