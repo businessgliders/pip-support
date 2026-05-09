@@ -70,10 +70,18 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
       parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Additional Notes:</p><p style="margin:0;white-space:pre-wrap;">${escapeHtml(ticket.notes)}</p>`);
     }
     if (parts.length > 0) {
+      const decisionLabel =
+        ticket.discount_accepted === true
+          ? "Offer accepted"
+          : ticket.discount_accepted === false
+          ? "Offer declined"
+          : null;
       const snippet = [
         ticket.cancellation_reason,
         ticket.cancellation_satisfaction,
         ticket.cancellation_feedback,
+        ticket.discount_offered ? `🎁 ${ticket.discount_offered}` : null,
+        decisionLabel,
       ].filter(Boolean).join(" • ");
       synthetic.push({
         id: `intake-${ticket.id}`,
