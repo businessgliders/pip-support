@@ -377,12 +377,12 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-hidden">
+    <div className="min-h-screen lg:h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative lg:overflow-hidden">
       {/* Decorative background */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+      <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto relative z-10 flex flex-col flex-1 w-full min-h-0">
+      <div className="max-w-7xl mx-auto relative z-10 flex flex-col flex-1 w-full lg:min-h-0">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
@@ -604,7 +604,7 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:flex-1 lg:min-h-0">
               {columns.map((column) => (
                 <KanbanColumn
                   key={column}
