@@ -139,7 +139,10 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         <div className="flex items-center justify-between gap-2 mb-1">
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             <span className="text-sm">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-            <h4 className="text-gray-900 font-medium truncate text-xs">{ticket.client_name}</h4>
+            <h4 className="text-gray-900 font-medium truncate text-xs">
+              {ticket.ticket_number && <span className="text-gray-500 mr-1">#{ticket.ticket_number}</span>}
+              {ticket.client_name}
+            </h4>
           </div>
           {!isDragging && (
             <DropdownMenu>
@@ -185,7 +188,10 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-lg">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-              <h4 className="text-gray-900 font-semibold truncate text-base">{ticket.client_name}</h4>
+              <h4 className="text-gray-900 font-semibold truncate text-base">
+                {ticket.ticket_number && <span className="text-gray-500 font-normal mr-1.5">#{ticket.ticket_number}</span>}
+                {ticket.client_name}
+              </h4>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">

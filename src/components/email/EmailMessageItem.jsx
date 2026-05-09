@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Sparkles, User } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -8,7 +8,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const formatDate = (s) => {
+const formatTime = (s) => {
+  if (!s) return "";
+  let iso = s;
+  if (typeof s === "string" && !s.endsWith("Z") && !s.includes("+")) iso = s + "Z";
+  return new Date(iso).toLocaleString("en-US", {
+    hour: "numeric", minute: "2-digit", hour12: true,
+    timeZone: "America/New_York"
+  });
+};
+
+const formatFullDate = (s) => {
   if (!s) return "";
   let iso = s;
   if (typeof s === "string" && !s.endsWith("Z") && !s.includes("+")) iso = s + "Z";
@@ -22,40 +32,32 @@ const formatDate = (s) => {
 export default function EmailMessageItem({ message }) {
   const [open, setOpen] = useState(false);
   const isInbound = message.direction === "inbound";
+  const senderName = message.from_name || message.from_email || (isInbound ? "Client" : "Support");
 
   return (
     <>
-      <div className={`border rounded-xl overflow-hidden ${isInbound ? "bg-blue-50/60 border-blue-200" : "bg-pink-50/60 border-pink-200"}`}>
-        <button
-          onClick={() => setOpen(true)}
-          className="w-full flex items-start justify-between gap-3 p-3 text-left hover:bg-white/40 transition-colors"
-        >
-          <div className="flex items-start gap-3 min-w-0 flex-1">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isInbound ? "bg-blue-500" : "bg-pink-500"}`}>
-              {isInbound ? <User className="w-4 h-4 text-white" /> : <Mail className="w-4 h-4 text-white" />}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                <span className="font-semibold text-gray-900 text-sm truncate">
-                  {message.from_name || message.from_email}
-                </span>
-                {message.is_welcome && (
-                  <Badge className="bg-pink-100 text-pink-700 border-pink-200 text-[10px]">
-                    <Sparkles className="w-2.5 h-2.5 mr-1" />Welcome
-                  </Badge>
-                )}
-                {isInbound && (
-                  <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[10px]">Reply from client</Badge>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 truncate">{message.subject}</p>
-              <p className="text-xs text-gray-600 mt-1 line-clamp-1">{message.snippet}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-gray-500 whitespace-nowrap hidden sm:inline">{formatDate(message.sent_at)}</span>
-          </div>
-        </button>
+      <div className={`flex ${isInbound ? "justify-start" : "justify-end"} mb-1`}>
+        <div className={`max-w-[80%] flex flex-col ${isInbound ? "items-start" : "items-end"}`}>
+          <span className="text-[10px] text-gray-500 mb-0.5 px-1">{senderName}</span>
+          <button
+            onClick={() => setOpen(true)}
+            className={`text-left rounded-2xl px-3.5 py-2 shadow-sm transition-all hover:shadow-md ${
+              isInbound
+                ? "bg-white border border-gray-200 text-gray-800 rounded-bl-sm"
+                : "bg-pink-500 text-white rounded-br-sm"
+            }`}
+          >
+            <p className={`text-sm leading-snug line-clamp-3 whitespace-pre-wrap break-words ${isInbound ? "" : "text-white"}`}>
+              {message.snippet || (message.body_text || "").slice(0, 200) || "(empty message)"}
+            </p>
+            {message.is_welcome && (
+              <Badge className="mt-1.5 bg-white/20 text-white border-white/30 text-[9px] hover:bg-white/20">
+                <Sparkles className="w-2.5 h-2.5 mr-0.5" />Auto-reply
+              </Badge>
+            )}
+          </button>
+          <span className="text-[10px] text-gray-400 mt-0.5 px-1">{formatTime(message.sent_at)}</span>
+        </div>
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -65,7 +67,7 @@ export default function EmailMessageItem({ message }) {
             <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1 mt-2">
               <span><strong>From:</strong> {message.from_name ? `${message.from_name} <${message.from_email}>` : message.from_email}</span>
               <span><strong>To:</strong> {message.to_email}</span>
-              <span>{formatDate(message.sent_at)}</span>
+              <span>{formatFullDate(message.sent_at)}</span>
             </div>
           </DialogHeader>
           <div

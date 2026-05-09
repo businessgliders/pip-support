@@ -84,6 +84,13 @@ export default function IntakeForm() {
         priority: formData.inquiry_type === "Cancellation" ? "High" : "Medium"
       });
 
+      // Assign sequential 5-digit ticket number
+      try {
+        await base44.functions.invoke('assignTicketNumber', { ticket_id: newTicket.id });
+      } catch (numErr) {
+        console.log("Note: Ticket number assignment failed", numErr);
+      }
+
       // Build ticket URL
       const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
 
@@ -266,6 +273,13 @@ export default function IntakeForm() {
         status: "New",
         priority: "Urgent"
       });
+
+      // Assign sequential 5-digit ticket number
+      try {
+        await base44.functions.invoke('assignTicketNumber', { ticket_id: newTicket.id });
+      } catch (numErr) {
+        console.log("Note: Ticket number assignment failed", numErr);
+      }
 
       // Build ticket URL
       const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;

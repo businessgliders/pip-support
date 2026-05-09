@@ -57,9 +57,9 @@ Deno.serve(async (req) => {
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
-    // Subject with [Ticket #shortid] tag for threading
-    const shortId = ticket.id.slice(-8);
-    const subjectTag = `[Ticket #${shortId}]`;
+    // Subject with [Ticket #number] tag for threading
+    const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
+    const subjectTag = `[Ticket #${ticketRef}]`;
     let subject;
 
     // Find the most recent email on this thread for threading

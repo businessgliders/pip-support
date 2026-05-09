@@ -303,7 +303,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
         <DialogHeader>
           <div className="flex items-start justify-between gap-4 pr-8">
             <div className="text-left min-w-0">
-              <DialogTitle className="text-lg md:text-2xl mb-2 truncate">{ticket.client_name}</DialogTitle>
+              <DialogTitle className="text-lg md:text-2xl mb-2 truncate">
+                {ticket.ticket_number && <span className="text-gray-400 font-normal mr-2">#{ticket.ticket_number}</span>}
+                {ticket.client_name}
+              </DialogTitle>
               <div className="flex gap-2 flex-wrap">
                 <Badge className={`${priorityColors[ticket.priority]} border`}>
                   {ticket.priority}

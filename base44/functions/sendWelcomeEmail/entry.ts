@@ -78,12 +78,12 @@ Deno.serve(async (req) => {
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
-    const shortId = ticket.id.slice(-8);
-    const subject = `[Ticket #${shortId}] ${ticket.inquiry_type} - Pilates in Pink`;
+    const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
+    const subject = `[Ticket #${ticketRef}] ${ticket.inquiry_type} - Pilates in Pink`;
     const htmlBody = welcomeHtml({
       clientName: ticket.client_name,
       inquiryType: ticket.inquiry_type,
-      ticketShortId: shortId,
+      ticketShortId: ticketRef,
     });
 
     const fromHeader = `"Pilates in Pink" <info@pilatesinpinkstudio.com>`;

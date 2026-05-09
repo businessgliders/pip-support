@@ -1,0 +1,139 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "ticket_number": {
+      "type": "integer",
+      "description": "Sequential 5-digit ticket number starting at 45100"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client's full name"
+    },
+    "client_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Client's email address"
+    },
+    "client_phone": {
+      "type": "string",
+      "description": "Client's phone number"
+    },
+    "inquiry_type": {
+      "type": "string",
+      "enum": [
+        "General Inquiry",
+        "Membership Inquiry",
+        "Private Events",
+        "Cancellation",
+        "Other"
+      ],
+      "description": "Type of inquiry"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "In Progress",
+        "Resolved",
+        "Closed"
+      ],
+      "default": "New",
+      "description": "Current status of the ticket"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or messages from client"
+    },
+    "cancellation_reason": {
+      "type": "string",
+      "description": "Primary reason for cancellation"
+    },
+    "cancellation_satisfaction": {
+      "type": "string",
+      "description": "Satisfaction rating"
+    },
+    "cancellation_feedback": {
+      "type": "string",
+      "description": "Open feedback from client"
+    },
+    "discount_offered": {
+      "type": "string",
+      "description": "Discount percentage offered for retention"
+    },
+    "discount_accepted": {
+      "type": "boolean",
+      "description": "Whether the client accepted the discount offer"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Urgent"
+      ],
+      "default": "Medium",
+      "description": "Priority level"
+    },
+    "status_history": {
+      "type": "array",
+      "description": "History of status changes with notes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the ticket is archived"
+    },
+    "assigned_to": {
+      "type": "string",
+      "format": "email",
+      "default": "info@pilatesinpinkstudio.com",
+      "description": "Email of assigned user"
+    },
+    "comments": {
+      "type": "array",
+      "description": "Comments on the ticket",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_email": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "last_reminder_sent": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time a reminder email was sent"
+    }
+  },
+  "required": [
+    "client_name",
+    "client_email",
+    "inquiry_type"
+  ]
+}

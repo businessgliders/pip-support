@@ -17,7 +17,7 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
 
   // If no real emails exist yet, synthesize the auto-response welcome email so users
   // can preview the reply that was sent to the submitter.
-  const shortId = ticket.id ? ticket.id.slice(-8) : "";
+  const shortId = ticket.ticket_number ? String(ticket.ticket_number) : (ticket.id ? ticket.id.slice(-8) : "");
   const welcomeHtml = `<!DOCTYPE html>
 <html><body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#fbe0e2;">
   <div style="max-width:600px;margin:0 auto;background:linear-gradient(135deg,#f1899b 0%,#f7b1bd 50%,#fbe0e2 100%);padding:40px 20px;">
@@ -92,13 +92,9 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
           <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading thread…
         </div>
       ) : (
-        <div className="space-y-2 mb-3 max-h-[420px] overflow-y-auto pr-1">
+        <div className="bg-gradient-to-b from-white/60 to-amber-50/40 rounded-xl p-3 mb-3 max-h-[480px] overflow-y-auto border border-amber-100">
           {messages.map((m) => (
-            <EmailMessageItem
-              key={m.id}
-              message={m}
-              defaultExpanded={false}
-            />
+            <EmailMessageItem key={m.id} message={m} />
           ))}
         </div>
       )}
