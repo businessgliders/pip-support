@@ -87,6 +87,13 @@ export default function IntakeForm() {
       // Build ticket URL
       const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
 
+      // Send branded welcome email to the client (threaded with [Ticket #xxx] subject tag)
+      try {
+        await base44.functions.invoke('sendWelcomeEmail', { ticket_id: newTicket.id });
+      } catch (welcomeErr) {
+        console.log("Note: Welcome email failed", welcomeErr);
+      }
+
       // Send assignment email notification to owner (Front Desk)
       try {
         await base44.integrations.Core.SendEmail({
@@ -262,6 +269,13 @@ export default function IntakeForm() {
 
       // Build ticket URL
       const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
+
+      // Send branded welcome email to the client
+      try {
+        await base44.functions.invoke('sendWelcomeEmail', { ticket_id: newTicket.id });
+      } catch (welcomeErr) {
+        console.log("Note: Welcome email failed", welcomeErr);
+      }
 
       // Send assignment email notification to owner (Front Desk)
       try {

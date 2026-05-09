@@ -1,0 +1,40 @@
+{
+  "name": "EmailTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Short name of the template (e.g. 'Welcome', 'Cancellation Follow-Up')"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "General",
+        "Membership",
+        "Cancellation",
+        "Private Events",
+        "Other"
+      ],
+      "default": "General",
+      "description": "Category for grouping templates"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject (supports variables like {{client_name}})"
+    },
+    "body_html": {
+      "type": "string",
+      "description": "Email body HTML (supports variables like {{client_name}}, {{staff_name}})"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether template appears in the picker"
+    }
+  },
+  "required": [
+    "name",
+    "subject",
+    "body_html"
+  ]
+}

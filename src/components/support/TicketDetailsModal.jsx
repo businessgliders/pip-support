@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp, Sparkles, Clock, CheckCircle, XCircle } from "lucide-react";
+import EmailThreadPanel from "../email/EmailThreadPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -450,6 +451,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               <p className="text-gray-700 whitespace-pre-wrap">{ticket.notes}</p>
             </div>
           )}
+
+          {/* Email Communications */}
+          <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
 
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (

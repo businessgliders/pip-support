@@ -1,0 +1,81 @@
+{
+  "name": "EmailMessage",
+  "type": "object",
+  "properties": {
+    "ticket_id": {
+      "type": "string",
+      "description": "ID of the SupportTicket this email belongs to"
+    },
+    "gmail_thread_id": {
+      "type": "string",
+      "description": "Gmail thread ID for grouping related messages"
+    },
+    "gmail_message_id": {
+      "type": "string",
+      "description": "Gmail message ID (unique per email)"
+    },
+    "rfc_message_id": {
+      "type": "string",
+      "description": "RFC 2822 Message-ID header used for threading via In-Reply-To/References"
+    },
+    "in_reply_to": {
+      "type": "string",
+      "description": "RFC Message-ID this is in reply to"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "outbound",
+        "inbound"
+      ],
+      "description": "outbound = sent by staff/system, inbound = from client"
+    },
+    "from_email": {
+      "type": "string",
+      "description": "Sender email address"
+    },
+    "from_name": {
+      "type": "string",
+      "description": "Sender display name"
+    },
+    "to_email": {
+      "type": "string",
+      "description": "Recipient email address"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line"
+    },
+    "body_html": {
+      "type": "string",
+      "description": "HTML body of the email"
+    },
+    "body_text": {
+      "type": "string",
+      "description": "Plain text body of the email"
+    },
+    "snippet": {
+      "type": "string",
+      "description": "Short preview snippet of the email"
+    },
+    "sent_by": {
+      "type": "string",
+      "description": "Email of staff member who sent it (for outbound only). System for welcome emails."
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the email was sent/received"
+    },
+    "is_welcome": {
+      "type": "boolean",
+      "default": false,
+      "description": "True for the initial welcome email sent on ticket creation"
+    }
+  },
+  "required": [
+    "ticket_id",
+    "direction",
+    "subject"
+  ]
+}

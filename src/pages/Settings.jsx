@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link, useNavigate } from "react-router-dom";
-import { PenLine, ArrowLeft } from "lucide-react";
+import { PenLine, ArrowLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
 
@@ -12,6 +12,13 @@ const settingsCards = [
     description: "Your branded email signature",
     icon: PenLine,
     path: "/Settings/Signature"
+  },
+  {
+    key: "templates",
+    title: "Email Templates",
+    description: "Quick-reply templates with variables",
+    icon: FileText,
+    path: "/Settings/Templates"
   }
 ];
 
