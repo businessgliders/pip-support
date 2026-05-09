@@ -45,8 +45,6 @@ const matchKey = (u) => {
 
 const getDisplayName = (u) => {
   if (u.email === "info@pilatesinpinkstudio.com") return "Front Desk";
-  const key = matchKey(u);
-  if (key && ROLE_LABELS[key]) return ROLE_LABELS[key];
   if (u.full_name) return u.full_name.split(" ")[0];
   return u.email.split("@")[0];
 };
