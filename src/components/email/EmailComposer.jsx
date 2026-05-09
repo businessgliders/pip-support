@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, X, Wand2 } from "lucide-react";
+import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2 } from "lucide-react";
 import AiAssistBar from "./AiAssistBar";
 import TemplatePicker from "./TemplatePicker";
 
@@ -37,6 +37,8 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
   const [sending, setSending] = useState(false);
   const [polishing, setPolishing] = useState(false);
   const [error, setError] = useState(null);
+  const [showDescribe, setShowDescribe] = useState(false);
+  const [showSuggest, setShowSuggest] = useState(false);
 
   const staffFirstName = currentUser?.full_name?.split(" ")[0] || "";
   const templateVars = {
@@ -108,11 +110,37 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         )}
       </div>
 
+      {/* Action bar: Templates + Describe + Suggest */}
       <div className="flex flex-wrap gap-2">
         <TemplatePicker onSelect={applyTemplate} vars={templateVars} />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowDescribe(v => !v)}
+          className={`bg-white border-purple-300 text-purple-700 hover:bg-purple-50 ${showDescribe ? "ring-2 ring-purple-400" : ""}`}
+        >
+          <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+          Describe in simple words
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSuggest(v => !v)}
+          className={`bg-white border-purple-300 text-purple-700 hover:bg-purple-50 ${showSuggest ? "ring-2 ring-purple-400" : ""}`}
+        >
+          <Lightbulb className="w-3.5 h-3.5 mr-1.5" />
+          Suggest Replies
+        </Button>
       </div>
 
-      <AiAssistBar ticketId={ticket.id} onApply={applyAiHtml} />
+      <AiAssistBar
+        ticketId={ticket.id}
+        onApply={applyAiHtml}
+        showDescribe={showDescribe}
+        showSuggest={showSuggest}
+      />
 
       <Textarea
         value={draft}
@@ -133,6 +161,17 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         >
           {polishing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Wand2 className="w-4 h-4 mr-1.5" />}
           Polish
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => setDraft("")}
+          disabled={!draft.trim()}
+          title="Clear"
+          className="border-gray-300 text-gray-600 hover:bg-gray-50"
+        >
+          <Trash2 className="w-4 h-4" />
         </Button>
         <Button
           type="button"

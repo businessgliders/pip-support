@@ -116,7 +116,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [newComment, setNewComment] = useState("");
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
-  const [showContactInfo, setShowContactInfo] = useState(true);
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
   const [showStatusHistory, setShowStatusHistory] = useState(true); // expanded by default
   const [systemAlert, setSystemAlert] = useState(null);
@@ -417,13 +417,28 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <button
               onClick={() => setShowContactInfo(!showContactInfo)}
-              className="w-full flex items-center justify-between text-left"
+              className="w-full flex items-center justify-between text-left gap-3"
             >
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 flex-shrink-0">
                 <User className="w-4 h-4" />
                 Contact Information
               </h3>
-              {showContactInfo ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {!showContactInfo && (
+                <div className="flex-1 flex items-center gap-2 text-xs text-gray-600 min-w-0 justify-end overflow-hidden">
+                  <span className="truncate font-medium text-gray-800">{ticket.client_name}</span>
+                  {ticket.client_phone && (
+                    <>
+                      <span className="text-gray-400">•</span>
+                      <span className="truncate">{ticket.client_phone}</span>
+                    </>
+                  )}
+                  <span className="text-gray-400">•</span>
+                  <span className="truncate">{ticket.client_email}</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="flex-shrink-0 text-gray-500">{formatRelativeTime(ticket.created_date)}</span>
+                </div>
+              )}
+              {showContactInfo ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
             </button>
             {showContactInfo && (
               <div className="space-y-2 mt-3">
