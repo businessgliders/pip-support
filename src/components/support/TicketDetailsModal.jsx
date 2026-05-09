@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp, Sparkles, Clock, CheckCircle, XCircle } from "lucide-react";
 import EmailThreadPanel from "../email/EmailThreadPanel";
+import { getPhotoForEmail } from "@/lib/userProfile";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -323,7 +324,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
 
             {/* Status pills - centered in 2nd column */}
-            <div className="flex items-center gap-2 flex-shrink-0 md:flex-[2] md:justify-center">
+            <div className="flex items-center gap-3 flex-shrink-0 md:flex-[2] md:justify-center">
               {/* Desktop status pills */}
               <div className="hidden md:flex items-center gap-1.5">
                 {[
@@ -357,6 +358,34 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   );
                 })}
               </div>
+
+              {/* Assigned user avatar */}
+              {ticket.assigned_to && (() => {
+                const assignedUser = allUsers.find(u => u.email === ticket.assigned_to);
+                const photo = getPhotoForEmail(ticket.assigned_to, allUsers);
+                const displayName = ticket.assigned_to === 'info@pilatesinpinkstudio.com'
+                  ? 'Front Desk'
+                  : (assignedUser?.full_name?.split(' ')[0] || ticket.assigned_to.split('@')[0]);
+                const initials = displayName.slice(0, 2).toUpperCase();
+                return (
+                  <div
+                    className="hidden md:flex items-center"
+                    title={`Assigned to ${displayName}`}
+                  >
+                    {photo ? (
+                      <img
+                        src={photo}
+                        alt={displayName}
+                        className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 text-white text-xs font-semibold flex items-center justify-center border-2 border-white shadow-sm">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
