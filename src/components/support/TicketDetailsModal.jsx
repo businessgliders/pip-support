@@ -693,7 +693,11 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   <SelectValue placeholder="Select user" />
                 </SelectTrigger>
                 <SelectContent>
-                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => {
+                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).sort((a, b) => {
+                    if (a.email === 'info@pilatesinpinkstudio.com') return -1;
+                    if (b.email === 'info@pilatesinpinkstudio.com') return 1;
+                    return 0;
+                  }).map(u => {
                     const haystack = `${u.full_name || ''} ${u.email || ''}`.toLowerCase();
                     const titleMap = { sahil: 'Operations, Finance', rashmeen: 'Operations, Social', gurpreen: 'Technology, Marketing' };
                     const title = Object.keys(titleMap).find(k => haystack.includes(k));
