@@ -125,11 +125,14 @@ Deno.serve(async (req) => {
     // to guarantee custom fields (signature_html) are present.
     let finalHtml = body_html;
     if (!is_welcome) {
-      let signatureHtml = user.signature_html;
+      // Custom user fields may live at user.signature_html OR user.data.signature_html
+      // depending on SDK shape — check both, then fall back to a fresh entity fetch.
+      let signatureHtml = user.signature_html || user.data?.signature_html || '';
       if (!signatureHtml) {
         try {
           const matches = await base44.asServiceRole.entities.User.filter({ email: user.email }, '-updated_date', 1);
-          signatureHtml = matches?.[0]?.signature_html || '';
+          const u = matches?.[0];
+          signatureHtml = u?.signature_html || u?.data?.signature_html || '';
         } catch (e) {
           console.error('Failed to load user signature:', e);
         }
