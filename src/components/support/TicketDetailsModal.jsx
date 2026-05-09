@@ -301,79 +301,108 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
         <DialogHeader>
-          <div className="flex items-start justify-between">
-            <div className="text-left">
-              <DialogTitle className="text-lg md:text-2xl mb-2">{ticket.client_name}</DialogTitle>
-                          <div className="flex gap-2 flex-wrap">
-                            <Badge className={`${priorityColors[ticket.priority]} border`}>
-                              {ticket.priority}
-                            </Badge>
-                            <Badge variant="outline" className="bg-gray-50">
-                              {ticket.inquiry_type}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
+          <div className="flex items-start justify-between gap-4 pr-8">
+            <div className="text-left min-w-0">
+              <DialogTitle className="text-lg md:text-2xl mb-2 truncate">{ticket.client_name}</DialogTitle>
+              <div className="flex gap-2 flex-wrap">
+                <Badge className={`${priorityColors[ticket.priority]} border`}>
+                  {ticket.priority}
+                </Badge>
+                <Badge variant="outline" className="bg-gray-50">
+                  {ticket.inquiry_type}
+                </Badge>
+              </div>
+            </div>
 
-                      {/* Compact Status Progress Bar */}
-                      <div className="mt-4 pr-8">
-                        {/* Desktop */}
-                        <div className="hidden md:flex items-center gap-1.5">
-                          {[
-                            { status: "New", icon: Sparkles, color: "bg-pink-500" },
-                            { status: "In Progress", icon: Clock, color: "bg-blue-500" },
-                            { status: "Resolved", icon: CheckCircle, color: "bg-green-500" },
-                            { status: "Closed", icon: XCircle, color: "bg-gray-500" }
-                          ].map(({ status, icon: Icon, color }, index) => {
-                            const isActive = ticket.status === status;
-                            return (
-                              <React.Fragment key={status}>
-                                <button
-                                  onClick={() => {
-                                    if (!isActive) {
-                                      setStatusPrompt({ ticketId: ticket.id, newStatus: status });
-                                      setStatusNote("");
-                                    }
-                                  }}
-                                  disabled={isActive}
-                                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                                    isActive
-                                      ? `${color} text-white shadow`
-                                      : "bg-white border border-gray-300 text-gray-600 hover:border-gray-400 hover:shadow-sm"
-                                  }`}
-                                >
-                                  <Icon className="w-3 h-3" />
-                                  {status}
-                                </button>
-                                {index < 3 && <div className="text-gray-300 text-xs">→</div>}
-                              </React.Fragment>
-                            );
-                          })}
-                        </div>
-                        {/* Mobile */}
-                        <div className="md:hidden">
-                          <Select
-                            value={ticket.status}
-                            onValueChange={(newStatus) => {
-                              if (ticket.status !== newStatus) {
-                                setStatusPrompt({ ticketId: ticket.id, newStatus });
-                                setStatusNote("");
-                              }
-                            }}
-                          >
-                            <SelectTrigger className="w-full h-9 bg-gradient-to-r from-pink-50 to-purple-50 border-2 text-xs">
-                              <SelectValue placeholder="Select Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="New">✨ New</SelectItem>
-                              <SelectItem value="In Progress">🕒 In Progress</SelectItem>
-                              <SelectItem value="Resolved">✅ Resolved</SelectItem>
-                              <SelectItem value="Closed">❌ Closed</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </DialogHeader>
+            {/* Right-aligned: status pills + email/call buttons */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Desktop status pills */}
+              <div className="hidden md:flex items-center gap-1.5">
+                {[
+                  { status: "New", icon: Sparkles, color: "bg-pink-500" },
+                  { status: "In Progress", icon: Clock, color: "bg-blue-500" },
+                  { status: "Resolved", icon: CheckCircle, color: "bg-green-500" },
+                  { status: "Closed", icon: XCircle, color: "bg-gray-500" }
+                ].map(({ status, icon: Icon, color }, index) => {
+                  const isActive = ticket.status === status;
+                  return (
+                    <React.Fragment key={status}>
+                      <button
+                        onClick={() => {
+                          if (!isActive) {
+                            setStatusPrompt({ ticketId: ticket.id, newStatus: status });
+                            setStatusNote("");
+                          }
+                        }}
+                        disabled={isActive}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                          isActive
+                            ? `${color} text-white shadow`
+                            : "bg-white border border-gray-300 text-gray-600 hover:border-gray-400 hover:shadow-sm"
+                        }`}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {status}
+                      </button>
+                      {index < 3 && <div className="text-gray-300 text-xs">→</div>}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              {/* Email/Call buttons */}
+              <div className="flex items-center gap-2 ml-1">
+                <Button
+                  asChild
+                  size="icon"
+                  variant="outline"
+                  title="Email Client"
+                  className="h-9 w-9"
+                >
+                  <a href={`mailto:${ticket.client_email}`}>
+                    <Mail className="w-4 h-4" />
+                  </a>
+                </Button>
+                {ticket.client_phone && (
+                  <Button
+                    asChild
+                    size="icon"
+                    variant="outline"
+                    title="Call Client"
+                    className="h-9 w-9"
+                  >
+                    <a href={`tel:${ticket.client_phone}`}>
+                      <Phone className="w-4 h-4" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile status select */}
+          <div className="md:hidden mt-3">
+            <Select
+              value={ticket.status}
+              onValueChange={(newStatus) => {
+                if (ticket.status !== newStatus) {
+                  setStatusPrompt({ ticketId: ticket.id, newStatus });
+                  setStatusNote("");
+                }
+              }}
+            >
+              <SelectTrigger className="w-full h-9 bg-gradient-to-r from-pink-50 to-purple-50 border-2 text-xs">
+                <SelectValue placeholder="Select Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="New">✨ New</SelectItem>
+                <SelectItem value="In Progress">🕒 In Progress</SelectItem>
+                <SelectItem value="Resolved">✅ Resolved</SelectItem>
+                <SelectItem value="Closed">❌ Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </DialogHeader>
 
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Left Section - Main Content */}
@@ -623,39 +652,15 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
               {/* Right Section - Email-focused panel */}
               <div className="w-full md:flex-[3] space-y-4 md:min-w-0">
-              {/* Quick actions */}
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  asChild
-                  size="icon"
-                  variant="outline"
-                  title="Email Client"
-                  className="h-9 w-9"
-                >
-                  <a href={`mailto:${ticket.client_email}`}>
-                    <Mail className="w-4 h-4" />
-                  </a>
-                </Button>
-                {ticket.client_phone && (
-                  <Button
-                    asChild
-                    size="icon"
-                    variant="outline"
-                    title="Call Client"
-                    className="h-9 w-9"
-                  >
-                    <a href={`tel:${ticket.client_phone}`}>
-                      <Phone className="w-4 h-4" />
-                    </a>
-                  </Button>
-                )}
-              </div>
 
-              {/* Assignment Section */}
+              {/* Email Communications Side Panel */}
+              <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
+
+              {/* Escalate Ticket Section */}
               <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <UserPlus className="w-4 h-4" />
-                Assign Ticket
+                Escalate Ticket
               </h3>
               <div className="flex gap-2">
                 <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
@@ -689,9 +694,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 }
               </p>
               </div>
-
-              {/* Email Communications Side Panel */}
-              <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
 
               {/* Internal Notes Section */}
               <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
