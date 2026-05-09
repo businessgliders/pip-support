@@ -79,11 +79,15 @@ Deno.serve(async (req) => {
       subject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
     }
 
-    // Staff display name
-    const staffName = is_welcome
-      ? 'Pilates in Pink'
-      : (user.full_name ? `${user.full_name.split(' ')[0]} at Pilates in Pink` : 'Pilates in Pink');
+    // Staff display name — always "Pilates in Pink™" so client inbox shows brand name + Gmail profile photo
+    const staffName = 'Pilates in Pink\u2122';
     const fromHeader = `"${staffName}" <info@pilatesinpinkstudio.com>`;
+
+    // Auto-append the sender's saved signature (skip for welcome emails which have their own template)
+    let finalHtml = body_html;
+    if (!is_welcome && user.signature_html) {
+      finalHtml = `${body_html}<br><br>${user.signature_html}`;
+    }
 
     // Threading headers
     const inReplyTo = lastMessage?.rfc_message_id || null;
@@ -95,7 +99,7 @@ Deno.serve(async (req) => {
       from: fromHeader,
       to: ticket.client_email,
       subject,
-      htmlBody: body_html,
+      htmlBody: finalHtml,
       inReplyTo,
       references,
     });
@@ -145,8 +149,8 @@ Deno.serve(async (req) => {
       from_name: staffName,
       to_email: ticket.client_email,
       subject,
-      body_html,
-      snippet: body_html.replace(/<[^>]+>/g, '').slice(0, 200),
+      body_html: finalHtml,
+      snippet: finalHtml.replace(/<[^>]+>/g, '').slice(0, 200),
       sent_by: is_welcome ? 'system' : user.email,
       sent_at: new Date().toISOString(),
       is_welcome: !!is_welcome,

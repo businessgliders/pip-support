@@ -81,8 +81,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
     setSending(true);
     setError(null);
     try {
-      const html = plainToHtml(draft) +
-        `<p style="color:#999;font-size:13px;margin-top:24px;border-top:1px solid #eee;padding-top:12px;">— ${currentUser?.full_name || 'Pilates in Pink'}<br/>Pilates in Pink Studio</p>`;
+      const html = plainToHtml(draft);
       const res = await base44.functions.invoke("sendTicketEmail", {
         ticket_id: ticket.id,
         body_html: html,

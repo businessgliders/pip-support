@@ -1,0 +1,14 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Job title used in signature"
+    },
+    "signature_html": {
+      "type": "string",
+      "description": "Saved HTML signature appended to outgoing replies"
+    }
+  }
+}

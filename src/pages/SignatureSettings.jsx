@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowLeft, Copy, Check, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,8 @@ export default function SignatureSettings() {
   const [title, setTitle] = useState("");
   const [email, setEmail] = useState("");
   const [copied, setCopied] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const signatureRef = useRef(null);
   const navigate = useNavigate();
 
@@ -29,6 +31,7 @@ export default function SignatureSettings() {
         setUser(currentUser);
         setFullName(currentUser.full_name || "");
         setEmail(currentUser.email || "");
+        setTitle(currentUser.title || "");
       } catch (error) {
         setUser(null);
       } finally {
@@ -37,6 +40,21 @@ export default function SignatureSettings() {
     };
     checkAuth();
   }, []);
+
+  const handleSave = async () => {
+    if (!signatureRef.current) return;
+    setSaving(true);
+    try {
+      await base44.auth.updateMe({
+        title,
+        signature_html: signatureRef.current.innerHTML,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleCopy = () => {
     if (!signatureRef.current) return;
@@ -131,24 +149,34 @@ export default function SignatureSettings() {
 
         {/* Rendered Signature */}
         <div className="backdrop-blur-xl bg-white border border-white/60 rounded-3xl p-6 md:p-8 shadow-xl">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h2 className="text-lg font-bold text-[#b67651]">Preview</h2>
-            <Button
-              onClick={handleCopy}
-              className="bg-[#b67651] hover:bg-[#a56541] text-white rounded-xl"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy Signature
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="bg-[#f1899b] hover:bg-[#e0788a] text-white rounded-xl"
+              >
+                {saving ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                ) : saved ? (
+                  <><Check className="w-4 h-4 mr-2" /> Saved!</>
+                ) : (
+                  <><Save className="w-4 h-4 mr-2" /> Save for Replies</>
+                )}
+              </Button>
+              <Button
+                onClick={handleCopy}
+                variant="outline"
+                className="bg-white border-[#b67651] text-[#b67651] hover:bg-[#fff5ef] rounded-xl"
+              >
+                {copied ? (
+                  <><Check className="w-4 h-4 mr-2" /> Copied!</>
+                ) : (
+                  <><Copy className="w-4 h-4 mr-2" /> Copy for Gmail</>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* The rendered signature - this is what gets copied */}
@@ -226,7 +254,7 @@ export default function SignatureSettings() {
           </div>
 
           <p className="text-xs text-gray-500 mt-4">
-            💡 The signature is fully formatted — Gmail will preserve the logo, colors, and the pink button when you paste it in.
+            💡 Click <strong>Save for Replies</strong> to auto-append this signature to every reply you send from the support portal. Use <strong>Copy for Gmail</strong> if you also want it in your Gmail web composer.
           </p>
         </div>
       </div>
