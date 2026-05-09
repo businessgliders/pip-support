@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Mail, Loader2 } from "lucide-react";
@@ -82,6 +82,18 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
     }
   }, [highlightMessageId, messages.length]);
 
+  // After a reply is sent, auto-scroll the thread container to the newest message
+  const threadRef = useRef(null);
+  const [pendingScroll, setPendingScroll] = useState(false);
+  useEffect(() => {
+    if (!pendingScroll || isLoading) return;
+    const container = threadRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+    setPendingScroll(false);
+  }, [pendingScroll, isLoading, fetchedMessages.length]);
+
   return (
     <div className="bg-gradient-to-br from-amber-50 to-pink-50 rounded-xl p-4 border border-amber-200">
       <div className="flex items-center justify-between mb-3">
@@ -102,7 +114,7 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
           <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading thread…
         </div>
       ) : (
-        <div className="bg-gradient-to-b from-white/60 to-amber-50/40 rounded-xl p-3 mb-3 max-h-[480px] overflow-y-auto border border-amber-100">
+        <div ref={threadRef} className="bg-gradient-to-b from-white/60 to-amber-50/40 rounded-xl p-3 mb-3 max-h-[480px] overflow-y-auto border border-amber-100">
           {messages.map((m) => (
             <div key={m.id} id={`email-msg-${m.id}`}>
               <EmailMessageItem
@@ -117,7 +129,7 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
       <EmailComposer
         ticket={ticket}
         currentUser={currentUser}
-        onSent={() => { refetch(); }}
+        onSent={async () => { await refetch(); setPendingScroll(true); }}
       />
     </div>
   );
