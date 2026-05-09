@@ -97,8 +97,9 @@ const formatRelativeTime = (dateString) => {
 };
 
 export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [], viewMode = "status" }) {
-  // Watermark shows the OPPOSITE dimension from the current grouping.
-  const watermarkText = viewMode === "status" ? ticket.inquiry_type : ticket.status;
+  // Watermark only shown in category view (where status isn't already visible via column).
+  // In status view, category is already shown as a badge on the card, so no watermark needed.
+  const watermarkText = viewMode === "category" ? ticket.status : null;
   const getInitials = (email) => {
     if (email === 'info@pilatesinpinkstudio.com') return 'FD';
     const user = allUsers.find(u => u.email === email);
