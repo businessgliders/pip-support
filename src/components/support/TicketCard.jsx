@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Mail, Phone, MoreVertical, Gift, User } from "lucide-react";
+import { getPhotoForEmail } from "@/lib/userProfile";
 
 const priorityBorderColors = {
   "Low": "border-green-500",
@@ -249,14 +250,24 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
           <div className="text-gray-700 text-xs">
             {formatRelativeTime(ticket.created_date)}
           </div>
-          {ticket.assigned_to && (
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
-              <User className="w-3 h-3 text-white" />
-              <span className="text-white text-xs font-semibold">
-                {getInitials(ticket.assigned_to)}
-              </span>
-            </div>
-          )}
+          {ticket.assigned_to && (() => {
+            const photo = getPhotoForEmail(ticket.assigned_to, allUsers);
+            if (photo) {
+              return (
+                <div className="w-7 h-7 rounded-full overflow-hidden border-2 border-white/80 shadow-sm">
+                  <img src={photo} alt={getInitials(ticket.assigned_to)} className="w-full h-full object-cover" />
+                </div>
+              );
+            }
+            return (
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
+                <User className="w-3 h-3 text-white" />
+                <span className="text-white text-xs font-semibold">
+                  {getInitials(ticket.assigned_to)}
+                </span>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
