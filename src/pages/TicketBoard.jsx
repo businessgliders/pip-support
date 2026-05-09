@@ -265,11 +265,10 @@ export default function TicketBoard() {
     });
   };
 
-  const handleConfirmStatusChange = (note) => {
+  const handleConfirmStatusChange = (name, note) => {
     if (dragNoteDialog) {
-      // If we are in status view, newColumn is newStatus
-      // If we are in category view, we wouldn't reach this dialog as per above logic in handleDragEnd
-      handleStatusChange(dragNoteDialog.ticketId, dragNoteDialog.newColumn, note);
+      const combinedNote = `${name}: ${note}`;
+      handleStatusChange(dragNoteDialog.ticketId, dragNoteDialog.newColumn, combinedNote);
       setDragNoteDialog(null);
     }
   };
@@ -625,6 +624,8 @@ export default function TicketBoard() {
       {dragNoteDialog && (
         <StatusChangeDialog
           data={dragNoteDialog}
+          currentUser={user}
+          allUsers={allUsers}
           onConfirm={handleConfirmStatusChange}
           onCancel={() => setDragNoteDialog(null)}
         />
@@ -762,8 +763,17 @@ function MobileSearchDialog({ isOpen, initialValue, onSearch, onClose }) {
   );
 }
 
-function StatusChangeDialog({ data, onConfirm, onCancel }) {
+function StatusChangeDialog({ data, currentUser, allUsers, onConfirm, onCancel }) {
+  const isFrontDesk = currentUser?.email === 'info@pilatesinpinkstudio.com';
+  const matchedUser = allUsers?.find(u => u.email === currentUser?.email);
+  const defaultName = isFrontDesk
+    ? ""
+    : (matchedUser?.full_name || currentUser?.full_name || currentUser?.email?.split('@')[0] || "");
+
+  const [name, setName] = useState(defaultName);
   const [note, setNote] = useState("");
+
+  const canSubmit = name.trim().length > 0 && note.trim().length > 0;
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
@@ -778,7 +788,22 @@ function StatusChangeDialog({ data, onConfirm, onCancel }) {
             <span className="text-green-600 font-medium">{data.newColumn}</span>
           </p>
           <div className="space-y-2">
-            <Label htmlFor="status-note">Add a note (optional)</Label>
+            <Label htmlFor="status-name">
+              {isFrontDesk ? "Front Desk Associate Name" : "Name"} <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="status-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={isFrontDesk ? "Enter your name" : ""}
+              readOnly={!isFrontDesk}
+              className={!isFrontDesk ? "bg-gray-100" : ""}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="status-note">
+              Note <span className="text-red-500">*</span>
+            </Label>
             <Textarea
               id="status-note"
               value={note}
@@ -793,7 +818,8 @@ function StatusChangeDialog({ data, onConfirm, onCancel }) {
             Cancel
           </Button>
           <Button
-            onClick={() => onConfirm(note)}
+            onClick={() => onConfirm(name.trim(), note.trim())}
+            disabled={!canSubmit}
             className="bg-[#b67651] hover:bg-[#a56541] text-white"
           >
             Update Status
