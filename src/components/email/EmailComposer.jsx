@@ -37,7 +37,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
   const [sending, setSending] = useState(false);
   const [polishing, setPolishing] = useState(false);
   const [error, setError] = useState(null);
-  const [showDescribe, setShowDescribe] = useState(true);
+  const [showDescribe, setShowDescribe] = useState(false);
   const [showSuggest, setShowSuggest] = useState(false);
 
   const staffFirstName = currentUser?.full_name?.split(" ")[0] || "";
