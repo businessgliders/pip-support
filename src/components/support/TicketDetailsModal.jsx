@@ -407,7 +407,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           </div>
         </DialogHeader>
 
-                    <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Left Section - Main Content */}
+                      <div className="flex-1 md:flex-[2] space-y-4 md:min-w-0">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <button
@@ -538,12 +540,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          {/* Email Communications */}
-          <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
-
-          {/* Bottom row: Status History | Escalate + Internal Notes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Status History Timeline */}
+          {/* Status History Timeline (moved to left column) */}
+          {ticket.status_history && ticket.status_history.length > 0 && (
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
               <button
                 onClick={() => setShowStatusHistory(!showStatusHistory)}
@@ -557,125 +555,31 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </button>
               {showStatusHistory && (
                 <div className="space-y-3 mt-3">
-                  {ticket.status_history && ticket.status_history.length > 0 ? (
-                    [...ticket.status_history].reverse().map((entry, index) => (
-                      <div key={index} className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
-                          {index !== ticket.status_history.length - 1 && (
-                            <div className="w-0.5 h-full bg-gray-300 mt-1" />
-                          )}
-                        </div>
-                        <div className="flex-1 pb-3">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-gray-900">{entry.status}</span>
-                            <span className="text-xs text-gray-500">
-                              {formatRelativeTime(entry.timestamp)}
-                            </span>
-                          </div>
-                          {entry.note && (
-                            <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
-                          )}
-                        </div>
+                  {[...ticket.status_history].reverse().map((entry, index) => (
+                    <div key={index} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-3 h-3 rounded-full ${statusColors[entry.status]?.split(' ')[0].replace('bg-', 'bg-') || 'bg-gray-400'} border-2 border-white`} />
+                        {index !== ticket.status_history.length - 1 && (
+                          <div className="w-0.5 h-full bg-gray-300 mt-1" />
+                        )}
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 italic">No status changes yet.</p>
-                  )}
+                      <div className="flex-1 pb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-gray-900">{entry.status}</span>
+                          <span className="text-xs text-gray-500">
+                            {formatRelativeTime(entry.timestamp)}
+                          </span>
+                        </div>
+                        {entry.note && (
+                          <p className="text-sm text-gray-600 mt-1">{entry.note}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-
-            {/* Escalate + Internal Notes stacked */}
-            <div className="space-y-4">
-              {/* Escalate Ticket Section */}
-              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  Escalate Ticket
-                </h3>
-                <div className="flex gap-2">
-                  <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select user" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                        <SelectItem key={u.id} value={u.email}>
-                          {u.email === 'info@pilatesinpinkstudio.com' 
-                            ? 'Front Desk'
-                            : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
-                          }
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button 
-                    onClick={handleAssignment}
-                    disabled={selectedAssignee === ticket.assigned_to}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                  >
-                    Assign
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  Currently assigned to: {
-                    ticket.assigned_to === 'info@pilatesinpinkstudio.com' 
-                      ? 'Front Desk'
-                      : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
-                  }
-                </p>
-              </div>
-
-              {/* Internal Notes Section */}
-              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Internal Notes
-                </h3>
-
-                {ticket.comments && ticket.comments.length > 0 && (
-                  <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                    {ticket.comments.map((comment, index) => {
-                      const commentUser = allUsers.find(u => u.email === comment.user_email);
-                      const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
-                        ? 'Front Desk' 
-                        : (commentUser?.full_name || comment.user_email.split('@')[0]);
-                      return (
-                        <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
-                          <p className="text-base text-gray-900 whitespace-pre-wrap mb-2">{comment.comment}</p>
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span className="font-medium">{displayName}</span>
-                            <span>•</span>
-                            <span>{formatRelativeTime(comment.timestamp)}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="new-comment">Add Note</Label>
-                  <Textarea
-                    id="new-comment"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Type an internal note here..."
-                    className="min-h-20"
-                  />
-                  <Button
-                    onClick={handleAddComment}
-                    disabled={isAddingComment || !newComment.trim()}
-                    className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Add Note
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (
@@ -741,7 +645,110 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               )}
             </div>
           )}
-        </div>
+
+
+
+          </div>
+
+              {/* Divider */}
+              <Separator orientation="vertical" className="hidden md:block h-auto" />
+
+              {/* Right Section - Email-focused panel */}
+              <div className="w-full md:flex-[3] space-y-4 md:min-w-0">
+
+              {/* Email Communications Side Panel */}
+              <EmailThreadPanel ticket={ticket} currentUser={currentUser} />
+
+              {/* Escalate Ticket Section */}
+              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Escalate Ticket
+              </h3>
+              <div className="flex gap-2">
+                <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                      <SelectItem key={u.id} value={u.email}>
+                        {u.email === 'info@pilatesinpinkstudio.com' 
+                          ? 'Front Desk'
+                          : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
+                        }
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleAssignment}
+                  disabled={selectedAssignee === ticket.assigned_to}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  Assign
+                </Button>
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                Currently assigned to: {
+                  ticket.assigned_to === 'info@pilatesinpinkstudio.com' 
+                    ? 'Front Desk'
+                    : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
+                }
+              </p>
+              </div>
+
+              {/* Internal Notes Section */}
+              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Internal Notes
+              </h3>
+
+              {/* Existing Comments */}
+              {ticket.comments && ticket.comments.length > 0 && (
+                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                  {ticket.comments.map((comment, index) => {
+                    const commentUser = allUsers.find(u => u.email === comment.user_email);
+                    const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
+                      ? 'Front Desk' 
+                      : (commentUser?.full_name || comment.user_email.split('@')[0]);
+                    return (
+                      <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
+                        <p className="text-base text-gray-900 whitespace-pre-wrap mb-2">{comment.comment}</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span className="font-medium">{displayName}</span>
+                          <span>•</span>
+                          <span>{formatRelativeTime(comment.timestamp)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Add Internal Note */}
+              <div className="space-y-2">
+              <Label htmlFor="new-comment">Add Note</Label>
+              <Textarea
+                id="new-comment"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Type an internal note here..."
+                className="min-h-20"
+              />
+              <Button
+                onClick={handleAddComment}
+                disabled={isAddingComment || !newComment.trim()}
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Add Note
+              </Button>
+              </div>
+              </div>
+              </div>
+              </div>
               
               {/* Nested System Dialogs */}
               {systemAlert && (
