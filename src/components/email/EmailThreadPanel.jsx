@@ -71,7 +71,16 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
     });
   }
 
-  const messages = [...synthetic, ...fetchedMessages];
+  // Hide internal owner-notification emails (assignment alerts sent to staff).
+  // Client communications go to the client's email; assignment notifications
+  // go to @pilatesinpinkstudio.com addresses — those should not appear here.
+  const visibleFetched = fetchedMessages.filter(m => {
+    if (m.direction !== "outbound") return true;
+    const to = (m.to_email || "").toLowerCase();
+    return !to.endsWith("@pilatesinpinkstudio.com");
+  });
+
+  const messages = [...synthetic, ...visibleFetched];
 
   // Scroll to highlighted message after render
   useEffect(() => {
