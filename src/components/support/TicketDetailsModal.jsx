@@ -299,7 +299,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
+      <DialogContent className="max-w-7xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="text-left">
@@ -320,8 +320,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                     </DialogHeader>
 
                     <div className="flex flex-col md:flex-row gap-6">
-                      {/* Left Section - Main Content */}
-                      <div className="flex-1 md:flex-[3] space-y-6">
+                      {/* Left Section - Main Content (compact) */}
+                      <div className="flex-1 md:flex-[2] space-y-4">
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
             <button
@@ -640,28 +640,31 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               {/* Divider */}
               <Separator orientation="vertical" className="hidden md:block h-auto" />
 
-              {/* Right Section - Assignment, Email & Internal Notes */}
-              <div className="w-full md:flex-[2] space-y-4">
-              {/* Quick Actions */}
-              <div className="space-y-2">
+              {/* Right Section - Email-focused panel */}
+              <div className="w-full md:flex-[5] space-y-4">
+              {/* Quick Actions - icon only */}
+              <div className="flex gap-2 justify-end">
                 <Button
                   asChild
-                  className="w-full bg-[#b67651] hover:bg-[#a56541] text-white"
+                  size="icon"
+                  variant="outline"
+                  title="Email Client"
+                  className="h-9 w-9"
                 >
                   <a href={`mailto:${ticket.client_email}`}>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email Client
+                    <Mail className="w-4 h-4" />
                   </a>
                 </Button>
                 {ticket.client_phone && (
                   <Button
                     asChild
+                    size="icon"
                     variant="outline"
-                    className="w-full"
+                    title="Call Client"
+                    className="h-9 w-9"
                   >
                     <a href={`tel:${ticket.client_phone}`}>
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call Client
+                      <Phone className="w-4 h-4" />
                     </a>
                   </Button>
                 )}
