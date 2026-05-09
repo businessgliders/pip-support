@@ -322,8 +322,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               </div>
             </div>
 
-            {/* Right-aligned: status pills */}
-            <div className="flex items-center gap-2 flex-shrink-0 md:flex-[2] md:justify-start">
+            {/* Status pills - centered in 2nd column */}
+            <div className="flex items-center gap-2 flex-shrink-0 md:flex-[2] md:justify-center">
               {/* Desktop status pills */}
               <div className="hidden md:flex items-center gap-1.5">
                 {[
