@@ -693,14 +693,19 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   <SelectValue placeholder="Select user" />
                 </SelectTrigger>
                 <SelectContent>
-                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                    <SelectItem key={u.id} value={u.email}>
-                      {u.email === 'info@pilatesinpinkstudio.com'
-                        ? 'Front Desk'
-                        : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
-                      }
-                    </SelectItem>
-                  ))}
+                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => {
+                    const haystack = `${u.full_name || ''} ${u.email || ''}`.toLowerCase();
+                    const titleMap = { sahil: 'CFO', rashmeen: 'CEO', gurpreen: 'CTO' };
+                    const title = Object.keys(titleMap).find(k => haystack.includes(k));
+                    const name = u.email === 'info@pilatesinpinkstudio.com'
+                      ? 'Front Desk'
+                      : (u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]);
+                    return (
+                      <SelectItem key={u.id} value={u.email}>
+                        {name}{title ? ` (${titleMap[title]})` : ''}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               <Button
