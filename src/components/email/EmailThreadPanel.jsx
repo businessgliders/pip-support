@@ -56,6 +56,16 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
     if (ticket.cancellation_feedback) {
       parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Additional Feedback:</p><p style="margin:0 0 12px 0;white-space:pre-wrap;">${escapeHtml(ticket.cancellation_feedback)}</p>`);
     }
+    if (ticket.discount_offered) {
+      parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Special Offer Presented:</p><p style="margin:0 0 12px 0;color:#b67651;font-weight:600;">🎁 ${escapeHtml(ticket.discount_offered)}</p>`);
+    }
+    if (ticket.discount_accepted !== undefined && ticket.discount_accepted !== null) {
+      const decisionText = ticket.discount_accepted
+        ? "🎉 Accepted — client wants to keep their membership"
+        : "Declined — client chose to continue with cancellation";
+      const decisionColor = ticket.discount_accepted ? "#059669" : "#6b7280";
+      parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Client's Decision:</p><p style="margin:0 0 12px 0;color:${decisionColor};font-weight:600;">${decisionText}</p>`);
+    }
     if (ticket.notes && ticket.notes.trim()) {
       parts.push(`<p style="margin:0 0 6px 0;font-weight:600;color:#374151;">Additional Notes:</p><p style="margin:0;white-space:pre-wrap;">${escapeHtml(ticket.notes)}</p>`);
     }
