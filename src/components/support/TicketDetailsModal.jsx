@@ -116,8 +116,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [newComment, setNewComment] = useState("");
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
-  const [showContactInfo, setShowContactInfo] = useState(true);
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
+  const [showInternalNotes, setShowInternalNotes] = useState(false);
   const [showStatusHistory, setShowStatusHistory] = useState(true); // expanded by default
   const [systemAlert, setSystemAlert] = useState(null);
   const [statusPrompt, setStatusPrompt] = useState(null);
@@ -506,55 +506,32 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
           {/* Contact Information */}
           <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
-            <button
-              onClick={() => setShowContactInfo(!showContactInfo)}
-              className="w-full flex items-center justify-between text-left gap-3"
-            >
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2 flex-shrink-0">
-                <User className="w-4 h-4" />
-                Contact Information
-              </h3>
-              {!showContactInfo && (
-                <div className="flex-1 flex items-center gap-2 text-xs text-gray-600 min-w-0 justify-end overflow-hidden">
-                  <span className="truncate font-medium text-gray-800">{ticket.client_name}</span>
-                  {ticket.client_phone && (
-                    <>
-                      <span className="text-gray-400">•</span>
-                      <span className="truncate">{ticket.client_phone}</span>
-                    </>
-                  )}
-                  <span className="text-gray-400">•</span>
-                  <span className="truncate">{ticket.client_email}</span>
-                  <span className="text-gray-400">•</span>
-                  <span className="flex-shrink-0 text-gray-500">{formatRelativeTime(ticket.created_date)}</span>
-                </div>
-              )}
-              {showContactInfo ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
-            </button>
-            {showContactInfo && (
-              <div className="space-y-2 mt-3">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2 flex-shrink-0 mb-3">
+              <User className="w-4 h-4" />
+              Contact Information
+            </h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 text-gray-700">
+                <Mail className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                <a href={`mailto:${ticket.client_email}`} className="hover:underline">
+                  {ticket.client_email}
+                </a>
+              </div>
+              {ticket.client_phone && (
                 <div className="flex items-center gap-3 text-gray-700">
-                  <Mail className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                  <a href={`mailto:${ticket.client_email}`} className="hover:underline">
-                    {ticket.client_email}
+                  <Phone className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                  <a href={`tel:${ticket.client_phone}`} className="hover:underline">
+                    {ticket.client_phone}
                   </a>
                 </div>
-                {ticket.client_phone && (
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Phone className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                    <a href={`tel:${ticket.client_phone}`} className="hover:underline">
-                      {ticket.client_phone}
-                    </a>
-                  </div>
-                )}
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
-                  <span>
-                    Submitted {formatDateEST(ticket.created_date)} EST
-                  </span>
-                </div>
+              )}
+              <div className="flex items-center gap-3 text-gray-700">
+                <Calendar className="w-4 h-4 flex-shrink-0 text-pink-600" />
+                <span>
+                  Submitted {formatDateEST(ticket.created_date)} EST
+                </span>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Status History Timeline */}
@@ -597,45 +574,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
               )}
             </div>
           )}
-
-          {/* Escalate Ticket Section */}
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <UserPlus className="w-4 h-4" />
-              Escalate Ticket
-            </h3>
-            <div className="flex gap-2">
-              <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select user" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
-                    <SelectItem key={u.id} value={u.email}>
-                      {u.email === 'info@pilatesinpinkstudio.com'
-                        ? 'Front Desk'
-                        : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
-                      }
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={handleAssignment}
-                disabled={selectedAssignee === ticket.assigned_to}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                Assign
-              </Button>
-            </div>
-            <p className="text-xs text-gray-600 mt-2">
-              Currently assigned to: {
-                ticket.assigned_to === 'info@pilatesinpinkstudio.com'
-                  ? 'Front Desk'
-                  : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
-              }
-            </p>
-          </div>
 
           {/* Related Tickets History */}
           {(loadingRelated || relatedTickets.length > 0) && (
@@ -705,54 +643,108 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
 
           {/* Internal Notes Section */}
-              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              Internal Notes
+          <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+            <button
+              onClick={() => setShowInternalNotes(!showInternalNotes)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Internal Notes
+                {ticket.comments && ticket.comments.length > 0 && (
+                  <Badge variant="outline">
+                    {ticket.comments.length} note{ticket.comments.length !== 1 ? 's' : ''}
+                  </Badge>
+                )}
               </h3>
+              {showInternalNotes ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
 
-              {/* Existing Comments */}
-              {ticket.comments && ticket.comments.length > 0 && (
-                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                  {ticket.comments.map((comment, index) => {
-                    const commentUser = allUsers.find(u => u.email === comment.user_email);
-                    const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
-                      ? 'Front Desk' 
-                      : (commentUser?.full_name || comment.user_email.split('@')[0]);
-                    return (
-                      <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
-                        <p className="text-base text-gray-900 whitespace-pre-wrap mb-2">{comment.comment}</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span className="font-medium">{displayName}</span>
-                          <span>•</span>
-                          <span>{formatRelativeTime(comment.timestamp)}</span>
+            {showInternalNotes && (
+              <div className="mt-3">
+                {/* Existing Comments */}
+                {ticket.comments && ticket.comments.length > 0 && (
+                  <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                    {ticket.comments.map((comment, index) => {
+                      const commentUser = allUsers.find(u => u.email === comment.user_email);
+                      const displayName = comment.user_email === 'info@pilatesinpinkstudio.com' 
+                        ? 'Front Desk' 
+                        : (commentUser?.full_name || comment.user_email.split('@')[0]);
+                      return (
+                        <div key={index} className="bg-white/60 rounded-lg p-3 border border-teal-200/50">
+                          <p className="text-base text-gray-900 whitespace-pre-wrap mb-2">{comment.comment}</p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span className="font-medium">{displayName}</span>
+                            <span>•</span>
+                            <span>{formatRelativeTime(comment.timestamp)}</span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                )}
 
-              {/* Add Internal Note */}
-              <div className="space-y-2">
-              <Label htmlFor="new-comment">Add Note</Label>
-              <Textarea
-                id="new-comment"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Type an internal note here..."
-                className="min-h-20"
-              />
+                {/* Add Internal Note */}
+                <div className="space-y-2">
+                  <Label htmlFor="new-comment">Add Note</Label>
+                  <Textarea
+                    id="new-comment"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Type an internal note here..."
+                    className="min-h-20"
+                  />
+                  <Button
+                    onClick={handleAddComment}
+                    disabled={isAddingComment || !newComment.trim()}
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Add Note
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Escalate Ticket Section */}
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <UserPlus className="w-4 h-4" />
+              Escalate Ticket
+            </h3>
+            <div className="flex gap-2">
+              <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select user" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).map(u => (
+                    <SelectItem key={u.id} value={u.email}>
+                      {u.email === 'info@pilatesinpinkstudio.com'
+                        ? 'Front Desk'
+                        : u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]
+                      }
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
-                onClick={handleAddComment}
-                disabled={isAddingComment || !newComment.trim()}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                onClick={handleAssignment}
+                disabled={selectedAssignee === ticket.assigned_to}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
               >
-                <Send className="w-4 h-4 mr-2" />
-                Add Note
+                Assign
               </Button>
-              </div>
-              </div>
+            </div>
+            <p className="text-xs text-gray-600 mt-2">
+              Currently assigned to: {
+                ticket.assigned_to === 'info@pilatesinpinkstudio.com'
+                  ? 'Front Desk'
+                  : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
+              }
+            </p>
+          </div>
               </div>
               </div>
               
