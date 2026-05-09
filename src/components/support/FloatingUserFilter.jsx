@@ -20,8 +20,33 @@ const getPhotoForUser = (u) => {
   return null;
 };
 
+const ROLE_LABELS = {
+  sahil: "CFO",
+  rashmeen: "CEO",
+  gurpreen: "CTO",
+};
+
+// Lower number = earlier in the list. Front Desk first, then Sahil, Rashmeen, Gurpreen.
+const ORDER = {
+  frontdesk: 0,
+  sahil: 1,
+  rashmeen: 2,
+  gurpreen: 3,
+};
+
+const matchKey = (u) => {
+  if (u.email === "info@pilatesinpinkstudio.com") return "frontdesk";
+  const haystack = `${u.full_name || ""} ${u.email || ""}`.toLowerCase();
+  for (const key of Object.keys(ROLE_LABELS)) {
+    if (haystack.includes(key)) return key;
+  }
+  return null;
+};
+
 const getDisplayName = (u) => {
   if (u.email === "info@pilatesinpinkstudio.com") return "Front Desk";
+  const key = matchKey(u);
+  if (key && ROLE_LABELS[key]) return ROLE_LABELS[key];
   if (u.full_name) return u.full_name.split(" ")[0];
   return u.email.split("@")[0];
 };
@@ -38,9 +63,11 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
   const studioUsers = (allUsers || [])
     .filter((u) => u.email.endsWith("@pilatesinpinkstudio.com"))
     .sort((a, b) => {
-      if (a.email === "info@pilatesinpinkstudio.com") return -1;
-      if (b.email === "info@pilatesinpinkstudio.com") return 1;
-      return 0;
+      const ak = matchKey(a);
+      const bk = matchKey(b);
+      const ao = ak !== null && ORDER[ak] !== undefined ? ORDER[ak] : 99;
+      const bo = bk !== null && ORDER[bk] !== undefined ? ORDER[bk] : 99;
+      return ao - bo;
     });
 
   return (
