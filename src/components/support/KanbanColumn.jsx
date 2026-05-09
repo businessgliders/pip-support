@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Draggable } from "@hello-pangea/dnd";
@@ -84,24 +85,35 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
         ) : (
           tickets.map((ticket, index) => (
             <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  style={provided.draggableProps.style}
-                >
-                  <TicketCard
-                    ticket={ticket}
-                    onStatusChange={onStatusChange}
-                    onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
-                    isDragging={snapshot.isDragging}
-                    isHighlighted={ticket.id === highlightedTicketId}
-                    allUsers={allUsers}
-                    viewMode={viewMode}
-                  />
-                </div>
-              )}
+              {(provided, snapshot) => {
+                const child = (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={{
+                      ...provided.draggableProps.style,
+                      zIndex: snapshot.isDragging ? 9999 : 'auto',
+                    }}
+                  >
+                    <TicketCard
+                      ticket={ticket}
+                      onStatusChange={onStatusChange}
+                      onClick={() => !snapshot.isDragging && onTicketClick(ticket)}
+                      isDragging={snapshot.isDragging}
+                      isHighlighted={ticket.id === highlightedTicketId}
+                      allUsers={allUsers}
+                      viewMode={viewMode}
+                    />
+                  </div>
+                );
+                // Portal the dragged item to body so it escapes blurred/clipped ancestors
+                // and tracks the pointer correctly in viewport coordinates.
+                if (snapshot.isDragging && typeof document !== 'undefined') {
+                  return ReactDOM.createPortal(child, document.body);
+                }
+                return child;
+              }}
             </Draggable>
           ))
         )}
