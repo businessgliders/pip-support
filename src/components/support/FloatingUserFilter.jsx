@@ -122,13 +122,9 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
   return (
     <>
       {/* Mobile / Tablet: horizontal bar above swimlanes */}
-      <div className="lg:hidden mb-4">
+      <div className="lg:hidden">
         <div className="backdrop-blur-xl bg-white/30 border border-white/50 rounded-2xl p-2 shadow-xl">
           <div className="flex items-center gap-3 overflow-x-auto pb-1">
-            <div className="flex items-center gap-1 text-white text-[10px] font-semibold uppercase tracking-wider px-1 flex-shrink-0">
-              <Users className="w-3 h-3" />
-              Filter
-            </div>
             {allButton}
             {userButtons}
           </div>
