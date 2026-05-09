@@ -371,7 +371,7 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-8 bg-gradient-to-b from-[#f1899b] to-white relative overflow-y-auto">
+    <div className="min-h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-y-auto">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
@@ -670,7 +670,7 @@ export default function TicketBoard() {
       />
 
       {/* Footer */}
-      <div className="mt-2 flex items-center justify-center gap-3 flex-shrink-0">
+      <div className="mt-2 mb-0 flex items-center justify-center gap-3 flex-shrink-0">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
           alt="Pilates in Pink"
