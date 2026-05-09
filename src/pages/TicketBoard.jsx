@@ -386,6 +386,7 @@ export default function TicketBoard() {
                 setShowArchived(false); 
                 setSearchQuery(""); 
                 setViewMode("status"); 
+                setUserFilter("all");
               }}
             >
               <img 
