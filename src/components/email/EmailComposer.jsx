@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, X } from "lucide-react";
+import { Send, Loader2, X, Wand2 } from "lucide-react";
 import AiAssistBar from "./AiAssistBar";
 import TemplatePicker from "./TemplatePicker";
 
@@ -35,6 +35,7 @@ function plainToHtml(text) {
 export default function EmailComposer({ ticket, currentUser, onSent, onCancel }) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [polishing, setPolishing] = useState(false);
   const [error, setError] = useState(null);
 
   const staffFirstName = currentUser?.full_name?.split(" ")[0] || "";
@@ -56,6 +57,21 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
 
   const applyTemplate = ({ body_html }) => {
     setDraft(htmlToPlain(body_html));
+  };
+
+  const handlePolish = async () => {
+    if (!draft.trim()) return;
+    setPolishing(true);
+    try {
+      const res = await base44.functions.invoke("aiEmailAssist", {
+        mode: "polish",
+        ticket_id: ticket.id,
+        draft,
+      });
+      if (res.data?.body_html) setDraft(htmlToPlain(res.data.body_html));
+    } finally {
+      setPolishing(false);
+    }
   };
 
   const handleSend = async () => {
@@ -96,18 +112,28 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         <TemplatePicker onSelect={applyTemplate} vars={templateVars} />
       </div>
 
-      <AiAssistBar ticketId={ticket.id} draft={draft} onApply={applyAiHtml} />
+      <AiAssistBar ticketId={ticket.id} onApply={applyAiHtml} />
 
       <Textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         placeholder={`Hi ${ticket.client_name?.split(" ")[0] || "there"},\n\nWrite your reply here…`}
-        className="min-h-48 font-sans text-sm"
+        className="min-h-24 font-sans text-sm"
       />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex justify-end gap-2 pt-2 border-t">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handlePolish}
+          disabled={!draft.trim() || polishing}
+          className="border-purple-300 text-purple-700 hover:bg-purple-50"
+        >
+          {polishing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Wand2 className="w-4 h-4 mr-1.5" />}
+          Polish
+        </Button>
         <Button
           type="button"
           onClick={handleSend}
