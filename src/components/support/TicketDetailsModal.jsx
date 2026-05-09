@@ -122,6 +122,16 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [systemAlert, setSystemAlert] = useState(null);
   const [statusPrompt, setStatusPrompt] = useState(null);
   const [statusNote, setStatusNote] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const scrollRef = React.useRef(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => setIsScrolled(el.scrollTop > 4);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const fetchRelatedTickets = async () => {
@@ -263,8 +273,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-y-auto md:text-base text-xs">
-        <DialogHeader>
+      <DialogContent className="max-w-7xl backdrop-blur-2xl bg-white/95 border-white/40 max-h-[90vh] overflow-hidden md:text-base text-xs p-0">
+        <div ref={scrollRef} className="overflow-y-auto max-h-[90vh] p-6">
+        <DialogHeader className={`sticky -top-6 -mx-6 -mt-6 px-6 pt-6 pb-3 z-20 bg-white/95 backdrop-blur-xl transition-shadow ${isScrolled ? "shadow-[0_8px_16px_-8px_rgba(0,0,0,0.15)]" : ""} after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-4 after:h-4 after:pointer-events-none after:transition-opacity ${isScrolled ? "after:opacity-100" : "after:opacity-0"} after:bg-gradient-to-b after:from-white/90 after:to-transparent`}>
           <div className="flex items-start justify-between gap-4 pr-8">
             <div className="text-left min-w-0">
               <DialogTitle className="text-lg md:text-2xl mb-2 truncate">
@@ -770,6 +781,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </Dialog>
               )}
 
+              </div>
               </DialogContent>
               </Dialog>
   );
