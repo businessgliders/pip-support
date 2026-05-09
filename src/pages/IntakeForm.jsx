@@ -148,13 +148,9 @@ export default function IntakeForm() {
         console.log("Note: Assignment email notification failed");
       }
 
-      // Send notification email to internal support team (only works for app users)
-      try {
-        await base44.integrations.Core.SendEmail({
-          from_name: "Pilates in Pink Support",
-          to: "support@pilatesinpinkstudio.com",
-          subject: `New Support Ticket: ${formData.inquiry_type} - ${formData.client_name}`,
-          body: `
+      // (Removed: dead support@... Core.SendEmail — recipient not a registered Base44 app user, was always silently failing)
+      // eslint-disable-next-line no-constant-condition
+      if (false) { /*
 <!DOCTYPE html>
 <html>
 <head>
@@ -214,32 +210,7 @@ export default function IntakeForm() {
       </div>
       ` : ''}
 
-      <div style="text-align: center; margin-top: 30px;">
-        <a href="${ticketUrl}" class="button">
-          🎫 View Ticket in Dashboard
-        </a>
-      </div>
-
-      <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 5px;">
-        <strong>📌 Quick Actions:</strong><br>
-        • Click the button above to view full ticket details<br>
-        • Reply directly to <a href="mailto:${formData.client_email}">${formData.client_email}</a><br>
-        • Call client at <a href="tel:${formData.client_phone}">${formData.client_phone}</a>
-      </div>
-    </div>
-    <div class="footer">
-      <p>This is an automated notification from Pilates in Pink Support System</p>
-      <p style="margin-top: 10px;">Ticket ID: ${newTicket.id}</p>
-    </div>
-  </div>
-</body>
-</html>
-        `
-        });
-      } catch (emailError) {
-        // Silent fail - email only works for registered app users
-        console.log("Note: Email notification requires recipient to be a registered app user");
-      }
+      */ }
 
       setSubmitted(true);
       setIsSubmitting(false);
@@ -337,11 +308,9 @@ export default function IntakeForm() {
         console.log("Note: Assignment email notification failed");
       }
 
-      base44.integrations.Core.SendEmail({
-        from_name: "Pilates in Pink Support",
-        to: "support@pilatesinpinkstudio.com",
-        subject: `🚨 URGENT: Cancellation Request - ${formData.client_name}`,
-        body: `
+      // (Removed: dead support@... Core.SendEmail for cancellations)
+      // eslint-disable-next-line no-constant-condition
+      if (false) { /*
 <!DOCTYPE html>
 <html>
 <head>
@@ -440,7 +409,7 @@ export default function IntakeForm() {
 </body>
 </html>
         `
-      }).catch(err => console.error("Email failed:", err));
+      */ }
 
       // Show success
       setSubmitted(true);

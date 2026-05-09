@@ -28,10 +28,12 @@ const formatFullDate = (s) => {
   });
 };
 
-export default function EmailMessageItem({ message }) {
+export default function EmailMessageItem({ message, isHighlighted }) {
   const [open, setOpen] = useState(false);
   const isInbound = message.direction === "inbound";
   const senderName = message.from_name || message.from_email || (isInbound ? "Client" : "Support");
+  const failed = message.send_status === "failed";
+  const highlightRing = isHighlighted ? "ring-4 ring-yellow-300 ring-offset-2" : "";
 
   // Auto-reply welcome → compact light-pink bubble with icon + short preview
   if (message.is_welcome) {
@@ -74,8 +76,10 @@ export default function EmailMessageItem({ message }) {
     );
   }
 
-  // Show a smaller preview; only collapse when text is moderately long
-  const fullText = message.body_text || message.snippet || "";
+  // Build preview text — fall back to stripping HTML if body_text/snippet missing
+  const stripHtml = (h) => (h || "").replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+  const fullText = message.body_text || message.snippet || stripHtml(message.body_html) || "";
   const isLong = fullText.length > 300;
   const previewText = isLong ? fullText.slice(0, 300).trimEnd() + "…" : fullText;
 
@@ -86,12 +90,17 @@ export default function EmailMessageItem({ message }) {
           <span className="text-[10px] text-gray-500 mb-0.5 px-1">{senderName}</span>
           <button
             onClick={() => setOpen(true)}
-            className={`text-left rounded-2xl px-3.5 py-2 shadow-sm transition-all hover:shadow-md ${
-              isInbound
-                ? "bg-white border border-gray-200 text-gray-800 rounded-bl-sm"
-                : "bg-pink-100 border border-pink-200 text-gray-800 rounded-br-sm"
+            className={`text-left rounded-2xl px-3.5 py-2 shadow-sm transition-all hover:shadow-md ${highlightRing} ${
+              failed
+                ? "bg-red-50 border border-red-300 text-red-900 rounded-br-sm"
+                : isInbound
+                  ? "bg-white border border-gray-200 text-gray-800 rounded-bl-sm"
+                  : "bg-pink-100 border border-pink-200 text-gray-800 rounded-br-sm"
             }`}
           >
+            {failed && (
+              <span className="text-[10px] font-bold text-red-700 block mb-1">⚠️ FAILED TO SEND</span>
+            )}
             <p className="text-sm leading-snug whitespace-pre-wrap break-words">
               {previewText || "(empty message)"}
             </p>

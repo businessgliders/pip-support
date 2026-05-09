@@ -27,6 +27,7 @@ import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
 import FloatingUserFilter from "../components/support/FloatingUserFilter";
+import NotificationCenter from "../components/support/NotificationCenter";
 
 const userColors = {
   0: "bg-pink-400",
@@ -43,6 +44,7 @@ export default function TicketBoard() {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [highlightedMessageId, setHighlightedMessageId] = useState(null);
   const [dragNoteDialog, setDragNoteDialog] = useState(null);
   const [highlightedTicketId, setHighlightedTicketId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -466,6 +468,14 @@ export default function TicketBoard() {
 
         {/* Floating Action Icons (top-right, like padlock on intake) */}
         <div className="fixed top-4 right-4 z-40 flex flex-col gap-2">
+          <NotificationCenter
+            currentUser={user}
+            tickets={tickets}
+            onTicketClick={(ticket, messageId) => {
+              setHighlightedMessageId(messageId || null);
+              setSelectedTicket(ticket);
+            }}
+          />
           <Link to={createPageUrl("Analytics")}>
             <Button
               variant="ghost"
@@ -637,12 +647,13 @@ export default function TicketBoard() {
       {selectedTicket && (
         <TicketDetailsModal
           ticket={selectedTicket}
-          onClose={() => setSelectedTicket(null)}
+          onClose={() => { setSelectedTicket(null); setHighlightedMessageId(null); }}
           onStatusChange={handleStatusChange}
           onTicketClick={setSelectedTicket}
           currentUser={user}
           isOwner={isOwner}
           allUsers={allUsers}
+          highlightMessageId={highlightedMessageId}
         />
       )}
 

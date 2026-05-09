@@ -1,5 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
+function toQuotedPrintable(str) {
+  const bytes = new TextEncoder().encode(str);
+  let out = '';
+  let lineLen = 0;
+  for (const b of bytes) {
+    let chunk;
+    if (b === 0x3D) chunk = '=3D';
+    else if (b === 0x0A) { out += '\r\n'; lineLen = 0; continue; }
+    else if (b === 0x0D) continue;
+    else if (b >= 0x20 && b <= 0x7E) chunk = String.fromCharCode(b);
+    else chunk = '=' + b.toString(16).toUpperCase().padStart(2, '0');
+    if (lineLen + chunk.length > 75) { out += '=\r\n'; lineLen = 0; }
+    out += chunk;
+    lineLen += chunk.length;
+  }
+  return out;
+}
+
 function buildMime({ from, to, subject, htmlBody }) {
   const boundary = "____pip_boundary_" + Math.random().toString(36).slice(2);
   const headers = [
@@ -9,26 +27,34 @@ function buildMime({ from, to, subject, htmlBody }) {
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
   ];
-  const plainText = htmlBody.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const plainText = htmlBody
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   const body = [
     `--${boundary}`,
     `Content-Type: text/plain; charset="UTF-8"`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: quoted-printable`,
     ``,
-    plainText,
+    toQuotedPrintable(plainText),
     ``,
     `--${boundary}`,
     `Content-Type: text/html; charset="UTF-8"`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: quoted-printable`,
     ``,
-    htmlBody,
+    toQuotedPrintable(htmlBody),
     ``,
     `--${boundary}--`,
   ].join("\r\n");
   const raw = headers.join("\r\n") + "\r\n\r\n" + body;
-  return btoa(unescape(encodeURIComponent(raw)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const rawBytes = new TextEncoder().encode(raw);
+  let binary = '';
+  for (const b of rawBytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function welcomeHtml({ clientName, inquiryType, ticketShortId }) {
@@ -70,8 +96,6 @@ function welcomeHtml({ clientName, inquiryType, ticketShortId }) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    // This can be called by IntakeForm with the user not yet authenticated as staff,
-    // so we use service role internally. But we still validate the ticket exists.
     const { ticket_id } = await req.json();
     if (!ticket_id) return Response.json({ error: 'ticket_id required' }, { status: 400 });
 
@@ -86,7 +110,8 @@ Deno.serve(async (req) => {
       ticketShortId: ticketRef,
     });
 
-    const fromHeader = `"Pilates in Pink" <info@pilatesinpinkstudio.com>`;
+    // Brand sender as "Pilates in Pink™" (matches all other outbound emails)
+    const fromHeader = `"Pilates in Pink\u2122" <info@pilatesinpinkstudio.com>`;
     const raw = buildMime({ from: fromHeader, to: ticket.client_email, subject, htmlBody });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
@@ -99,11 +124,26 @@ Deno.serve(async (req) => {
     if (!sendRes.ok) {
       const err = await sendRes.text();
       console.error('Welcome email send failed:', err);
+      // Record failure so staff can see it
+      await base44.asServiceRole.entities.EmailMessage.create({
+        ticket_id,
+        direction: 'outbound',
+        from_email: 'info@pilatesinpinkstudio.com',
+        from_name: 'Pilates in Pink\u2122',
+        to_email: ticket.client_email,
+        subject,
+        body_html: htmlBody,
+        snippet: `Welcome email FAILED to send`,
+        sent_by: 'system',
+        sent_at: new Date().toISOString(),
+        is_welcome: true,
+        send_status: 'failed',
+        send_error: err.slice(0, 500),
+      });
       return Response.json({ error: 'Send failed', details: err }, { status: 500 });
     }
     const sentMessage = await sendRes.json();
 
-    // Get RFC Message-ID
     const fetchRes = await fetch(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages/${sentMessage.id}?format=metadata&metadataHeaders=Message-ID`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -118,16 +158,20 @@ Deno.serve(async (req) => {
       gmail_message_id: sentMessage.id,
       rfc_message_id: rfcMessageId,
       in_reply_to: '',
+      references: '',
       direction: 'outbound',
       from_email: 'info@pilatesinpinkstudio.com',
-      from_name: 'Pilates in Pink',
+      from_name: 'Pilates in Pink\u2122',
       to_email: ticket.client_email,
       subject,
       body_html: htmlBody,
+      body_text: `We've received your ${ticket.inquiry_type} request and one of our team members will be in touch with you very soon. We typically respond within 24 hours during business days.`,
       snippet: `We've received your ${ticket.inquiry_type} request...`,
       sent_by: 'system',
       sent_at: new Date().toISOString(),
       is_welcome: true,
+      send_status: 'sent',
+      read_by: [],
     });
 
     return Response.json({ success: true });

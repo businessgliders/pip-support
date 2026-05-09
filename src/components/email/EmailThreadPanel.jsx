@@ -1,57 +1,45 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Mail, Loader2 } from "lucide-react";
 import EmailMessageItem from "./EmailMessageItem";
 import EmailComposer from "./EmailComposer";
+import { buildWelcomeHtml } from "./welcomeEmailHtml";
 
-export default function EmailThreadPanel({ ticket, currentUser }) {
+export default function EmailThreadPanel({ ticket, currentUser, highlightMessageId }) {
   const { data: fetchedMessages = [], isLoading, refetch } = useQuery({
     queryKey: ["email-messages", ticket.id],
     queryFn: () => base44.entities.EmailMessage.filter({ ticket_id: ticket.id }, "sent_at", 100),
     refetchInterval: 15000,
   });
 
-  // If no real emails exist yet, synthesize the auto-response welcome email so users
-  // can preview the reply that was sent to the submitter.
+  // Mark all unread inbound emails on this ticket as read by the current user
+  useEffect(() => {
+    if (!currentUser?.email || fetchedMessages.length === 0) return;
+    const unread = fetchedMessages.filter(
+      m => m.direction === "inbound" && !(m.read_by || []).includes(currentUser.email)
+    );
+    if (unread.length === 0) return;
+    Promise.all(
+      unread.map(m =>
+        base44.entities.EmailMessage.update(m.id, {
+          read_by: [...(m.read_by || []), currentUser.email],
+        }).catch(() => null)
+      )
+    );
+  }, [fetchedMessages, currentUser?.email]);
+
   const shortId = ticket.ticket_number ? String(ticket.ticket_number) : (ticket.id ? ticket.id.slice(-8) : "");
-  const welcomeHtml = `<!DOCTYPE html>
-<html><body style="margin:0;padding:0;font-family:Arial,sans-serif;background:#fbe0e2;">
-  <div style="max-width:600px;margin:0 auto;background:linear-gradient(135deg,#f1899b 0%,#f7b1bd 50%,#fbe0e2 100%);padding:40px 20px;">
-    <div style="background:white;border-radius:20px;padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-      <div style="text-align:center;margin-bottom:30px;">
-        <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png" alt="Pilates in Pink" style="width:80px;height:80px;">
-        <h1 style="color:#f1899b;margin:15px 0 10px 0;font-size:28px;">We've Got Your Message 💕</h1>
-        <p style="color:#666;margin:0;font-size:16px;">Thanks for reaching out, ${ticket.client_name}!</p>
-      </div>
-      <div style="background:linear-gradient(135deg,#f1899b15,#fbe0e220);border-left:4px solid #f1899b;padding:20px;border-radius:10px;margin-bottom:25px;">
-        <p style="color:#333;margin:0 0 10px 0;line-height:1.6;">
-          We've received your <strong>${ticket.inquiry_type}</strong> request and one of our team members will be in touch with you very soon.
-        </p>
-        <p style="color:#333;margin:0;line-height:1.6;">
-          We typically respond within <strong>24 hours</strong> during business days.
-        </p>
-      </div>
-      <div style="background:#f8f9fa;padding:15px;border-radius:10px;margin-bottom:25px;text-align:center;">
-        <p style="color:#666;margin:0 0 5px 0;font-size:13px;">Your Reference</p>
-        <p style="color:#b67651;margin:0;font-size:18px;font-weight:bold;letter-spacing:1px;">#${shortId}</p>
-      </div>
-      <p style="color:#555;line-height:1.6;margin:0 0 10px 0;">
-        💡 <strong>Tip:</strong> Just reply to this email anytime to add more info — your reply will go straight to our support team and stay in this conversation.
-      </p>
-      <div style="margin-top:30px;padding-top:20px;border-top:1px solid #e0e0e0;text-align:center;">
-        <p style="color:#999;margin:5px 0;font-size:13px;">With love,</p>
-        <p style="color:#f1899b;margin:5px 0;font-size:15px;font-weight:bold;">The Pilates in Pink Team 🌸</p>
-      </div>
-    </div>
-  </div>
-</body></html>`;
 
-  // Synthetic initial messages: client's submitted notes (if any) + auto-reply welcome
-  const syntheticMessages = [];
+  // Always show the original intake notes as the first inbound message.
+  // Always show a synthetic welcome preview (placed right after notes / at the top
+  // if there are no notes) — but if a real welcome EmailMessage exists in the DB,
+  // we let the real one render and skip the synthetic.
+  const hasRealWelcome = fetchedMessages.some(m => m.is_welcome);
 
+  const synthetic = [];
   if (ticket.notes && ticket.notes.trim()) {
-    syntheticMessages.push({
+    synthetic.push({
       id: `intake-${ticket.id}`,
       direction: "inbound",
       from_name: ticket.client_name,
@@ -64,23 +52,35 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
       sent_at: ticket.created_date,
     });
   }
-
-  if (fetchedMessages.length === 0) {
-    syntheticMessages.push({
+  if (!hasRealWelcome) {
+    synthetic.push({
       id: `welcome-${ticket.id}`,
       direction: "outbound",
-      from_name: "Pilates in Pink",
+      from_name: "Pilates in Pink\u2122",
       from_email: "info@pilatesinpinkstudio.com",
       to_email: ticket.client_email,
       subject: `[Ticket #${shortId}] ${ticket.inquiry_type} - Pilates in Pink`,
-      body_html: welcomeHtml,
+      body_html: buildWelcomeHtml({
+        clientName: ticket.client_name,
+        inquiryType: ticket.inquiry_type,
+        ticketShortId: shortId,
+      }),
       snippet: `We've received your ${ticket.inquiry_type} request and one of our team members will be in touch with you very soon.`,
       sent_at: ticket.created_date,
       is_welcome: true,
     });
   }
 
-  const messages = [...syntheticMessages, ...fetchedMessages];
+  const messages = [...synthetic, ...fetchedMessages];
+
+  // Scroll to highlighted message after render
+  useEffect(() => {
+    if (!highlightMessageId) return;
+    const el = document.getElementById(`email-msg-${highlightMessageId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightMessageId, messages.length]);
 
   return (
     <div className="bg-gradient-to-br from-amber-50 to-pink-50 rounded-xl p-4 border border-amber-200">
@@ -104,7 +104,12 @@ export default function EmailThreadPanel({ ticket, currentUser }) {
       ) : (
         <div className="bg-gradient-to-b from-white/60 to-amber-50/40 rounded-xl p-3 mb-3 max-h-[480px] overflow-y-auto border border-amber-100">
           {messages.map((m) => (
-            <EmailMessageItem key={m.id} message={m} />
+            <div key={m.id} id={`email-msg-${m.id}`}>
+              <EmailMessageItem
+                message={m}
+                isHighlighted={m.id === highlightMessageId}
+              />
+            </div>
           ))}
         </div>
       )}

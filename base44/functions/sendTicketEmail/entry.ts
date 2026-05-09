@@ -1,6 +1,35 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Build a base64url-encoded MIME message for Gmail API
+// Quoted-printable encoder for non-ASCII safety (handles ™, em-dashes, emojis)
+function toQuotedPrintable(str) {
+  const bytes = new TextEncoder().encode(str);
+  let out = '';
+  let lineLen = 0;
+  for (const b of bytes) {
+    let chunk;
+    if (b === 0x3D /* = */) {
+      chunk = '=3D';
+    } else if (b === 0x0A) {
+      out += '\r\n';
+      lineLen = 0;
+      continue;
+    } else if (b === 0x0D) {
+      continue;
+    } else if (b >= 0x20 && b <= 0x7E) {
+      chunk = String.fromCharCode(b);
+    } else {
+      chunk = '=' + b.toString(16).toUpperCase().padStart(2, '0');
+    }
+    if (lineLen + chunk.length > 75) {
+      out += '=\r\n';
+      lineLen = 0;
+    }
+    out += chunk;
+    lineLen += chunk.length;
+  }
+  return out;
+}
+
 function buildMime({ from, to, subject, htmlBody, inReplyTo, references }) {
   const boundary = "____pip_boundary_" + Math.random().toString(36).slice(2);
   const headers = [
@@ -13,30 +42,41 @@ function buildMime({ from, to, subject, htmlBody, inReplyTo, references }) {
   if (inReplyTo) headers.push(`In-Reply-To: ${inReplyTo}`);
   if (references) headers.push(`References: ${references}`);
 
-  // Strip HTML for plain text fallback
-  const plainText = htmlBody.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  // Plain text fallback
+  const plainText = htmlBody
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 
   const body = [
     `--${boundary}`,
     `Content-Type: text/plain; charset="UTF-8"`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: quoted-printable`,
     ``,
-    plainText,
+    toQuotedPrintable(plainText),
     ``,
     `--${boundary}`,
     `Content-Type: text/html; charset="UTF-8"`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: quoted-printable`,
     ``,
-    htmlBody,
+    toQuotedPrintable(htmlBody),
     ``,
     `--${boundary}--`,
   ].join("\r\n");
 
   const raw = headers.join("\r\n") + "\r\n\r\n" + body;
-  // Base64url encode
-  return btoa(unescape(encodeURIComponent(raw)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // Base64url encode the full raw message
+  const rawBytes = new TextEncoder().encode(raw);
+  let binary = '';
+  for (const b of rawBytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 Deno.serve(async (req) => {
@@ -53,48 +93,48 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'ticket_id and body_html required' }, { status: 400 });
     }
 
-    // Get ticket
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
-    // Subject with [Ticket #number] tag for threading
     const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
     const subjectTag = `[Ticket #${ticketRef}]`;
-    let subject;
 
-    // Find the most recent email on this thread for threading
+    // Find existing thread messages for threading
     const existing = await base44.asServiceRole.entities.EmailMessage.filter(
       { ticket_id }, '-sent_at', 50
     );
-    const threadAnchor = existing.length > 0 ? existing[existing.length - 1] : null; // first email = anchor
-    const lastMessage = existing[0]; // most recent
+    const threadAnchor = existing.length > 0 ? existing[existing.length - 1] : null;
+    const lastMessage = existing[0];
 
+    let subject;
     if (threadAnchor && threadAnchor.subject) {
-      // Reuse existing subject for threading consistency
       subject = threadAnchor.subject.startsWith(subjectTag)
         ? threadAnchor.subject
         : `${subjectTag} ${threadAnchor.subject}`;
     } else {
-      // First email - build subject
       subject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
     }
 
-    // Staff display name — always "Pilates in Pink™" so client inbox shows brand name + Gmail profile photo
+    // Always brand sender as "Pilates in Pink™"
     const staffName = 'Pilates in Pink\u2122';
     const fromHeader = `"${staffName}" <info@pilatesinpinkstudio.com>`;
 
-    // Auto-append the sender's saved signature (skip for welcome emails which have their own template)
+    // Auto-append signature for non-welcome replies
     let finalHtml = body_html;
     if (!is_welcome && user.signature_html) {
       finalHtml = `${body_html}<br><br>${user.signature_html}`;
     }
 
-    // Threading headers
+    // Threading headers — proper References chain (RFC 2822)
     const inReplyTo = lastMessage?.rfc_message_id || null;
-    const references = lastMessage?.rfc_message_id || null;
+    let references = null;
+    if (lastMessage) {
+      const prevRefs = lastMessage.references || '';
+      const prevId = lastMessage.rfc_message_id || '';
+      references = (prevRefs + ' ' + prevId).trim();
+    }
     const threadId = lastMessage?.gmail_thread_id || null;
 
-    // Build MIME
     const raw = buildMime({
       from: fromHeader,
       to: ticket.client_email,
@@ -104,10 +144,8 @@ Deno.serve(async (req) => {
       references,
     });
 
-    // Get Gmail token
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
 
-    // Send via Gmail API
     const sendBody = { raw };
     if (threadId) sendBody.threadId = threadId;
 
@@ -123,37 +161,56 @@ Deno.serve(async (req) => {
     if (!sendRes.ok) {
       const err = await sendRes.text();
       console.error('Gmail send failed:', err);
+      // Persist failed-send record
+      await base44.asServiceRole.entities.EmailMessage.create({
+        ticket_id,
+        direction: 'outbound',
+        from_email: 'info@pilatesinpinkstudio.com',
+        from_name: staffName,
+        to_email: ticket.client_email,
+        subject,
+        body_html: finalHtml,
+        snippet: finalHtml.replace(/<[^>]+>/g, '').slice(0, 200),
+        sent_by: is_welcome ? 'system' : user.email,
+        sent_at: new Date().toISOString(),
+        is_welcome: !!is_welcome,
+        send_status: 'failed',
+        send_error: err.slice(0, 500),
+      });
       return Response.json({ error: 'Gmail send failed', details: err }, { status: 500 });
     }
 
     const sentMessage = await sendRes.json();
 
-    // Fetch the sent message to get headers (Message-ID)
+    // Fetch sent message metadata for Message-ID header
     const fetchRes = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${sentMessage.id}?format=metadata&metadataHeaders=Message-ID&metadataHeaders=Subject`,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${sentMessage.id}?format=metadata&metadataHeaders=Message-ID`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
     const fullMsg = await fetchRes.json();
     const headers = fullMsg.payload?.headers || [];
     const rfcMessageId = headers.find(h => h.name.toLowerCase() === 'message-id')?.value || '';
 
-    // Store EmailMessage record
     await base44.asServiceRole.entities.EmailMessage.create({
       ticket_id,
       gmail_thread_id: sentMessage.threadId,
       gmail_message_id: sentMessage.id,
       rfc_message_id: rfcMessageId,
       in_reply_to: inReplyTo || '',
+      references: references || '',
       direction: 'outbound',
       from_email: 'info@pilatesinpinkstudio.com',
       from_name: staffName,
       to_email: ticket.client_email,
       subject,
       body_html: finalHtml,
+      body_text: finalHtml.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
       snippet: finalHtml.replace(/<[^>]+>/g, '').slice(0, 200),
       sent_by: is_welcome ? 'system' : user.email,
       sent_at: new Date().toISOString(),
       is_welcome: !!is_welcome,
+      send_status: 'sent',
+      read_by: [user.email],
     });
 
     return Response.json({ success: true, message_id: sentMessage.id, thread_id: sentMessage.threadId });

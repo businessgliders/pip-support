@@ -7,70 +7,81 @@
       "description": "ID of the SupportTicket this email belongs to"
     },
     "gmail_thread_id": {
-      "type": "string",
-      "description": "Gmail thread ID for grouping related messages"
+      "type": "string"
     },
     "gmail_message_id": {
-      "type": "string",
-      "description": "Gmail message ID (unique per email)"
+      "type": "string"
     },
     "rfc_message_id": {
-      "type": "string",
-      "description": "RFC 2822 Message-ID header used for threading via In-Reply-To/References"
+      "type": "string"
     },
     "in_reply_to": {
+      "type": "string"
+    },
+    "references": {
       "type": "string",
-      "description": "RFC Message-ID this is in reply to"
+      "description": "Full References header chain"
     },
     "direction": {
       "type": "string",
       "enum": [
         "outbound",
         "inbound"
-      ],
-      "description": "outbound = sent by staff/system, inbound = from client"
+      ]
     },
     "from_email": {
-      "type": "string",
-      "description": "Sender email address"
+      "type": "string"
     },
     "from_name": {
-      "type": "string",
-      "description": "Sender display name"
+      "type": "string"
     },
     "to_email": {
-      "type": "string",
-      "description": "Recipient email address"
+      "type": "string"
     },
     "subject": {
-      "type": "string",
-      "description": "Email subject line"
+      "type": "string"
     },
     "body_html": {
-      "type": "string",
-      "description": "HTML body of the email"
+      "type": "string"
     },
     "body_text": {
-      "type": "string",
-      "description": "Plain text body of the email"
+      "type": "string"
     },
     "snippet": {
-      "type": "string",
-      "description": "Short preview snippet of the email"
+      "type": "string"
     },
     "sent_by": {
-      "type": "string",
-      "description": "Email of staff member who sent it (for outbound only). System for welcome emails."
+      "type": "string"
     },
     "sent_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "When the email was sent/received"
+      "format": "date-time"
     },
     "is_welcome": {
       "type": "boolean",
-      "default": false,
-      "description": "True for the initial welcome email sent on ticket creation"
+      "default": false
+    },
+    "send_status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "failed",
+        "received"
+      ],
+      "default": "received",
+      "description": "Delivery status: sent (outbound success), failed (outbound error), received (inbound)"
+    },
+    "send_error": {
+      "type": "string",
+      "description": "Error message if send_status is 'failed'"
+    },
+    "read_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Emails of staff members who have read this message"
     }
   },
   "required": [
