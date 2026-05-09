@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu, Settings as SettingsIcon, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { DragDropContext } from "@hello-pangea/dnd";
 import {
   Dialog,
   DialogContent,
@@ -602,32 +602,19 @@ export default function TicketBoard() {
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 flex-1">
               {columns.map((column) => (
-                <Droppable key={column} droppableId={column}>
-                  {(provided, snapshot) => (
-                    <div 
-                      ref={provided.innerRef} 
-                      {...provided.droppableProps}
-                      className={`transition-all duration-200 ${
-                        snapshot.isDraggingOver ? 'ring-4 ring-white/50 scale-102' : ''
-                      }`}
-                      style={{ position: 'static' }}
-                    >
-                      <KanbanColumn
-                        status={column}
-                        tickets={getTicketsByColumn(column)}
-                        onStatusChange={handleStatusChange}
-                        onTicketClick={setSelectedTicket}
-                        isLoading={isLoading}
-                        highlightedTicketId={highlightedTicketId}
-                        onArchiveSome={column === "Closed" && viewMode === "status" ? handleArchiveSome : undefined}
-                        onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
-                        viewMode={viewMode}
-                        allUsers={allUsers}
-                      />
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
+                <KanbanColumn
+                  key={column}
+                  status={column}
+                  tickets={getTicketsByColumn(column)}
+                  onStatusChange={handleStatusChange}
+                  onTicketClick={setSelectedTicket}
+                  isLoading={isLoading}
+                  highlightedTicketId={highlightedTicketId}
+                  onArchiveSome={column === "Closed" && viewMode === "status" ? handleArchiveSome : undefined}
+                  onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
+                  viewMode={viewMode}
+                  allUsers={allUsers}
+                />
               ))}
             </div>
           </DragDropContext>

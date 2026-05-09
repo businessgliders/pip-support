@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Draggable } from "@hello-pangea/dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { Archive } from "lucide-react";
 import TicketCard from "./TicketCard";
 
@@ -71,7 +71,16 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
       </div>
 
       {/* Tickets Container */}
-      <div className="flex-1 overflow-y-auto p-2 md:p-4 space-y-2 md:space-y-3 custom-scrollbar" style={{ position: 'static' }}>
+      <Droppable droppableId={status}>
+        {(dropProvided, dropSnapshot) => (
+          <div
+            ref={dropProvided.innerRef}
+            {...dropProvided.droppableProps}
+            className={`flex-1 overflow-y-auto p-2 md:p-4 space-y-2 md:space-y-3 custom-scrollbar transition-colors ${
+              dropSnapshot.isDraggingOver ? 'bg-white/10' : ''
+            }`}
+            style={{ position: 'static' }}
+          >
         {isLoading ? (
           <>
             {[1, 2, 3].map((i) => (
@@ -79,7 +88,7 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
             ))}
           </>
         ) : tickets.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-full min-h-[100px]">
             <p className="text-white/60 text-xs md:text-sm">No tickets</p>
           </div>
         ) : (
@@ -117,7 +126,10 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
             </Draggable>
           ))
         )}
-      </div>
+            {dropProvided.placeholder}
+          </div>
+        )}
+      </Droppable>
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
