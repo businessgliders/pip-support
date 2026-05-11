@@ -13,22 +13,6 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
     refetchInterval: 15000,
   });
 
-  // Mark all unread inbound emails on this ticket as read by the current user
-  useEffect(() => {
-    if (!currentUser?.email || fetchedMessages.length === 0) return;
-    const unread = fetchedMessages.filter(
-      m => m.direction === "inbound" && !(m.read_by || []).includes(currentUser.email)
-    );
-    if (unread.length === 0) return;
-    Promise.all(
-      unread.map(m =>
-        base44.entities.EmailMessage.update(m.id, {
-          read_by: [...(m.read_by || []), currentUser.email],
-        }).catch(() => null)
-      )
-    );
-  }, [fetchedMessages, currentUser?.email]);
-
   const shortId = ticket.ticket_number ? String(ticket.ticket_number) : (ticket.id ? ticket.id.slice(-8) : "");
 
   // Always show the original intake notes as the first inbound message.

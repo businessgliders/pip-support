@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Bell } from "lucide-react";
+import { Bell, Check } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+// Auto-dismiss notifications older than this many hours (treat as auto-read)
+const AUTO_DISMISS_HOURS = 4;
 
 const formatRelative = (iso) => {
   if (!iso) return "";
@@ -25,6 +28,7 @@ const formatRelative = (iso) => {
 // that have at least one inbound EmailMessage the user hasn't read yet.
 export default function NotificationCenter({ currentUser, tickets, onTicketClick, variant = "floating" }) {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const myTicketIds = (tickets || [])
     .filter(t => t.assigned_to === currentUser?.email && !t.archived)
@@ -38,14 +42,34 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
       const recent = await base44.entities.EmailMessage.filter(
         { direction: "inbound" }, "-sent_at", 200
       );
-      return recent.filter(m =>
-        myTicketIds.includes(m.ticket_id) &&
-        !(m.read_by || []).includes(currentUser.email)
-      );
+      const cutoff = Date.now() - AUTO_DISMISS_HOURS * 60 * 60 * 1000;
+      return recent.filter(m => {
+        if (!myTicketIds.includes(m.ticket_id)) return false;
+        if ((m.read_by || []).includes(currentUser.email)) return false;
+        // Auto-dismiss messages older than the cutoff
+        const sentIso = m.sent_at;
+        if (sentIso) {
+          const isoZ = (typeof sentIso === "string" && !sentIso.endsWith("Z") && !sentIso.includes("+")) ? sentIso + "Z" : sentIso;
+          if (new Date(isoZ).getTime() < cutoff) return false;
+        }
+        return true;
+      });
     },
     enabled: !!currentUser?.email && myTicketIds.length > 0,
     refetchInterval: 15000,
   });
+
+  const markTicketAsRead = async (msgs) => {
+    await Promise.all(
+      msgs.map(m =>
+        base44.entities.EmailMessage.update(m.id, {
+          read_by: [...(m.read_by || []), currentUser.email],
+        }).catch(() => null)
+      )
+    );
+    queryClient.invalidateQueries({ queryKey: ["unread-emails"] });
+    queryClient.invalidateQueries({ queryKey: ["unread-by-ticket"] });
+  };
 
   // Group unread messages by ticket
   const grouped = unreadMessages.reduce((acc, m) => {
@@ -114,29 +138,43 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
             {ticketEntries.map(({ ticket, msgs }) => {
               const latest = msgs[0];
               return (
-                <button
+                <div
                   key={ticket.id}
-                  onClick={() => {
-                    setOpen(false);
-                    onTicketClick(ticket, latest?.id);
-                  }}
-                  className="w-full text-left px-4 py-3 hover:bg-pink-50 transition-colors block"
+                  className="flex items-stretch hover:bg-pink-50 transition-colors"
                 >
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-semibold text-sm text-gray-900 truncate">{ticket.client_name}</span>
-                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 flex-shrink-0">
-                        {msgs.length}
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      onTicketClick(ticket, latest?.id);
+                    }}
+                    className="flex-1 text-left px-4 py-3 min-w-0"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-semibold text-sm text-gray-900 truncate">{ticket.client_name}</span>
+                        <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 flex-shrink-0">
+                          {msgs.length}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-gray-500 flex-shrink-0">
+                        {formatRelative(latest?.sent_at)}
                       </span>
                     </div>
-                    <span className="text-[11px] text-gray-500 flex-shrink-0">
-                      {formatRelative(latest?.sent_at)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600 line-clamp-2">
-                    {latest?.snippet || latest?.body_text?.slice(0, 120) || "(new reply)"}
-                  </p>
-                </button>
+                    <p className="text-xs text-gray-600 line-clamp-2">
+                      {latest?.snippet || latest?.body_text?.slice(0, 120) || "(new reply)"}
+                    </p>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      markTicketAsRead(msgs);
+                    }}
+                    title="Mark as read"
+                    className="flex-shrink-0 px-3 flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-50 border-l border-gray-100 transition-colors"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                </div>
               );
             })}
           </div>
