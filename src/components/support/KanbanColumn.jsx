@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import { Archive } from "lucide-react";
+import { Archive, Sparkles } from "lucide-react";
 import TicketCard from "./TicketCard";
 
 const columnColors = {
@@ -30,7 +30,7 @@ const headerColors = {
   "Other": "bg-gray-500/30 border-gray-400/40"
 };
 
-export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveSome, onArchiveAll, viewMode, allUsers, unreadByTicket = {} }) {
+export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveSome, onArchiveAll, onTidyUp, viewMode, allUsers, unreadByTicket = {} }) {
   const isDimmed = status === "Resolved" || status === "Closed";
   return (
     <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[70vh] lg:max-h-none lg:h-[calc(100vh-220px)] ${isDimmed ? "opacity-60 hover:opacity-100 transition-opacity" : ""}`}>
@@ -43,6 +43,20 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
           </span>
         </div>
         
+        {/* Tidy Up button for Resolved column */}
+        {status === "Resolved" && onTidyUp && tickets.length > 0 && (
+          <div className="flex mt-2 w-full">
+            <Button
+              onClick={onTidyUp}
+              size="sm"
+              className="flex-1 h-7 md:h-8 backdrop-blur-md bg-white/20 hover:bg-white/30 text-white border border-white/40 text-xs px-1"
+            >
+              <Sparkles className="w-3 h-3 md:mr-1.5 mr-1 hidden sm:inline-block" />
+              Tidy Up
+            </Button>
+          </div>
+        )}
+
         {/* Clear All Button for Closed Column */}
         {status === "Closed" && (onArchiveSome || onArchiveAll) && tickets.length > 0 && (
           <div className="flex gap-2 mt-2 w-full">

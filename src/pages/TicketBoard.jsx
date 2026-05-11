@@ -732,6 +732,7 @@ export default function TicketBoard() {
                     highlightedTicketId={highlightedTicketId}
                     onArchiveSome={column === "Closed" && viewMode === "status" ? handleArchiveSome : undefined}
                     onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
+                    onTidyUp={column === "Resolved" && viewMode === "status" ? () => { setCleanupDismissed(false); setShowCleanupPopup(true); } : undefined}
                     viewMode={viewMode}
                     allUsers={allUsers}
                     unreadByTicket={unreadByTicket}
