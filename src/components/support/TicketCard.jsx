@@ -136,12 +136,17 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
 
       {/* Unread inbound emails badge */}
       {unreadCount > 0 && (
-        <span
+        <div
           title={`${unreadCount} unread ${unreadCount === 1 ? "reply" : "replies"}`}
-          className="absolute top-2 right-3 z-10 bg-red-500 text-white text-[10px] md:text-xs font-bold rounded-full min-w-[20px] h-[20px] md:min-w-[22px] md:h-[22px] flex items-center justify-center px-1 shadow-md ring-2 ring-white"
+          className="absolute top-2 right-3 z-10"
         >
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </span>
+          <div className="relative bg-red-500 rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center shadow-md ring-2 ring-white">
+            <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
+            <span className="absolute -top-1.5 -right-1.5 bg-white text-red-600 text-[9px] md:text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1 shadow ring-1 ring-red-500">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Mobile Compact View */}
