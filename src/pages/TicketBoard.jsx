@@ -67,8 +67,8 @@ export default function TicketBoard() {
   const updateScrollButtons = React.useCallback(() => {
     const el = swimlaneScrollRef.current;
     if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
   }, []);
 
   React.useEffect(() => {
@@ -90,6 +90,8 @@ export default function TicketBoard() {
     const firstChild = el.querySelector('[data-swimlane]');
     const step = firstChild ? firstChild.getBoundingClientRect().width + 16 : el.clientWidth * 0.85;
     el.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' });
+    // Ensure arrow visibility updates even if scroll event timing is off
+    setTimeout(updateScrollButtons, 400);
   };
 
   const getInitials = (email) => {
