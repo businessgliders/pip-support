@@ -175,34 +175,6 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.SupportTicket.update(ticket.id, updatePayload);
       }
 
-      // Notify assigned user about the new client reply
-      if (ticket.assigned_to) {
-        try {
-          const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}`;
-          const preview = (text || message.snippet || '').slice(0, 300);
-          await base44.asServiceRole.integrations.Core.SendEmail({
-            from_name: 'Pilates in Pink Support',
-            to: ticket.assigned_to,
-            subject: `New client reply: ${ticket.client_name}`,
-            body: `
-              <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fbe0e2;padding:30px 20px;">
-                <div style="background:white;border-radius:16px;padding:28px;">
-                  <h2 style="color:#f1899b;margin:0 0 12px 0;">💬 New Client Reply</h2>
-                  <p style="color:#666;margin:0 0 20px 0;">${ticket.client_name} replied to your ticket.</p>
-                  <div style="background:#f8f9fa;border-left:4px solid #f1899b;padding:16px;border-radius:8px;margin-bottom:20px;">
-                    <p style="color:#333;margin:0;white-space:pre-wrap;line-height:1.5;">${preview.replace(/</g, '&lt;')}</p>
-                  </div>
-                  <div style="text-align:center;">
-                    <a href="${ticketUrl}" style="display:inline-block;background:#f1899b;color:white;padding:12px 28px;text-decoration:none;border-radius:24px;font-weight:bold;">View &amp; Reply</a>
-                  </div>
-                </div>
-              </div>`
-          });
-        } catch (notifyErr) {
-          console.error('Assignee notification failed:', notifyErr.message);
-        }
-      }
-
       processed++;
     }
 
