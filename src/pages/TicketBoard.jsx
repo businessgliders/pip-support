@@ -489,9 +489,11 @@ export default function TicketBoard() {
         className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none"
         style={{
           WebkitMaskImage:
-            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%)",
+            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%), linear-gradient(to bottom, transparent 0px, transparent 140px, #000 240px)",
+          WebkitMaskComposite: "source-in",
           maskImage:
-            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%)",
+            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%), linear-gradient(to bottom, transparent 0px, transparent 140px, #000 240px)",
+          maskComposite: "intersect",
         }}
       >
         <div
