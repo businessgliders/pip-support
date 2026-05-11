@@ -153,16 +153,25 @@ export default function TicketBoard() {
     enabled: !!user
   });
 
-  // Unread inbound email counts per ticket (for the current user)
+  // Unread inbound email counts per ticket (for the current user).
+  // If the most recent message on a ticket is outbound (i.e. we've already
+  // replied), suppress the unread count for that ticket.
   const { data: unreadByTicket = {} } = useQuery({
     queryKey: ['unread-by-ticket', user?.email],
     queryFn: async () => {
       if (!user?.email) return {};
       const recent = await base44.entities.EmailMessage.filter(
-        { direction: "inbound" }, "-sent_at", 300
+        {}, "-sent_at", 500
       );
+      const latestByTicket = {};
+      for (const m of recent) {
+        if (!latestByTicket[m.ticket_id]) latestByTicket[m.ticket_id] = m;
+      }
       const counts = {};
       for (const m of recent) {
+        if (m.direction !== "inbound") continue;
+        const latest = latestByTicket[m.ticket_id];
+        if (latest && latest.direction === "outbound") continue; // already replied
         if (!(m.read_by || []).includes(user.email)) {
           counts[m.ticket_id] = (counts[m.ticket_id] || 0) + 1;
         }

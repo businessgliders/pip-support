@@ -46,12 +46,27 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
     queryKey: ["unread-emails", currentUser?.email, myTicketIds.length],
     queryFn: async () => {
       if (!currentUser?.email || myTicketIds.length === 0) return [];
+      // Fetch recent messages across both directions so we can detect tickets
+      // that have already been replied to (latest message is outbound).
       const recent = await base44.entities.EmailMessage.filter(
-        { direction: "inbound" }, "-sent_at", 200
+        {}, "-sent_at", 400
+      );
+      // Determine the most recent message per ticket; if it's outbound,
+      // suppress unread badges for that ticket entirely.
+      const latestByTicket = {};
+      for (const m of recent) {
+        if (!latestByTicket[m.ticket_id]) latestByTicket[m.ticket_id] = m;
+      }
+      const repliedTicketIds = new Set(
+        Object.entries(latestByTicket)
+          .filter(([, m]) => m.direction === "outbound")
+          .map(([tid]) => tid)
       );
       const keepReadCutoff = Date.now() - KEEP_READ_HOURS * 60 * 60 * 1000;
       return recent.filter(m => {
+        if (m.direction !== "inbound") return false;
         if (!myTicketIds.includes(m.ticket_id)) return false;
+        if (repliedTicketIds.has(m.ticket_id)) return false;
         const isRead = (m.read_by || []).includes(currentUser.email);
         if (!isRead) return true; // unread always visible
         // Read: keep visible only if marked-read timestamp is within window
