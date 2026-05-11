@@ -117,6 +117,26 @@ export default function TicketBoard() {
     enabled: !!user
   });
 
+  // Unread inbound email counts per ticket (for the current user)
+  const { data: unreadByTicket = {} } = useQuery({
+    queryKey: ['unread-by-ticket', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return {};
+      const recent = await base44.entities.EmailMessage.filter(
+        { direction: "inbound" }, "-sent_at", 300
+      );
+      const counts = {};
+      for (const m of recent) {
+        if (!(m.read_by || []).includes(user.email)) {
+          counts[m.ticket_id] = (counts[m.ticket_id] || 0) + 1;
+        }
+      }
+      return counts;
+    },
+    enabled: !!user?.email,
+    refetchInterval: 15000,
+  });
+
 
 
   // Check URL for ticket parameter
@@ -413,6 +433,19 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
+            {/* Notification Bell - inline, prominent on desktop */}
+            <div className="hidden md:block">
+              <NotificationCenter
+                currentUser={user}
+                tickets={tickets}
+                variant="inline"
+                onTicketClick={(ticket, messageId) => {
+                  setHighlightedMessageId(messageId || null);
+                  setSelectedTicket(ticket);
+                }}
+              />
+            </div>
+
             {/* Search Bar (Desktop) / Button (Mobile) */}
             <div className="hidden md:block">
               <Input
@@ -474,14 +507,17 @@ export default function TicketBoard() {
 
         {/* Floating Action Icons (top-right, like padlock on intake) */}
         <div className="fixed top-4 right-4 z-40 flex flex-col gap-2">
-          <NotificationCenter
-            currentUser={user}
-            tickets={tickets}
-            onTicketClick={(ticket, messageId) => {
-              setHighlightedMessageId(messageId || null);
-              setSelectedTicket(ticket);
-            }}
-          />
+          {/* Bell shown floating only on mobile (inline version is used on desktop) */}
+          <div className="md:hidden">
+            <NotificationCenter
+              currentUser={user}
+              tickets={tickets}
+              onTicketClick={(ticket, messageId) => {
+                setHighlightedMessageId(messageId || null);
+                setSelectedTicket(ticket);
+              }}
+            />
+          </div>
           <Link to={createPageUrl("Analytics")}>
             <Button
               variant="ghost"
@@ -622,6 +658,7 @@ export default function TicketBoard() {
                   onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
                   viewMode={viewMode}
                   allUsers={allUsers}
+                  unreadByTicket={unreadByTicket}
                 />
               ))}
             </div>

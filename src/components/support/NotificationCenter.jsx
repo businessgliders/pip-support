@@ -23,7 +23,7 @@ const formatRelative = (iso) => {
 
 // Shows a bell with unread-count badge. Lists tickets (assigned to current user)
 // that have at least one inbound EmailMessage the user hasn't read yet.
-export default function NotificationCenter({ currentUser, tickets, onTicketClick }) {
+export default function NotificationCenter({ currentUser, tickets, onTicketClick, variant = "floating" }) {
   const [open, setOpen] = useState(false);
 
   const myTicketIds = (tickets || [])
@@ -69,12 +69,29 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
-          className="relative backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg flex items-center justify-center"
+          className={`relative backdrop-blur-md border shadow-lg flex items-center justify-center transition-all ${
+            variant === "inline"
+              ? `rounded-xl h-11 px-3 md:px-4 gap-2 ${
+                  totalUnread > 0
+                    ? "bg-red-500/90 hover:bg-red-500 border-red-300 text-white animate-pulse-soft"
+                    : "bg-white/70 hover:bg-white/80 border-white/80 text-gray-900"
+                }`
+              : "bg-white/20 hover:bg-white/30 border-white/40 text-white rounded-full w-10 h-10"
+          }`}
           title="Notifications"
         >
-          <Bell className="w-4 h-4" />
+          <Bell className={variant === "inline" ? "w-5 h-5" : "w-4 h-4"} />
+          {variant === "inline" && totalUnread > 0 && (
+            <span className="hidden md:inline font-semibold text-sm">
+              {totalUnread} new
+            </span>
+          )}
           {totalUnread > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-md">
+            <span className={`absolute bg-red-600 text-white font-bold rounded-full flex items-center justify-center shadow-md ring-2 ring-white ${
+              variant === "inline"
+                ? "-top-1.5 -right-1.5 text-[10px] min-w-[20px] h-[20px] px-1 md:hidden"
+                : "-top-1 -right-1 text-[10px] min-w-[18px] h-[18px] px-1"
+            }`}>
               {totalUnread > 99 ? "99+" : totalUnread}
             </span>
           )}
@@ -125,6 +142,15 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
           </div>
         )}
       </DropdownMenuContent>
+      <style jsx>{`
+        @keyframes pulse-soft {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+          50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+        .animate-pulse-soft {
+          animation: pulse-soft 2s ease-in-out infinite;
+        }
+      `}</style>
     </DropdownMenu>
   );
 }

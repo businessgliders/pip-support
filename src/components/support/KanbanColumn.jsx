@@ -30,7 +30,7 @@ const headerColors = {
   "Other": "bg-gray-500/30 border-gray-400/40"
 };
 
-export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveSome, onArchiveAll, viewMode, allUsers }) {
+export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveSome, onArchiveAll, viewMode, allUsers, unreadByTicket = {} }) {
   const isDimmed = status === "Resolved" || status === "Closed";
   return (
     <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[70vh] lg:max-h-none lg:h-[calc(100vh-220px)] ${isDimmed ? "opacity-60 hover:opacity-100 transition-opacity" : ""}`}>
@@ -113,6 +113,7 @@ export default function KanbanColumn({ status, tickets, onStatusChange, onTicket
                       isHighlighted={ticket.id === highlightedTicketId}
                       allUsers={allUsers}
                       viewMode={viewMode}
+                      unreadCount={unreadByTicket[ticket.id] || 0}
                     />
                   </div>
                 );
