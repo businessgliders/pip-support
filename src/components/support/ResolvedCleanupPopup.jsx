@@ -49,10 +49,12 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
   // Select all by default
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isMoving, setIsMoving] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
       setSelectedIds(new Set(oldTickets.map(t => t.id)));
+      setShowSplash(true);
     }
   }, [isOpen, oldTickets]);
 
@@ -95,6 +97,29 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
           </div>
         </DialogHeader>
 
+        {showSplash ? (
+          <div className="flex-1 overflow-y-auto -mx-6 px-6 py-2 min-h-0">
+            <div className="flex flex-col items-center text-center py-2">
+              <img
+                src="https://media.base44.com/images/public/690aaf0c732696417648d224/9528a60ef_generated_image.png"
+                alt="Tidy up illustration"
+                className="w-64 h-64 object-contain mb-3 rounded-2xl shadow-md"
+              />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">What is Tidy Up?</h3>
+              <div className="max-w-md space-y-2 text-sm text-gray-600">
+                <p>
+                  When tickets have been sitting in <strong className="text-pink-600">Resolved</strong> for a while, it usually means the issue is fully handled and the client has stopped replying.
+                </p>
+                <p>
+                  Tidy Up finds Resolved tickets older than <strong>{DAYS_THRESHOLD} days</strong> and lets you bulk-move them to <strong className="text-gray-700">Closed</strong> — keeping your board focused on what's currently active.
+                </p>
+                <p className="text-xs text-gray-500 italic pt-1">
+                  Closed tickets are never deleted — you can always restore them from the Archive view.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
         <div className="flex-1 overflow-y-auto -mx-6 px-6 py-2 min-h-0">
           {oldTickets.length === 0 ? (
             <div className="text-center py-10">
@@ -133,12 +158,21 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
             </div>
           )}
         </div>
+        )}
 
         <DialogFooter className="flex-shrink-0 pt-2 border-t">
           <Button variant="outline" onClick={onClose} disabled={isMoving}>
             Not Now
           </Button>
-          {oldTickets.length > 0 && (
+          {showSplash ? (
+            <Button
+              onClick={() => setShowSplash(false)}
+              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white gap-2"
+            >
+              Continue
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          ) : oldTickets.length > 0 && (
             <Button
               onClick={handleConfirm}
               disabled={selectedIds.size === 0 || isMoving}

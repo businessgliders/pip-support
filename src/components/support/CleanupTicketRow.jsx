@@ -124,7 +124,7 @@ export default function CleanupTicketRow({ ticket, isSelected, onToggle }) {
           </Badge>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent side="left" align="start" className="w-96 p-0 max-h-[400px] overflow-hidden flex flex-col">
+      <HoverCardContent side="right" align="start" className="w-96 p-0 max-h-[400px] overflow-hidden flex flex-col">
         <div className="px-4 py-2 border-b bg-gradient-to-r from-pink-50 to-purple-50 flex items-center gap-2 flex-shrink-0">
           <Mail className="w-4 h-4 text-gray-700" />
           <span className="text-sm font-semibold text-gray-900">Email History</span>
