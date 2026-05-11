@@ -81,7 +81,7 @@ export default function TicketBoard() {
       el.removeEventListener('scroll', updateScrollButtons);
       window.removeEventListener('resize', updateScrollButtons);
     };
-  }, [updateScrollButtons, columns.length, showArchived]);
+  }, [updateScrollButtons]);
 
   const scrollSwimlanes = (direction) => {
     const el = swimlaneScrollRef.current;
@@ -336,6 +336,12 @@ export default function TicketBoard() {
   const columns = viewMode === "status" 
     ? allStatusColumns.filter(col => !hiddenColumns.includes(col))
     : allCategoryColumns.filter(col => !hiddenColumns.includes(col));
+
+  React.useEffect(() => {
+    // Re-check scroll position after layout changes (columns swap, archive toggle)
+    const t = setTimeout(updateScrollButtons, 50);
+    return () => clearTimeout(t);
+  }, [updateScrollButtons, columns.length, showArchived]);
 
   const isOwner = user?.email === 'info@pilatesinpinkstudio.com';
 
