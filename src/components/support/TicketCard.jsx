@@ -138,7 +138,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
       {unreadCount > 0 && (
         <span
           title={`${unreadCount} unread ${unreadCount === 1 ? "reply" : "replies"}`}
-          className="absolute -top-1.5 -right-1.5 z-10 bg-red-500 text-white text-[10px] md:text-xs font-bold rounded-full min-w-[20px] h-[20px] md:min-w-[22px] md:h-[22px] flex items-center justify-center px-1 shadow-md ring-2 ring-white"
+          className="absolute top-2 right-3 z-10 bg-red-500 text-white text-[10px] md:text-xs font-bold rounded-full min-w-[20px] h-[20px] md:min-w-[22px] md:h-[22px] flex items-center justify-center px-1 shadow-md ring-2 ring-white"
         >
           {unreadCount > 99 ? "99+" : unreadCount}
         </span>
