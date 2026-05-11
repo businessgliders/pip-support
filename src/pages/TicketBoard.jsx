@@ -687,7 +687,7 @@ export default function TicketBoard() {
               )}
             <div
               ref={swimlaneScrollRef}
-              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 pl-8 pr-4 md:pl-12 md:pr-8 pb-2 lg:mx-0 lg:pl-0 lg:pr-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
+              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 pl-4 pr-4 md:pl-8 md:pr-8 pb-2 lg:mx-0 lg:pl-0 lg:pr-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
             >
               {columns.map((column) => (
                 <div key={column} data-swimlane className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none">
