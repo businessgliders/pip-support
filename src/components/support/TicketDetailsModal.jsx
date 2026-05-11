@@ -119,6 +119,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
   const [showInternalNotes, setShowInternalNotes] = useState(false);
+  const [showEscalate, setShowEscalate] = useState(false);
   const [showStatusHistory, setShowStatusHistory] = useState(true); // expanded by default
   const [systemAlert, setSystemAlert] = useState(null);
   const [statusPrompt, setStatusPrompt] = useState(null);
@@ -645,6 +646,65 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
 
 
+          {/* Escalate Ticket Section */}
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+            <button
+              onClick={() => setShowEscalate(!showEscalate)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Escalate Ticket
+              </h3>
+              {showEscalate ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {showEscalate && (
+              <div className="mt-3">
+                <div className="flex gap-2">
+                  <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select user" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).sort((a, b) => {
+                        if (a.email === 'info@pilatesinpinkstudio.com') return -1;
+                        if (b.email === 'info@pilatesinpinkstudio.com') return 1;
+                        return 0;
+                      }).map(u => {
+                        const haystack = `${u.full_name || ''} ${u.email || ''}`.toLowerCase();
+                        const titleMap = { sahil: 'Operations, Finance', rashmeen: 'Operations, Social', gurpreen: 'Technology, Marketing' };
+                        const title = Object.keys(titleMap).find(k => haystack.includes(k));
+                        const name = u.email === 'info@pilatesinpinkstudio.com'
+                          ? 'Front Desk'
+                          : (u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]);
+                        return (
+                          <SelectItem key={u.id} value={u.email}>
+                            {name}{title ? ` (${titleMap[title]})` : ''}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    onClick={handleAssignment}
+                    disabled={selectedAssignee === ticket.assigned_to}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    Assign
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  Currently assigned to: {
+                    ticket.assigned_to === 'info@pilatesinpinkstudio.com'
+                      ? 'Front Desk'
+                      : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Internal Notes Section */}
           <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
             <button
@@ -708,54 +768,6 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Escalate Ticket Section */}
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <UserPlus className="w-4 h-4" />
-              Escalate Ticket
-            </h3>
-            <div className="flex gap-2">
-              <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select user" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allUsers.filter(u => u.email.endsWith('@pilatesinpinkstudio.com')).sort((a, b) => {
-                    if (a.email === 'info@pilatesinpinkstudio.com') return -1;
-                    if (b.email === 'info@pilatesinpinkstudio.com') return 1;
-                    return 0;
-                  }).map(u => {
-                    const haystack = `${u.full_name || ''} ${u.email || ''}`.toLowerCase();
-                    const titleMap = { sahil: 'Operations, Finance', rashmeen: 'Operations, Social', gurpreen: 'Technology, Marketing' };
-                    const title = Object.keys(titleMap).find(k => haystack.includes(k));
-                    const name = u.email === 'info@pilatesinpinkstudio.com'
-                      ? 'Front Desk'
-                      : (u.full_name ? u.full_name.split(' ')[0] : u.email.split('@')[0]);
-                    return (
-                      <SelectItem key={u.id} value={u.email}>
-                        {name}{title ? ` (${titleMap[title]})` : ''}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={handleAssignment}
-                disabled={selectedAssignee === ticket.assigned_to}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                Assign
-              </Button>
-            </div>
-            <p className="text-xs text-gray-600 mt-2">
-              Currently assigned to: {
-                ticket.assigned_to === 'info@pilatesinpinkstudio.com'
-                  ? 'Front Desk'
-                  : allUsers.find(u => u.email === ticket.assigned_to)?.full_name || ticket.assigned_to?.split('@')[0] || 'Unassigned'
-              }
-            </p>
           </div>
               </div>
               </div>
