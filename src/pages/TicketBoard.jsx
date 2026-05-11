@@ -497,7 +497,7 @@ export default function TicketBoard() {
         }}
       >
         <div
-          className="absolute -inset-[20%] flex flex-wrap content-start gap-x-16 gap-y-12 text-white/15 font-black uppercase tracking-[0.25em] text-7xl md:text-9xl whitespace-nowrap leading-none"
+          className="absolute -inset-[20%] flex flex-wrap content-start gap-x-16 gap-y-12 text-white/15 font-black uppercase tracking-[0.25em] text-5xl md:text-7xl whitespace-nowrap leading-none"
           style={{ transform: "rotate(-20deg)" }}
         >
           {Array.from({ length: 30 }).map((_, i) => (
