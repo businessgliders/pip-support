@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Archive, ChevronDown, ChevronRight } from "lucide-react";
@@ -19,80 +19,95 @@ const formatDateEST = (dateString) => {
   });
 };
 
-const getMonthKey = (dateString) => {
+const getYearMonth = (dateString) => {
   let iso = dateString;
   if (typeof dateString === "string" && !dateString.endsWith("Z") && !dateString.includes("+")) {
     iso = dateString + "Z";
   }
   const d = new Date(iso);
-  // Use EST/EDT to group months consistently with how dates are displayed
-  const parts = d.toLocaleString("en-US", {
-    timeZone: "America/New_York",
-    month: "long",
-    year: "numeric",
-  });
-  // parts looks like "May 2026"
-  return parts;
-};
-
-const getMonthSortValue = (dateString) => {
-  let iso = dateString;
-  if (typeof dateString === "string" && !dateString.endsWith("Z") && !dateString.includes("+")) {
-    iso = dateString + "Z";
-  }
-  const d = new Date(iso);
-  // Year * 12 + month, computed in EST
-  const y = parseInt(d.toLocaleString("en-US", { timeZone: "America/New_York", year: "numeric" }), 10);
-  const m = parseInt(d.toLocaleString("en-US", { timeZone: "America/New_York", month: "numeric" }), 10);
-  return y * 12 + m;
+  const year = parseInt(
+    d.toLocaleString("en-US", { timeZone: "America/New_York", year: "numeric" }),
+    10
+  );
+  const monthNum = parseInt(
+    d.toLocaleString("en-US", { timeZone: "America/New_York", month: "numeric" }),
+    10
+  );
+  const monthName = d.toLocaleString("en-US", { timeZone: "America/New_York", month: "long" });
+  return { year, monthNum, monthName, key: `${year}-${String(monthNum).padStart(2, "0")}`, label: `${monthName} ${year}` };
 };
 
 export default function ArchivedTicketsList({ tickets, onView, onRestore }) {
-  // Group tickets by month (using updated_date, falling back to created_date)
-  const groups = useMemo(() => {
-    const map = new Map();
+  // Build a structure: { year -> [ { key, monthName, monthNum, count, tickets } ] }
+  const { years, monthMap, allMonthKeys } = useMemo(() => {
+    const months = new Map(); // key -> { key, year, monthNum, monthName, label, tickets }
     for (const t of tickets) {
       const dateStr = t.updated_date || t.created_date;
       if (!dateStr) continue;
-      const key = getMonthKey(dateStr);
-      if (!map.has(key)) {
-        map.set(key, { key, sortValue: getMonthSortValue(dateStr), tickets: [] });
+      const ym = getYearMonth(dateStr);
+      if (!months.has(ym.key)) {
+        months.set(ym.key, { ...ym, tickets: [] });
       }
-      map.get(key).tickets.push(t);
+      months.get(ym.key).tickets.push(t);
     }
-    // Sort tickets within each group newest first
-    for (const g of map.values()) {
-      g.tickets.sort((a, b) => {
+    // Sort tickets newest first inside each month
+    for (const m of months.values()) {
+      m.tickets.sort((a, b) => {
         const aD = new Date((a.updated_date || a.created_date) + "").getTime();
         const bD = new Date((b.updated_date || b.created_date) + "").getTime();
         return bD - aD;
       });
     }
-    // Sort groups newest month first
-    return Array.from(map.values()).sort((a, b) => b.sortValue - a.sortValue);
+    // Group by year, sort years newest first, months newest first
+    const byYear = new Map();
+    for (const m of months.values()) {
+      if (!byYear.has(m.year)) byYear.set(m.year, []);
+      byYear.get(m.year).push(m);
+    }
+    for (const arr of byYear.values()) {
+      arr.sort((a, b) => b.monthNum - a.monthNum);
+    }
+    const yearList = Array.from(byYear.entries())
+      .sort((a, b) => b[0] - a[0])
+      .map(([year, monthsArr]) => ({ year, months: monthsArr }));
+
+    const sortedKeys = yearList.flatMap(y => y.months.map(m => m.key));
+    return { years: yearList, monthMap: months, allMonthKeys: sortedKeys };
   }, [tickets]);
 
-  // Expanded state: most recent month expanded by default
-  const [expanded, setExpanded] = useState(() => {
+  // Selected month key (most recent by default)
+  const [selectedKey, setSelectedKey] = useState(allMonthKeys[0] || null);
+  // Expanded years (most recent expanded by default)
+  const [expandedYears, setExpandedYears] = useState(() => {
     const set = new Set();
-    if (groups[0]) set.add(groups[0].key);
+    if (years[0]) set.add(years[0].year);
     return set;
   });
 
-  // When the grouping changes (e.g. filter), make sure newest is open if nothing is open
-  React.useEffect(() => {
-    setExpanded(prev => {
-      if (prev.size > 0) return prev;
-      const next = new Set();
-      if (groups[0]) next.add(groups[0].key);
+  // If the selected month disappears (filter changes), pick the newest available
+  useEffect(() => {
+    if (!selectedKey || !monthMap.has(selectedKey)) {
+      setSelectedKey(allMonthKeys[0] || null);
+    }
+  }, [allMonthKeys, monthMap, selectedKey]);
+
+  // Ensure the year of the selected month is expanded
+  useEffect(() => {
+    if (!selectedKey) return;
+    const m = monthMap.get(selectedKey);
+    if (!m) return;
+    setExpandedYears(prev => {
+      if (prev.has(m.year)) return prev;
+      const next = new Set(prev);
+      next.add(m.year);
       return next;
     });
-  }, [groups]);
+  }, [selectedKey, monthMap]);
 
-  const toggle = (key) => {
-    setExpanded(prev => {
+  const toggleYear = (year) => {
+    setExpandedYears(prev => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key); else next.add(key);
+      if (next.has(year)) next.delete(year); else next.add(year);
       return next;
     });
   };
@@ -106,78 +121,128 @@ export default function ArchivedTicketsList({ tickets, onView, onRestore }) {
     );
   }
 
+  const selectedMonth = selectedKey ? monthMap.get(selectedKey) : null;
+
   return (
-    <div className="space-y-3">
-      {groups.map(group => {
-        const isOpen = expanded.has(group.key);
-        return (
-          <div
-            key={group.key}
-            className="backdrop-blur-md bg-white/30 border border-white/40 rounded-xl overflow-hidden shadow-sm"
-          >
-            <button
-              type="button"
-              onClick={() => toggle(group.key)}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/30 transition-all"
-            >
-              <div className="flex items-center gap-3">
-                {isOpen ? (
-                  <ChevronDown className="w-5 h-5 text-gray-800" />
-                ) : (
-                  <ChevronRight className="w-5 h-5 text-gray-800" />
-                )}
-                <span className="font-semibold text-gray-900">{group.key}</span>
-              </div>
-              <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
-                {group.tickets.length} ticket{group.tickets.length === 1 ? "" : "s"}
-              </Badge>
-            </button>
-            {isOpen && (
-              <div className="border-t border-white/40 p-3 space-y-2">
-                {group.tickets.map(ticket => (
-                  <div
-                    key={ticket.id}
-                    className="backdrop-blur-md bg-white/40 border border-white/40 rounded-lg p-4 flex items-center justify-between hover:bg-white/55 transition-all"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <h4 className="text-gray-900 font-bold">{ticket.client_name}</h4>
-                        <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
-                          {ticket.inquiry_type}
-                        </Badge>
-                        <Badge className="bg-gray-500/20 text-gray-800 border-gray-400/40 shadow-sm">
-                          {ticket.status}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-800 font-medium text-sm truncate">{ticket.client_email}</p>
-                      <p className="text-gray-600 text-xs mt-1 font-medium">
-                        Archived from {ticket.status} • {formatDateEST(ticket.updated_date)} EST
-                      </p>
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button
-                        onClick={() => onView(ticket)}
-                        variant="outline"
-                        size="sm"
-                        className="backdrop-blur-md bg-white/50 border-white/60 text-gray-900 hover:bg-white/70 shadow-sm"
-                      >
-                        View
-                      </Button>
-                      <Button
-                        onClick={() => onRestore(ticket.id)}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
-                      >
-                        Restore
-                      </Button>
-                    </div>
+    <div className="flex flex-col md:flex-row gap-4 h-full min-h-0">
+      {/* Sidebar */}
+      <aside className="md:w-60 md:flex-shrink-0 backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-3 md:max-h-full md:overflow-y-auto">
+        <h3 className="text-gray-900 font-semibold text-sm px-2 pb-2 mb-2 border-b border-white/40">
+          Archive
+        </h3>
+        <div className="space-y-1">
+          {years.map(({ year, months }) => {
+            const isOpen = expandedYears.has(year);
+            const yearTotal = months.reduce((sum, m) => sum + m.tickets.length, 0);
+            return (
+              <div key={year}>
+                <button
+                  type="button"
+                  onClick={() => toggleYear(year)}
+                  className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-white/40 transition-colors text-left"
+                >
+                  <span className="flex items-center gap-1.5">
+                    {isOpen ? (
+                      <ChevronDown className="w-4 h-4 text-gray-700" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-gray-700" />
+                    )}
+                    <span className="font-semibold text-gray-900 text-sm">{year}</span>
+                  </span>
+                  <span className="text-[11px] text-gray-700 bg-white/50 rounded-full px-2 py-0.5">
+                    {yearTotal}
+                  </span>
+                </button>
+                {isOpen && (
+                  <div className="ml-5 mt-1 space-y-0.5">
+                    {months.map(m => {
+                      const active = m.key === selectedKey;
+                      return (
+                        <button
+                          key={m.key}
+                          type="button"
+                          onClick={() => setSelectedKey(m.key)}
+                          className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg text-sm text-left transition-colors ${
+                            active
+                              ? "bg-[#b67651] text-white shadow-sm"
+                              : "text-gray-800 hover:bg-white/50"
+                          }`}
+                        >
+                          <span>{m.monthName}</span>
+                          <span className={`text-[11px] rounded-full px-2 py-0.5 ${
+                            active ? "bg-white/30 text-white" : "bg-white/50 text-gray-700"
+                          }`}>
+                            {m.tickets.length}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      </aside>
+
+      {/* Main panel */}
+      <div className="flex-1 min-w-0 md:overflow-y-auto">
+        {selectedMonth ? (
+          <>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h3 className="text-white text-lg font-semibold drop-shadow">
+                {selectedMonth.label}
+              </h3>
+              <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
+                {selectedMonth.tickets.length} ticket{selectedMonth.tickets.length === 1 ? "" : "s"}
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              {selectedMonth.tickets.map(ticket => (
+                <div
+                  key={ticket.id}
+                  className="backdrop-blur-md bg-white/40 border border-white/40 rounded-lg p-4 flex items-center justify-between hover:bg-white/55 transition-all shadow-sm"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <h4 className="text-gray-900 font-bold">{ticket.client_name}</h4>
+                      <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
+                        {ticket.inquiry_type}
+                      </Badge>
+                      <Badge className="bg-gray-500/20 text-gray-800 border-gray-400/40 shadow-sm">
+                        {ticket.status}
+                      </Badge>
+                    </div>
+                    <p className="text-gray-800 font-medium text-sm truncate">{ticket.client_email}</p>
+                    <p className="text-gray-600 text-xs mt-1 font-medium">
+                      Archived from {ticket.status} • {formatDateEST(ticket.updated_date)} EST
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <Button
+                      onClick={() => onView(ticket)}
+                      variant="outline"
+                      size="sm"
+                      className="backdrop-blur-md bg-white/50 border-white/60 text-gray-900 hover:bg-white/70 shadow-sm"
+                    >
+                      View
+                    </Button>
+                    <Button
+                      onClick={() => onRestore(ticket.id)}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
+                    >
+                      Restore
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-12 text-white/90">Select a month to view tickets.</div>
+        )}
+      </div>
     </div>
   );
 }
