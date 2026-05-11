@@ -482,6 +482,27 @@ export default function TicketBoard() {
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+
+      {/* Slanted tiled SUPPORT watermark — masked to fade behind swimlanes */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none"
+        style={{
+          WebkitMaskImage:
+            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%)",
+          maskImage:
+            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%)",
+        }}
+      >
+        <div
+          className="absolute -inset-[20%] flex flex-wrap content-start gap-x-10 gap-y-6 text-white/15 font-black uppercase tracking-[0.25em] text-4xl md:text-6xl whitespace-nowrap leading-none"
+          style={{ transform: "rotate(-20deg)" }}
+        >
+          {Array.from({ length: 120 }).map((_, i) => (
+            <span key={i}>SUPPORT</span>
+          ))}
+        </div>
+      </div>
       
       <div className="max-w-7xl mx-auto relative z-10 flex flex-col flex-1 w-full lg:min-h-0">
         {/* Sticky wrapper for header + filter on mobile/tablet */}
