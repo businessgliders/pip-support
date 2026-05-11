@@ -175,10 +175,12 @@ export default function TicketBoard() {
 
 
 
-  // Auto-trigger cleanup popup when Resolved swimlane exceeds 10 tickets
+  // Auto-trigger cleanup popup when current user has more than 10 resolved tickets
   useEffect(() => {
     if (!user || cleanupDismissed || showCleanupPopup) return;
-    const resolvedActive = tickets.filter(t => t.status === "Resolved" && !t.archived);
+    const resolvedActive = tickets.filter(
+      t => t.status === "Resolved" && !t.archived && t.assigned_to === user.email
+    );
     if (resolvedActive.length > 10) {
       setShowCleanupPopup(true);
     }
@@ -752,6 +754,7 @@ export default function TicketBoard() {
         resolvedTickets={tickets.filter(t => t.status === "Resolved" && !t.archived)}
         onClose={() => { setShowCleanupPopup(false); setCleanupDismissed(true); }}
         onMoveToClosed={handleBulkMoveToClosed}
+        currentUser={user}
       />
 
       {dragNoteDialog && (

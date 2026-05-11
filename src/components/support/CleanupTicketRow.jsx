@@ -1,13 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { MessageSquare, Mail, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
 const daysSince = (dateString) => {
@@ -58,6 +54,38 @@ const stripHtml = (html) => {
 export default function CleanupTicketRow({ ticket, isSelected, onToggle }) {
   const age = daysSince(ticket.created_date);
   const [hoverOpen, setHoverOpen] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const hoverTimerRef = useRef(null);
+
+  const PREVIEW_W = 384;
+  const PREVIEW_H = 400;
+  const OFFSET = 16;
+
+  const updatePos = (e) => {
+    let x = e.clientX + OFFSET;
+    let y = e.clientY + OFFSET;
+    if (typeof window !== "undefined") {
+      if (x + PREVIEW_W > window.innerWidth - 8) x = e.clientX - PREVIEW_W - OFFSET;
+      if (y + PREVIEW_H > window.innerHeight - 8) y = window.innerHeight - PREVIEW_H - 8;
+      if (y < 8) y = 8;
+    }
+    setPos({ x, y });
+  };
+
+  const handleMouseEnter = (e) => {
+    updatePos(e);
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => setHoverOpen(true), 250);
+  };
+
+  const handleMouseMove = (e) => {
+    if (hoverOpen) updatePos(e);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    setHoverOpen(false);
+  };
 
   // Most recent comment (inline)
   const latestComment = useMemo(() => {
@@ -79,10 +107,12 @@ export default function CleanupTicketRow({ ticket, isSelected, onToggle }) {
   });
 
   return (
-    <HoverCard openDelay={300} closeDelay={100} onOpenChange={setHoverOpen}>
-      <HoverCardTrigger asChild>
+    <>
         <div
           onClick={() => onToggle(ticket.id)}
+          onMouseEnter={handleMouseEnter}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
           className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
             isSelected
               ? "bg-pink-50 border-pink-300 shadow-sm"
@@ -123,8 +153,11 @@ export default function CleanupTicketRow({ ticket, isSelected, onToggle }) {
             {age}d old
           </Badge>
         </div>
-      </HoverCardTrigger>
-      <HoverCardContent side="right" align="start" className="w-96 p-0 max-h-[400px] overflow-hidden flex flex-col">
+      {hoverOpen && typeof document !== "undefined" && createPortal(
+        <div
+          style={{ position: "fixed", left: pos.x, top: pos.y, width: PREVIEW_W, maxHeight: PREVIEW_H, zIndex: 100 }}
+          className="bg-white rounded-md border shadow-xl overflow-hidden flex flex-col pointer-events-none"
+        >
         <div className="px-4 py-2 border-b bg-gradient-to-r from-pink-50 to-purple-50 flex items-center gap-2 flex-shrink-0">
           <Mail className="w-4 h-4 text-gray-700" />
           <span className="text-sm font-semibold text-gray-900">Email History</span>
@@ -168,7 +201,9 @@ export default function CleanupTicketRow({ ticket, isSelected, onToggle }) {
             })
           )}
         </div>
-      </HoverCardContent>
-    </HoverCard>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }

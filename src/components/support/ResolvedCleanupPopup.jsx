@@ -37,13 +37,14 @@ const formatDate = (dateString) => {
   });
 };
 
-export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose, onMoveToClosed }) {
-  // Old tickets eligible for cleanup (created over 20 days ago)
+export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose, onMoveToClosed, currentUser }) {
+  // Old tickets eligible for cleanup (created over 20 days ago, assigned to current user)
   const oldTickets = useMemo(
     () => (resolvedTickets || [])
       .filter(t => daysSince(t.created_date) >= DAYS_THRESHOLD)
+      .filter(t => !currentUser?.email || t.assigned_to === currentUser.email)
       .sort((a, b) => daysSince(b.created_date) - daysSince(a.created_date)),
-    [resolvedTickets]
+    [resolvedTickets, currentUser?.email]
   );
 
   // Select all by default
@@ -161,9 +162,11 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
         )}
 
         <DialogFooter className="flex-shrink-0 pt-2 border-t">
-          <Button variant="outline" onClick={onClose} disabled={isMoving}>
-            Not Now
-          </Button>
+          {!showSplash && (
+            <Button variant="outline" onClick={onClose} disabled={isMoving}>
+              Not Now
+            </Button>
+          )}
           {showSplash ? (
             <Button
               onClick={() => setShowSplash(false)}
