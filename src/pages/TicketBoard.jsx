@@ -29,6 +29,7 @@ import UserSelectionScreen from "../components/support/UserSelectionScreen";
 import FloatingUserFilter from "../components/support/FloatingUserFilter";
 import NotificationCenter from "../components/support/NotificationCenter";
 import ChangelogPopup from "../components/support/ChangelogPopup";
+import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 
 const userColors = {
   0: "bg-pink-400",
@@ -59,6 +60,8 @@ export default function TicketBoard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const [showChangelog, setShowChangelog] = useState(false);
+  const [showCleanupPopup, setShowCleanupPopup] = useState(false);
+  const [cleanupDismissed, setCleanupDismissed] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const swimlaneScrollRef = React.useRef(null);
@@ -171,6 +174,33 @@ export default function TicketBoard() {
   });
 
 
+
+  // Auto-trigger cleanup popup when Resolved swimlane exceeds 10 tickets
+  useEffect(() => {
+    if (!user || cleanupDismissed || showCleanupPopup) return;
+    const resolvedActive = tickets.filter(t => t.status === "Resolved" && !t.archived);
+    if (resolvedActive.length > 10) {
+      setShowCleanupPopup(true);
+    }
+  }, [tickets, user, cleanupDismissed, showCleanupPopup]);
+
+  const handleBulkMoveToClosed = async (ticketIds) => {
+    const now = new Date().toISOString();
+    for (const id of ticketIds) {
+      const ticket = tickets.find(t => t.id === id);
+      if (!ticket) continue;
+      const statusHistory = ticket.status_history || [];
+      statusHistory.push({
+        status: "Closed",
+        note: "Bulk closed via Resolved cleanup",
+        timestamp: now
+      });
+      await updateTicketMutation.mutateAsync({
+        id,
+        data: { status: "Closed", status_history: statusHistory }
+      });
+    }
+  };
 
   // Check URL for ticket parameter
   useEffect(() => {
@@ -716,6 +746,13 @@ export default function TicketBoard() {
       {showChangelog && (
         <ChangelogPopup onDismiss={() => setShowChangelog(false)} />
       )}
+
+      <ResolvedCleanupPopup
+        isOpen={showCleanupPopup}
+        resolvedTickets={tickets.filter(t => t.status === "Resolved" && !t.archived)}
+        onClose={() => { setShowCleanupPopup(false); setCleanupDismissed(true); }}
+        onMoveToClosed={handleBulkMoveToClosed}
+      />
 
       {dragNoteDialog && (
         <StatusChangeDialog
