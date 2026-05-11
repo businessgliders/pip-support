@@ -124,18 +124,32 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
 
   const messages = [...synthetic, ...visibleFetched];
 
+  const threadRef = useRef(null);
+  const [pendingScroll, setPendingScroll] = useState(false);
+  const didInitialScroll = useRef(false);
+
   // Scroll to highlighted message after render
   useEffect(() => {
     if (!highlightMessageId) return;
     const el = document.getElementById(`email-msg-${highlightMessageId}`);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
+      didInitialScroll.current = true;
     }
   }, [highlightMessageId, messages.length]);
 
+  // On initial open (no highlight), scroll to newest message
+  useEffect(() => {
+    if (isLoading || didInitialScroll.current || highlightMessageId) return;
+    if (messages.length === 0) return;
+    const container = threadRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "auto" });
+      didInitialScroll.current = true;
+    }
+  }, [isLoading, messages.length, highlightMessageId]);
+
   // After a reply is sent, auto-scroll the thread container to the newest message
-  const threadRef = useRef(null);
-  const [pendingScroll, setPendingScroll] = useState(false);
   useEffect(() => {
     if (!pendingScroll || isLoading) return;
     const container = threadRef.current;
