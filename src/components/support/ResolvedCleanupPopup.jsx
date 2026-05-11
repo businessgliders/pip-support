@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
+import CleanupTicketRow from "./CleanupTicketRow";
 
 const DAYS_THRESHOLD = 20;
 
@@ -120,46 +121,14 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
               </div>
 
               <div className="space-y-2">
-                {oldTickets.map(ticket => {
-                  const isSelected = selectedIds.has(ticket.id);
-                  const age = daysSince(ticket.created_date);
-                  return (
-                    <div
-                      key={ticket.id}
-                      onClick={() => toggleOne(ticket.id)}
-                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                        isSelected
-                          ? "bg-pink-50 border-pink-300 shadow-sm"
-                          : "bg-white border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleOne(ticket.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          {ticket.ticket_number && (
-                            <span className="text-xs text-gray-500 font-mono">#{ticket.ticket_number}</span>
-                          )}
-                          <span className="font-semibold text-sm text-gray-900 truncate">
-                            {ticket.client_name}
-                          </span>
-                          <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                            {ticket.inquiry_type}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-500 truncate">
-                          Created {formatDate(ticket.created_date)}
-                        </p>
-                      </div>
-                      <Badge className={`flex-shrink-0 ${age >= 30 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"} border-0`}>
-                        {age}d old
-                      </Badge>
-                    </div>
-                  );
-                })}
+                {oldTickets.map(ticket => (
+                  <CleanupTicketRow
+                    key={ticket.id}
+                    ticket={ticket}
+                    isSelected={selectedIds.has(ticket.id)}
+                    onToggle={toggleOne}
+                  />
+                ))}
               </div>
             </div>
           )}
