@@ -181,7 +181,7 @@ export default function TicketBoard() {
     const resolvedActive = tickets.filter(
       t => t.status === "Resolved" && !t.archived && t.assigned_to === user.email
     );
-    if (resolvedActive.length > 10) {
+    if (resolvedActive.length > 6) {
       setShowCleanupPopup(true);
     }
   }, [tickets, user, cleanupDismissed, showCleanupPopup]);
