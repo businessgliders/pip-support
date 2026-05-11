@@ -13,6 +13,7 @@ import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import CleanupTicketRow from "./CleanupTicketRow";
 
 const DAYS_THRESHOLD = 20;
+const SPLASH_SEEN_KEY = "pip_tidyup_splash_seen";
 
 const daysSince = (dateString) => {
   if (!dateString) return 0;
@@ -55,9 +56,16 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
   useEffect(() => {
     if (isOpen) {
       setSelectedIds(new Set(oldTickets.map(t => t.id)));
-      setShowSplash(true);
+      let seen = false;
+      try { seen = localStorage.getItem(SPLASH_SEEN_KEY) === "1"; } catch { /* ignore */ }
+      setShowSplash(!seen);
     }
   }, [isOpen, oldTickets]);
+
+  const markSplashRead = () => {
+    try { localStorage.setItem(SPLASH_SEEN_KEY, "1"); } catch { /* ignore */ }
+    setShowSplash(false);
+  };
 
   const toggleOne = (id) => {
     setSelectedIds(prev => {
@@ -168,13 +176,21 @@ export default function ResolvedCleanupPopup({ isOpen, resolvedTickets, onClose,
             </Button>
           )}
           {showSplash ? (
-            <Button
-              onClick={() => setShowSplash(false)}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white gap-2"
-            >
-              Continue
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={markSplashRead}
+              >
+                Mark as read
+              </Button>
+              <Button
+                onClick={() => setShowSplash(false)}
+                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white gap-2"
+              >
+                Continue
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </>
           ) : oldTickets.length > 0 && (
             <Button
               onClick={handleConfirm}
