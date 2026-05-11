@@ -82,6 +82,23 @@
       },
       "default": [],
       "description": "Emails of staff members who have read this message"
+    },
+    "read_at": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "default": [],
+      "description": "When each staff member marked this message as read"
     }
   },
   "required": [

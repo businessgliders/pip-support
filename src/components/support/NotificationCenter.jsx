@@ -8,8 +8,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Auto-dismiss notifications older than this many hours (treat as auto-read)
-const AUTO_DISMISS_HOURS = 4;
+// Keep notifications visible (greyed out) this many hours after being marked as read
+const KEEP_READ_HOURS = 4;
+
+const getReadAt = (msg, email) => {
+  const entry = (msg.read_at || []).find(r => r.email === email);
+  if (!entry?.timestamp) return null;
+  const ts = entry.timestamp;
+  const isoZ = (typeof ts === "string" && !ts.endsWith("Z") && !ts.includes("+")) ? ts + "Z" : ts;
+  return new Date(isoZ).getTime();
+};
 
 const formatRelative = (iso) => {
   if (!iso) return "";
@@ -34,25 +42,22 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
     .filter(t => t.assigned_to === currentUser?.email && !t.archived)
     .map(t => t.id);
 
-  const { data: unreadMessages = [] } = useQuery({
+  const { data: visibleMessages = [] } = useQuery({
     queryKey: ["unread-emails", currentUser?.email, myTicketIds.length],
     queryFn: async () => {
       if (!currentUser?.email || myTicketIds.length === 0) return [];
-      // Fetch recent inbound messages and filter client-side for unread + my tickets
       const recent = await base44.entities.EmailMessage.filter(
         { direction: "inbound" }, "-sent_at", 200
       );
-      const cutoff = Date.now() - AUTO_DISMISS_HOURS * 60 * 60 * 1000;
+      const keepReadCutoff = Date.now() - KEEP_READ_HOURS * 60 * 60 * 1000;
       return recent.filter(m => {
         if (!myTicketIds.includes(m.ticket_id)) return false;
-        if ((m.read_by || []).includes(currentUser.email)) return false;
-        // Auto-dismiss messages older than the cutoff
-        const sentIso = m.sent_at;
-        if (sentIso) {
-          const isoZ = (typeof sentIso === "string" && !sentIso.endsWith("Z") && !sentIso.includes("+")) ? sentIso + "Z" : sentIso;
-          if (new Date(isoZ).getTime() < cutoff) return false;
-        }
-        return true;
+        const isRead = (m.read_by || []).includes(currentUser.email);
+        if (!isRead) return true; // unread always visible
+        // Read: keep visible only if marked-read timestamp is within window
+        const readAt = getReadAt(m, currentUser.email);
+        if (!readAt) return false; // read but no timestamp -> already dismissed
+        return readAt >= keepReadCutoff;
       });
     },
     enabled: !!currentUser?.email && myTicketIds.length > 0,
@@ -60,19 +65,24 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
   });
 
   const markTicketAsRead = async (msgs) => {
+    const nowIso = new Date().toISOString();
     await Promise.all(
-      msgs.map(m =>
-        base44.entities.EmailMessage.update(m.id, {
+      msgs.map(m => {
+        if ((m.read_by || []).includes(currentUser.email)) return null;
+        const readAtEntries = (m.read_at || []).filter(r => r.email !== currentUser.email);
+        readAtEntries.push({ email: currentUser.email, timestamp: nowIso });
+        return base44.entities.EmailMessage.update(m.id, {
           read_by: [...(m.read_by || []), currentUser.email],
-        }).catch(() => null)
-      )
+          read_at: readAtEntries,
+        }).catch(() => null);
+      })
     );
     queryClient.invalidateQueries({ queryKey: ["unread-emails"] });
     queryClient.invalidateQueries({ queryKey: ["unread-by-ticket"] });
   };
 
-  // Group unread messages by ticket
-  const grouped = unreadMessages.reduce((acc, m) => {
+  // Group messages by ticket
+  const grouped = visibleMessages.reduce((acc, m) => {
     if (!acc[m.ticket_id]) acc[m.ticket_id] = [];
     acc[m.ticket_id].push(m);
     return acc;
@@ -80,14 +90,18 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
 
   const ticketEntries = Object.entries(grouped).map(([ticketId, msgs]) => {
     const ticket = tickets.find(t => t.id === ticketId);
-    return { ticket, msgs };
+    const unreadMsgs = msgs.filter(m => !(m.read_by || []).includes(currentUser.email));
+    const allRead = unreadMsgs.length === 0;
+    return { ticket, msgs, unreadMsgs, allRead };
   }).filter(e => e.ticket).sort((a, b) => {
+    // Unread first, then by latest sent_at
+    if (a.allRead !== b.allRead) return a.allRead ? 1 : -1;
     const aLatest = a.msgs[0]?.sent_at || "";
     const bLatest = b.msgs[0]?.sent_at || "";
     return bLatest.localeCompare(aLatest);
   });
 
-  const totalUnread = unreadMessages.length;
+  const totalUnread = visibleMessages.filter(m => !(m.read_by || []).includes(currentUser?.email)).length;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -135,12 +149,12 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
           </div>
         ) : (
           <div className="divide-y">
-            {ticketEntries.map(({ ticket, msgs }) => {
+            {ticketEntries.map(({ ticket, msgs, unreadMsgs, allRead }) => {
               const latest = msgs[0];
               return (
                 <div
                   key={ticket.id}
-                  className="flex items-stretch hover:bg-pink-50 transition-colors"
+                  className={`flex items-stretch transition-colors ${allRead ? "opacity-50 hover:opacity-70" : "hover:bg-pink-50"}`}
                 >
                   <button
                     onClick={() => {
@@ -151,10 +165,12 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-semibold text-sm text-gray-900 truncate">{ticket.client_name}</span>
-                        <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 flex-shrink-0">
-                          {msgs.length}
-                        </span>
+                        <span className={`font-semibold text-sm truncate ${allRead ? "text-gray-600" : "text-gray-900"}`}>{ticket.client_name}</span>
+                        {!allRead && (
+                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 flex-shrink-0">
+                            {unreadMsgs.length}
+                          </span>
+                        )}
                       </div>
                       <span className="text-[11px] text-gray-500 flex-shrink-0">
                         {formatRelative(latest?.sent_at)}
@@ -164,16 +180,18 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
                       {latest?.snippet || latest?.body_text?.slice(0, 120) || "(new reply)"}
                     </p>
                   </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      markTicketAsRead(msgs);
-                    }}
-                    title="Mark as read"
-                    className="flex-shrink-0 px-3 flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-50 border-l border-gray-100 transition-colors"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
+                  {!allRead && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markTicketAsRead(unreadMsgs);
+                      }}
+                      title="Mark as read"
+                      className="flex-shrink-0 px-3 flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-50 border-l border-gray-100 transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               );
             })}
