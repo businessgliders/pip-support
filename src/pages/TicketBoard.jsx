@@ -433,18 +433,16 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
-            {/* Notification Bell - inline, prominent on desktop */}
-            <div className="hidden md:block">
-              <NotificationCenter
-                currentUser={user}
-                tickets={tickets}
-                variant="inline"
-                onTicketClick={(ticket, messageId) => {
-                  setHighlightedMessageId(messageId || null);
-                  setSelectedTicket(ticket);
-                }}
-              />
-            </div>
+            {/* Notification Bell - inline for all sizes */}
+            <NotificationCenter
+              currentUser={user}
+              tickets={tickets}
+              variant="inline"
+              onTicketClick={(ticket, messageId) => {
+                setHighlightedMessageId(messageId || null);
+                setSelectedTicket(ticket);
+              }}
+            />
 
             {/* Search Bar (Desktop) / Button (Mobile) */}
             <div className="hidden md:block">
@@ -507,17 +505,6 @@ export default function TicketBoard() {
 
         {/* Floating Action Icons (top-right, like padlock on intake) */}
         <div className="fixed top-4 right-4 z-40 flex flex-col gap-2">
-          {/* Bell shown floating only on mobile (inline version is used on desktop) */}
-          <div className="md:hidden">
-            <NotificationCenter
-              currentUser={user}
-              tickets={tickets}
-              onTicketClick={(ticket, messageId) => {
-                setHighlightedMessageId(messageId || null);
-                setSelectedTicket(ticket);
-              }}
-            />
-          </div>
           <Link to={createPageUrl("Analytics")}>
             <Button
               variant="ghost"
@@ -644,22 +631,23 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:flex-1 lg:min-h-0">
+            <div className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 px-4 md:px-8 pb-2 lg:mx-0 lg:px-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0">
               {columns.map((column) => (
-                <KanbanColumn
-                  key={column}
-                  status={column}
-                  tickets={getTicketsByColumn(column)}
-                  onStatusChange={handleStatusChange}
-                  onTicketClick={setSelectedTicket}
-                  isLoading={isLoading}
-                  highlightedTicketId={highlightedTicketId}
-                  onArchiveSome={column === "Closed" && viewMode === "status" ? handleArchiveSome : undefined}
-                  onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
-                  viewMode={viewMode}
-                  allUsers={allUsers}
-                  unreadByTicket={unreadByTicket}
-                />
+                <div key={column} className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none">
+                  <KanbanColumn
+                    status={column}
+                    tickets={getTicketsByColumn(column)}
+                    onStatusChange={handleStatusChange}
+                    onTicketClick={setSelectedTicket}
+                    isLoading={isLoading}
+                    highlightedTicketId={highlightedTicketId}
+                    onArchiveSome={column === "Closed" && viewMode === "status" ? handleArchiveSome : undefined}
+                    onArchiveAll={column === "Closed" && viewMode === "status" ? handleArchiveAll : undefined}
+                    viewMode={viewMode}
+                    allUsers={allUsers}
+                    unreadByTicket={unreadByTicket}
+                  />
+                </div>
               ))}
             </div>
           </DragDropContext>

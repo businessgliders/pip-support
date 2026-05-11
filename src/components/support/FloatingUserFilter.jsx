@@ -68,65 +68,75 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
       return ao - bo;
     });
 
-  const allButton = (
-    <button
-      onClick={() => onChange("all")}
-      className="group flex flex-col items-center transition-transform hover:scale-105 flex-shrink-0"
-      title="All Users"
-    >
-      <div
-        className={`w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md ${
-          userFilter === "all"
-            ? "bg-pink-400 border-white ring-2 ring-pink-300"
-            : "bg-white/40 border-white/70 hover:bg-white/60"
-        }`}
-      >
-        <Users className="w-5 h-5 text-white" />
-      </div>
-      <span className="text-white text-[10px] font-medium mt-1 max-w-[60px] truncate drop-shadow">
-        All
-      </span>
-    </button>
-  );
-
-  const userButtons = studioUsers.map((u) => {
-    const photo = getPhotoForUser(u);
-    const isActive = userFilter === u.email;
+  const renderAllButton = ({ compact = false } = {}) => {
+    const size = compact ? "w-8 h-8" : "w-11 h-11";
+    const icon = compact ? "w-4 h-4" : "w-5 h-5";
     return (
       <button
-        key={u.id}
-        onClick={() => onChange(u.email)}
+        onClick={() => onChange("all")}
         className="group flex flex-col items-center transition-transform hover:scale-105 flex-shrink-0"
-        title={getDisplayName(u)}
+        title="All Users"
       >
         <div
-          className={`w-11 h-11 rounded-full overflow-hidden border-2 shadow-md ${
-            isActive ? "border-white ring-2 ring-pink-400" : "border-white/70 opacity-80 hover:opacity-100"
+          className={`${size} rounded-full flex items-center justify-center border-2 shadow-md ${
+            userFilter === "all"
+              ? "bg-pink-400 border-white ring-2 ring-pink-300"
+              : "bg-white/40 border-white/70 hover:bg-white/60"
           }`}
         >
-          {photo ? (
-            <img src={photo} alt={getDisplayName(u)} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-pink-400 flex items-center justify-center text-white font-bold text-xs">
-              {getInitials(u)}
-            </div>
-          )}
+          <Users className={`${icon} text-white`} />
         </div>
-        <span className="text-white text-[10px] font-medium mt-1 max-w-[60px] truncate drop-shadow">
-          {getDisplayName(u)}
-        </span>
+        {!compact && (
+          <span className="text-white text-[10px] font-medium mt-1 max-w-[60px] truncate drop-shadow">
+            All
+          </span>
+        )}
       </button>
     );
-  });
+  };
+
+  const renderUserButtons = ({ compact = false } = {}) =>
+    studioUsers.map((u) => {
+      const photo = getPhotoForUser(u);
+      const isActive = userFilter === u.email;
+      const size = compact ? "w-8 h-8" : "w-11 h-11";
+      return (
+        <button
+          key={u.id}
+          onClick={() => onChange(u.email)}
+          className="group flex flex-col items-center transition-transform hover:scale-105 flex-shrink-0"
+          title={getDisplayName(u)}
+        >
+          <div
+            className={`${size} rounded-full overflow-hidden border-2 shadow-md ${
+              isActive ? "border-white ring-2 ring-pink-400" : "border-white/70 opacity-80 hover:opacity-100"
+            }`}
+          >
+            {photo ? (
+              <img src={photo} alt={getDisplayName(u)} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-pink-400 flex items-center justify-center text-white font-bold text-[10px]">
+                {getInitials(u)}
+              </div>
+            )}
+          </div>
+          {!compact && (
+            <span className="text-white text-[10px] font-medium mt-1 max-w-[60px] truncate drop-shadow">
+              {getDisplayName(u)}
+            </span>
+          )}
+        </button>
+      );
+    });
 
   return (
     <>
-      {/* Mobile / Tablet: horizontal bar above swimlanes */}
+      {/* Mobile / Tablet: compact horizontal bar above swimlanes */}
       <div className="lg:hidden">
-        <div className="backdrop-blur-xl bg-white/30 border border-white/50 rounded-2xl p-2 shadow-xl">
-          <div className="flex items-center gap-3 overflow-x-auto pb-1">
-            {allButton}
-            {userButtons}
+        <div className="backdrop-blur-xl bg-white/30 border border-white/50 rounded-xl px-2 py-1.5 shadow-lg">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {renderAllButton({ compact: true })}
+            {renderUserButtons({ compact: true })}
           </div>
         </div>
       </div>
@@ -138,8 +148,8 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
             <Users className="w-3 h-3" />
             Filter
           </div>
-          {allButton}
-          {userButtons}
+          {renderAllButton()}
+          {renderUserButtons()}
         </div>
       </div>
     </>
