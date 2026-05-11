@@ -30,6 +30,7 @@ import FloatingUserFilter from "../components/support/FloatingUserFilter";
 import NotificationCenter from "../components/support/NotificationCenter";
 import ChangelogPopup from "../components/support/ChangelogPopup";
 import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
+import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
 
 const userColors = {
   0: "bg-pink-400",
@@ -652,54 +653,11 @@ export default function TicketBoard() {
         {/* Kanban Board or Archived List */}
         {showArchived ? (
           <div className="backdrop-blur-xl bg-white/20 border border-white/30 rounded-2xl p-6 shadow-xl flex-1 overflow-y-auto">
-            {archivedTickets.length === 0 ? (
-              <div className="text-center py-12">
-                <Archive className="w-16 h-16 text-white/50 mx-auto mb-4" />
-                <p className="text-white/90 text-lg font-medium">No archived tickets</p>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {archivedTickets.map(ticket => (
-                  <div
-                    key={ticket.id}
-                    className="backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-4 flex items-center justify-between hover:bg-white/40 transition-all shadow-sm"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="text-gray-900 font-bold">{ticket.client_name}</h4>
-                        <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
-                          {ticket.inquiry_type}
-                        </Badge>
-                        <Badge className="bg-gray-500/20 text-gray-800 border-gray-400/40 shadow-sm">
-                          {ticket.status}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-800 font-medium text-sm">{ticket.client_email}</p>
-                      <p className="text-gray-600 text-xs mt-1 font-medium">
-                        Archived from {ticket.status} • {formatDateEST(ticket.updated_date)} EST
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => setSelectedTicket(ticket)}
-                        variant="outline"
-                        size="sm"
-                        className="backdrop-blur-md bg-white/50 border-white/60 text-gray-900 hover:bg-white/70 shadow-sm"
-                      >
-                        View
-                      </Button>
-                      <Button
-                        onClick={() => handleRestoreTicket(ticket.id)}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
-                      >
-                        Restore
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ArchivedTicketsList
+              tickets={archivedTickets}
+              onView={setSelectedTicket}
+              onRestore={handleRestoreTicket}
+            />
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
