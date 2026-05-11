@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import CleanupTicketRow from "./CleanupTicketRow";
 
-const DAYS_THRESHOLD = 20;
+const DAYS_THRESHOLD = 10;
 const SPLASH_SEEN_KEY = "pip_tidyup_splash_seen";
 
 const daysSince = (dateString) => {
