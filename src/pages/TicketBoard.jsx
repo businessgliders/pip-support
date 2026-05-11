@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu, Settings as SettingsIcon, BarChart3 } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu, Settings as SettingsIcon, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext } from "@hello-pangea/dnd";
@@ -59,7 +59,17 @@ export default function TicketBoard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const [showChangelog, setShowChangelog] = useState(false);
+  const swimlaneScrollRef = React.useRef(null);
   const queryClient = useQueryClient();
+
+  const scrollSwimlanes = (direction) => {
+    const el = swimlaneScrollRef.current;
+    if (!el) return;
+    // Scroll by the width of the first child column (includes gap roughly)
+    const firstChild = el.querySelector('[data-swimlane]');
+    const step = firstChild ? firstChild.getBoundingClientRect().width + 16 : el.clientWidth * 0.85;
+    el.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' });
+  };
 
   const getInitials = (email) => {
     if (email === 'info@pilatesinpinkstudio.com') return 'FD';
@@ -631,9 +641,31 @@ export default function TicketBoard() {
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 px-4 md:px-8 pb-2 lg:mx-0 lg:px-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0">
+            <div className="relative lg:contents">
+              {/* Left scroll arrow - mobile/tablet only */}
+              <button
+                type="button"
+                onClick={() => scrollSwimlanes('left')}
+                aria-label="Previous column"
+                className="lg:hidden absolute left-1 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full backdrop-blur-md bg-white/70 hover:bg-white/90 border border-white/80 shadow-lg flex items-center justify-center text-gray-800 active:scale-95 transition"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              {/* Right scroll arrow - mobile/tablet only */}
+              <button
+                type="button"
+                onClick={() => scrollSwimlanes('right')}
+                aria-label="Next column"
+                className="lg:hidden absolute right-1 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full backdrop-blur-md bg-white/70 hover:bg-white/90 border border-white/80 shadow-lg flex items-center justify-center text-gray-800 active:scale-95 transition"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            <div
+              ref={swimlaneScrollRef}
+              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 px-4 md:px-8 pb-2 lg:mx-0 lg:px-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
+            >
               {columns.map((column) => (
-                <div key={column} className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none">
+                <div key={column} data-swimlane className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none">
                   <KanbanColumn
                     status={column}
                     tickets={getTicketsByColumn(column)}
@@ -649,6 +681,7 @@ export default function TicketBoard() {
                   />
                 </div>
               ))}
+            </div>
             </div>
           </DragDropContext>
         )}
