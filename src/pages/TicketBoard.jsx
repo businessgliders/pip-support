@@ -59,8 +59,29 @@ export default function TicketBoard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all"); // "all" or specific user email
   const [showChangelog, setShowChangelog] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const swimlaneScrollRef = React.useRef(null);
   const queryClient = useQueryClient();
+
+  const updateScrollButtons = React.useCallback(() => {
+    const el = swimlaneScrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  React.useEffect(() => {
+    const el = swimlaneScrollRef.current;
+    if (!el) return;
+    updateScrollButtons();
+    el.addEventListener('scroll', updateScrollButtons, { passive: true });
+    window.addEventListener('resize', updateScrollButtons);
+    return () => {
+      el.removeEventListener('scroll', updateScrollButtons);
+      window.removeEventListener('resize', updateScrollButtons);
+    };
+  }, [updateScrollButtons, columns.length, showArchived]);
 
   const scrollSwimlanes = (direction) => {
     const el = swimlaneScrollRef.current;
@@ -443,16 +464,18 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
-            {/* Notification Bell - inline for all sizes */}
-            <NotificationCenter
-              currentUser={user}
-              tickets={tickets}
-              variant="inline"
-              onTicketClick={(ticket, messageId) => {
-                setHighlightedMessageId(messageId || null);
-                setSelectedTicket(ticket);
-              }}
-            />
+            {/* Notification Bell - first on desktop, last (after archive) on mobile/tablet */}
+            <div className="order-last lg:order-none">
+              <NotificationCenter
+                currentUser={user}
+                tickets={tickets}
+                variant="inline"
+                onTicketClick={(ticket, messageId) => {
+                  setHighlightedMessageId(messageId || null);
+                  setSelectedTicket(ticket);
+                }}
+              />
+            </div>
 
             {/* Search Bar (Desktop) / Button (Mobile) */}
             <div className="hidden md:block">
@@ -485,16 +508,6 @@ export default function TicketBoard() {
                 <span className="md:hidden">
                   {viewMode === "status" ? "📂" : "📊"}
                 </span>
-              </Button>
-            )}
-
-            {/* Edit Columns Button */}
-            {!showArchived && (
-              <Button
-                onClick={() => setShowColumnEditor(!showColumnEditor)}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 shadow-lg px-3"
-              >
-                <Columns className="w-4 h-4" />
               </Button>
             )}
 
@@ -643,26 +656,30 @@ export default function TicketBoard() {
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="relative lg:contents">
               {/* Left scroll arrow - mobile/tablet only */}
-              <button
-                type="button"
-                onClick={() => scrollSwimlanes('left')}
-                aria-label="Previous column"
-                className="lg:hidden absolute left-1 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full backdrop-blur-md bg-white/70 hover:bg-white/90 border border-white/80 shadow-lg flex items-center justify-center text-gray-800 active:scale-95 transition"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+              {canScrollLeft && (
+                <button
+                  type="button"
+                  onClick={() => scrollSwimlanes('left')}
+                  aria-label="Previous column"
+                  className="lg:hidden absolute left-1 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full backdrop-blur-md bg-white/70 hover:bg-white/90 border border-white/80 shadow-lg flex items-center justify-center text-gray-800 active:scale-95 transition"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
               {/* Right scroll arrow - mobile/tablet only */}
-              <button
-                type="button"
-                onClick={() => scrollSwimlanes('right')}
-                aria-label="Next column"
-                className="lg:hidden absolute right-1 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full backdrop-blur-md bg-white/70 hover:bg-white/90 border border-white/80 shadow-lg flex items-center justify-center text-gray-800 active:scale-95 transition"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              {canScrollRight && (
+                <button
+                  type="button"
+                  onClick={() => scrollSwimlanes('right')}
+                  aria-label="Next column"
+                  className="lg:hidden absolute right-1 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full backdrop-blur-md bg-white/70 hover:bg-white/90 border border-white/80 shadow-lg flex items-center justify-center text-gray-800 active:scale-95 transition"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              )}
             <div
               ref={swimlaneScrollRef}
-              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 px-4 md:px-8 pb-2 lg:mx-0 lg:px-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
+              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 pl-6 pr-4 md:pl-10 md:pr-8 pb-2 lg:mx-0 lg:pl-0 lg:pr-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
             >
               {columns.map((column) => (
                 <div key={column} data-swimlane className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none">
