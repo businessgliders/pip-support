@@ -37,12 +37,27 @@ const getYearMonth = (dateString) => {
   return { year, monthNum, monthName, key: `${year}-${String(monthNum).padStart(2, "0")}`, label: `${monthName} ${year}` };
 };
 
+// Use the date the ticket was moved to Closed (from status_history) as the
+// "archive date". Fall back to created_date if no Closed event is recorded.
+// updated_date is unreliable because bulk-archiving rewrites it on every ticket.
+const getArchiveDate = (t) => {
+  const history = t.status_history || [];
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i]?.status === "Closed" && history[i]?.timestamp) {
+      return history[i].timestamp;
+    }
+  }
+  // Fall back to most recent status_history entry, then created_date
+  const last = history[history.length - 1];
+  return last?.timestamp || t.created_date;
+};
+
 export default function ArchivedTicketsList({ tickets, onView, onRestore }) {
   // Build a structure: { year -> [ { key, monthName, monthNum, count, tickets } ] }
   const { years, monthMap, allMonthKeys } = useMemo(() => {
     const months = new Map(); // key -> { key, year, monthNum, monthName, label, tickets }
     for (const t of tickets) {
-      const dateStr = t.updated_date || t.created_date;
+      const dateStr = getArchiveDate(t);
       if (!dateStr) continue;
       const ym = getYearMonth(dateStr);
       if (!months.has(ym.key)) {
@@ -53,8 +68,8 @@ export default function ArchivedTicketsList({ tickets, onView, onRestore }) {
     // Sort tickets newest first inside each month
     for (const m of months.values()) {
       m.tickets.sort((a, b) => {
-        const aD = new Date((a.updated_date || a.created_date) + "").getTime();
-        const bD = new Date((b.updated_date || b.created_date) + "").getTime();
+        const aD = new Date(getArchiveDate(a) + "").getTime();
+        const bD = new Date(getArchiveDate(b) + "").getTime();
         return bD - aD;
       });
     }
@@ -215,7 +230,7 @@ export default function ArchivedTicketsList({ tickets, onView, onRestore }) {
                     </div>
                     <p className="text-gray-800 font-medium text-sm truncate">{ticket.client_email}</p>
                     <p className="text-gray-600 text-xs mt-1 font-medium">
-                      Archived from {ticket.status} • {formatDateEST(ticket.updated_date)} EST
+                      Closed {formatDateEST(getArchiveDate(ticket))} EST
                     </p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
