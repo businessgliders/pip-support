@@ -77,8 +77,17 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
       });
     },
     enabled: !!currentUser?.email && myTicketIds.length > 0,
-    refetchInterval: 15000,
   });
+
+  // Real-time: refresh on any EmailMessage change
+  useEffect(() => {
+    if (!currentUser?.email) return;
+    const unsubscribe = base44.entities.EmailMessage.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["unread-emails"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-by-ticket"] });
+    });
+    return () => unsubscribe?.();
+  }, [currentUser?.email, queryClient]);
 
   const markTicketAsRead = async (msgs) => {
     const nowIso = new Date().toISOString();
