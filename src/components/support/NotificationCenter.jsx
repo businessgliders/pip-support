@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Bell, Check } from "lucide-react";
+import { motion, useAnimationControls } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -118,6 +119,19 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
 
   const totalUnread = visibleMessages.filter(m => !(m.read_by || []).includes(currentUser?.email)).length;
 
+  // Bell wiggle when a new unread arrives
+  const bellControls = useAnimationControls();
+  const prevUnreadRef = useRef(totalUnread);
+  useEffect(() => {
+    if (totalUnread > prevUnreadRef.current) {
+      bellControls.start({
+        rotate: [0, -15, 15, -12, 12, -8, 8, 0],
+        transition: { duration: 0.7, ease: "easeInOut" },
+      });
+    }
+    prevUnreadRef.current = totalUnread;
+  }, [totalUnread, bellControls]);
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -133,7 +147,9 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
           }`}
           title="Notifications"
         >
-          <Bell className={variant === "inline" ? "w-5 h-5" : "w-4 h-4"} />
+          <motion.span animate={bellControls} style={{ display: "inline-flex", transformOrigin: "50% 0%" }}>
+            <Bell className={variant === "inline" ? "w-5 h-5" : "w-4 h-4"} />
+          </motion.span>
           {variant === "inline" && totalUnread > 0 && (
             <span className="hidden md:inline font-semibold text-sm">
               {totalUnread} new
