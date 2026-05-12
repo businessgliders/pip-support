@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2, RefreshCw } from "lucide-react";
+import { Sparkles, Loader2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 
 // Renders only the expanded panels for "Describe" and "Suggest".
 // Trigger buttons live in the parent (EmailComposer) so they sit beside Templates.
@@ -13,6 +13,34 @@ export default function AiAssistBar({ ticketId, onApply, showDescribe, showSugge
   const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
   const [cached, setCached] = useState(false);
   const [generatedAt, setGeneratedAt] = useState(null);
+  const scrollerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollButtons = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  const scrollByAmount = (dir) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * (el.clientWidth * 0.8), behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    updateScrollButtons();
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollButtons, { passive: true });
+    window.addEventListener("resize", updateScrollButtons);
+    return () => {
+      el.removeEventListener("scroll", updateScrollButtons);
+      window.removeEventListener("resize", updateScrollButtons);
+    };
+  }, [suggestions.length]);
 
   const callAi = async (mode, payload) => {
     setLoading(mode);
@@ -122,21 +150,47 @@ export default function AiAssistBar({ ticketId, onApply, showDescribe, showSugge
                   Refresh
                 </Button>
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-                {suggestions.map((s, idx) => (
+              <div className="relative group">
+                {canScrollLeft && (
                   <button
-                    key={idx}
                     type="button"
-                    onClick={() => onApply(s.body_html)}
-                    className="flex-shrink-0 w-64 text-left bg-white hover:bg-purple-50 border border-purple-200 rounded-lg p-3 transition-colors"
+                    onClick={() => scrollByAmount(-1)}
+                    aria-label="Scroll left"
+                    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center rounded-full bg-white border border-purple-200 shadow-md hover:bg-purple-50 text-purple-700"
                   >
-                    <div className="font-semibold text-sm text-purple-700 mb-1">{s.label}</div>
-                    <div
-                      className="text-xs text-gray-600 line-clamp-3 prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: s.body_html }}
-                    />
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
-                ))}
+                )}
+                {canScrollRight && (
+                  <button
+                    type="button"
+                    onClick={() => scrollByAmount(1)}
+                    aria-label="Scroll right"
+                    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center rounded-full bg-white border border-purple-200 shadow-md hover:bg-purple-50 text-purple-700"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
+                <div
+                  ref={scrollerRef}
+                  className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 touch-pan-x snap-x snap-mandatory scroll-smooth"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                >
+                  {suggestions.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => onApply(s.body_html)}
+                      className="snap-start flex-shrink-0 w-64 text-left bg-white hover:bg-purple-50 border border-purple-200 rounded-lg p-3 transition-colors"
+                    >
+                      <div className="font-semibold text-sm text-purple-700 mb-1">{s.label}</div>
+                      <div
+                        className="text-xs text-gray-600 line-clamp-3 prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: s.body_html }}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
             </>
           ) : (
