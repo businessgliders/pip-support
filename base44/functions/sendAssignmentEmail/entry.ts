@@ -7,11 +7,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!user.email.endsWith('@pilatesinpinkstudio.com')) {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // No auth gate — this endpoint is invoked by the public IntakeForm on new ticket
+    // submission (anonymous), and also by authenticated staff on reassignment.
+    let user = null;
+    try { user = await base44.auth.me(); } catch (_e) { user = null; }
 
     const { ticket_id, assigned_to } = await req.json();
     if (!ticket_id || !assigned_to) {
@@ -31,7 +30,7 @@ Deno.serve(async (req) => {
     const threadAnchor = existing.length > 0 ? existing[existing.length - 1] : null;
 
     const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}`;
-    const assignedByName = user.full_name || user.email.split('@')[0];
+    const assignedByName = user?.full_name || user?.email?.split('@')[0] || 'System';
     const isUrgent = ticket.priority === 'Urgent' || ticket.inquiry_type === 'Cancellation';
     const headerColor = isUrgent ? '#dc2626' : '#f1899b';
     const headerEmoji = isUrgent ? '🚨' : '✨';
@@ -139,7 +138,7 @@ Deno.serve(async (req) => {
         subject,
         body_html: html,
         snippet: `Assignment notification to ${assigned_to}`,
-        sent_by: user.email,
+        sent_by: user?.email || 'system',
         sent_at: new Date().toISOString(),
         send_status: 'failed',
         send_error: err.slice(0, 500),
@@ -177,10 +176,10 @@ Deno.serve(async (req) => {
       body_html: html,
       body_text: plainText,
       snippet: `Ticket assigned to ${assigned_to} by ${assignedByName}`,
-      sent_by: user.email,
+      sent_by: user?.email || 'system',
       sent_at: new Date().toISOString(),
       send_status: 'sent',
-      read_by: [user.email],
+      read_by: user?.email ? [user.email] : [],
     });
 
     return Response.json({ success: true, message_id: sentMessage.id, thread_id: sentMessage.threadId });
