@@ -92,16 +92,12 @@ Deno.serve(async (req) => {
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
     ];
 
-    // Threading headers — chain off the most recent message in the thread.
-    const inReplyTo = lastMessage?.rfc_message_id || null;
-    let references = null;
-    if (lastMessage) {
-      const prevRefs = lastMessage.references || '';
-      const prevId = lastMessage.rfc_message_id || '';
-      references = (prevRefs + ' ' + prevId).trim();
-    }
-    if (inReplyTo) headers.push(`In-Reply-To: ${inReplyTo}`);
-    if (references) headers.push(`References: ${references}`);
+    // No threading headers — we want the assignment email to land in its own
+    // Gmail thread on the owner's side (separate from the BCC'd welcome email).
+    // Customer replies to the welcome will naturally merge into this thread via
+    // the matching `[Ticket #N]` subject prefix.
+    const inReplyTo = null;
+    const references = null;
 
     const plainText = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
     const body = [
@@ -116,8 +112,9 @@ Deno.serve(async (req) => {
     const encoded = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
-    const threadId = lastMessage?.gmail_thread_id || null;
-    const sendBody = threadId ? { raw: encoded, threadId } : { raw: encoded };
+    // Do not pass threadId — let Gmail create a fresh thread for the assignment
+    // email so it doesn't bury the BCC'd welcome email's content.
+    const sendBody = { raw: encoded };
 
     const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',

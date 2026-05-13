@@ -18,15 +18,18 @@ function toQuotedPrintable(str) {
   return out;
 }
 
-function buildMime({ from, to, subject, htmlBody }) {
+function buildMime({ from, to, bcc, subject, htmlBody }) {
   const boundary = "____pip_boundary_" + Math.random().toString(36).slice(2);
   const headers = [
     `From: ${from}`,
     `To: ${to}`,
+  ];
+  if (bcc) headers.push(`Bcc: ${bcc}`);
+  headers.push(
     `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
-  ];
+  );
   const plainText = htmlBody
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
     .replace(/<br\s*\/?>/gi, '\n')
@@ -125,7 +128,17 @@ Deno.serve(async (req) => {
     const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
     const fromEmail = 'support@pilatesinpinkstudio.com';
     const fromHeader = `${fromNameEncoded} <${fromEmail}>`;
-    const raw = buildMime({ from: fromHeader, to: ticket.client_email, subject, htmlBody });
+    // BCC the owner so they receive the welcome email silently. Gmail will group
+    // it with the assignment notification (same subject) on the owner's side,
+    // and surface the assignment email as the "primary" message since the owner
+    // is only a BCC'd recipient on the welcome.
+    const raw = buildMime({
+      from: fromHeader,
+      to: ticket.client_email,
+      bcc: 'info@pilatesinpinkstudio.com',
+      subject,
+      htmlBody,
+    });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
     const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
