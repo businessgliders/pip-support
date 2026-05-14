@@ -580,17 +580,30 @@ export default function TicketBoard() {
 
             {/* View Mode Toggle */}
             {!showArchived && (
-              <Button
-                onClick={() => setViewMode(viewMode === "status" ? "category" : "status")}
-                className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 md:px-6 shadow-lg"
-              >
-                <span className="hidden md:inline">
-                  {viewMode === "status" ? "View by Category" : "View by Status"}
-                </span>
-                <span className="md:hidden">
-                  {viewMode === "status" ? "📂" : "📊"}
-                </span>
-              </Button>
+              <div className="flex items-center backdrop-blur-md bg-white/40 border border-white/60 rounded-xl p-1 shadow-lg">
+                <button
+                  onClick={() => setViewMode("status")}
+                  className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    viewMode === "status"
+                      ? "bg-white shadow-sm text-gray-900"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  <Columns className="w-4 h-4" />
+                  <span className="hidden md:inline">Status</span>
+                </button>
+                <button
+                  onClick={() => setViewMode("category")}
+                  className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    viewMode === "category"
+                      ? "bg-white shadow-sm text-gray-900"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  <Menu className="w-4 h-4" />
+                  <span className="hidden md:inline">Category</span>
+                </button>
+              </div>
             )}
 
             {/* Archive Toggle Button */}
