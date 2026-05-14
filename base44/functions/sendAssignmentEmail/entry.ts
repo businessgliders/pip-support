@@ -29,6 +29,12 @@ Deno.serve(async (req) => {
     const lastMessage = existing[0] || null;
     const threadAnchor = existing.length > 0 ? existing[existing.length - 1] : null;
 
+    // Find the welcome email so we can thread the assignment onto it. This makes
+    // Gmail merge the assignment INTO the welcome's conversation on the owner's
+    // side, so client replies (which thread off the welcome) end up in the same
+    // unified thread as the assignment notification.
+    const welcomeEmail = existing.find(m => m.is_welcome && m.rfc_message_id) || null;
+
     const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${ticket.id}`;
     const assignedByName = user?.full_name || user?.email?.split('@')[0] || 'System';
     const isUrgent = ticket.priority === 'Urgent' || ticket.inquiry_type === 'Cancellation';
@@ -92,12 +98,13 @@ Deno.serve(async (req) => {
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
     ];
 
-    // No threading headers — we want the assignment email to land in its own
-    // Gmail thread on the owner's side (separate from the BCC'd welcome email).
-    // Customer replies to the welcome will naturally merge into this thread via
-    // the matching `[Ticket #N]` subject prefix.
-    const inReplyTo = null;
-    const references = null;
+    // Thread the assignment onto the welcome email's Message-ID so Gmail merges
+    // it into the same conversation as future client replies (which themselves
+    // thread off the welcome). Result: one unified thread per ticket.
+    const inReplyTo = welcomeEmail?.rfc_message_id || null;
+    const references = welcomeEmail?.rfc_message_id || null;
+    if (inReplyTo) headers.push(`In-Reply-To: ${inReplyTo}`);
+    if (references) headers.push(`References: ${references}`);
 
     const plainText = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
     const body = [
@@ -112,9 +119,12 @@ Deno.serve(async (req) => {
     const encoded = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
-    // Do not pass threadId — let Gmail create a fresh thread for the assignment
-    // email so it doesn't bury the BCC'd welcome email's content.
+    // Pass the welcome email's threadId so Gmail keeps the assignment in the
+    // same server-side thread as the welcome (and any future client replies).
     const sendBody = { raw: encoded };
+    if (welcomeEmail?.gmail_thread_id) {
+      sendBody.threadId = welcomeEmail.gmail_thread_id;
+    }
 
     const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
       method: 'POST',
