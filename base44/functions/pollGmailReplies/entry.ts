@@ -6,11 +6,19 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Auth gate: only admins can manually trigger. Scheduled runs use service-role
-    // and bypass user auth, so they continue to work.
-    const user = await base44.auth.me().catch(() => null);
-    if (user && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    // Auth gate: require either an authenticated admin OR a valid shared secret.
+    // The scheduled automation passes the secret via function_args.
+    // Blocks anonymous internet callers from triggering Gmail sync.
+    const body = await req.clone().json().catch(() => ({}));
+    const providedSecret = body?.secret || req.headers.get('x-gmail-poll-secret') || '';
+    const expectedSecret = Deno.env.get('GMAIL_POLL_SECRET') || '';
+    const secretOk = expectedSecret && providedSecret === expectedSecret;
+
+    if (!secretOk) {
+      const user = await base44.auth.me().catch(() => null);
+      if (!user || user.role !== 'admin') {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
@@ -42,9 +50,10 @@ Deno.serve(async (req) => {
 
     if (newIds.length === 0) return Response.json({ ok: true, processed: 0, scanned: messageIds.length });
 
-    // Delegate to ingestGmailReply
+    // Delegate to ingestGmailReply (pass the shared secret so it accepts the call)
     const ingestRes = await base44.asServiceRole.functions.invoke('ingestGmailReply', {
       message_ids: newIds,
+      secret: expectedSecret,
     });
 
     return Response.json({

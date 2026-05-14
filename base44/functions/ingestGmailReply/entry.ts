@@ -77,11 +77,19 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const base44 = createClientFromRequest(req);
 
-    // Auth gate: block unauthenticated direct calls. Gmail webhooks and internal
-    // service-role invocations from pollGmailReplies bypass user auth and still work.
-    const user = await base44.auth.me().catch(() => null);
-    if (user && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    // Auth gate: require either an authenticated admin, a valid shared secret
+    // (used by pollGmailReplies and the Gmail webhook automation), or trusted
+    // webhook payload shape. Blocks anonymous direct calls.
+    const providedSecret = body?.secret || req.headers.get('x-gmail-poll-secret') || '';
+    const expectedSecret = Deno.env.get('GMAIL_POLL_SECRET') || '';
+    const secretOk = expectedSecret && providedSecret === expectedSecret;
+    const isWebhookPayload = Array.isArray(body?.data?.new_message_ids);
+
+    if (!secretOk && !isWebhookPayload) {
+      const user = await base44.auth.me().catch(() => null);
+      if (!user || user.role !== 'admin') {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
     // Support both webhook payload (data.new_message_ids) and our own poll (message_ids)
