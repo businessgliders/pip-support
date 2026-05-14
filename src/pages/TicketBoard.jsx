@@ -31,6 +31,7 @@ import NotificationCenter from "../components/support/NotificationCenter";
 import ChangelogPopup from "../components/support/ChangelogPopup";
 import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
+import { getPhotoForUser } from "@/lib/userPhotos";
 
 const userColors = {
   0: "bg-pink-400",
@@ -597,12 +598,21 @@ export default function TicketBoard() {
             </Button>
 
             {/* Profile Avatar */}
-            <div
-              className={`flex items-center justify-center h-11 w-11 rounded-xl text-white font-semibold shadow-lg border border-white/80 ${getUserColor(user.email)}`}
-              title={user.full_name || user.email}
-            >
-              {getInitials(user.email)}
-            </div>
+            {(() => {
+              const photo = getPhotoForUser(user);
+              return (
+                <div
+                  className={`flex items-center justify-center h-11 w-11 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 ${photo ? "" : getUserColor(user.email)}`}
+                  title={user.full_name || user.email}
+                >
+                  {photo ? (
+                    <img src={photo} alt={user.full_name || user.email} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-white font-semibold">{getInitials(user.email)}</span>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Logout Button */}
             <Button
