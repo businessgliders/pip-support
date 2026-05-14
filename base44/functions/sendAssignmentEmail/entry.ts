@@ -7,8 +7,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    // No auth gate — this endpoint is invoked by the public IntakeForm on new ticket
-    // submission (anonymous), and also by authenticated staff on reassignment.
+    // Hybrid auth: authenticated staff can call freely (reassignment flow).
+    // Anonymous callers (public IntakeForm) are only allowed when the ticket
+    // was just created (< 5 min old) — prevents replaying old ticket IDs to
+    // spam-trigger assignment emails.
     let user = null;
     try { user = await base44.auth.me(); } catch (_e) { user = null; }
 
@@ -19,6 +21,15 @@ Deno.serve(async (req) => {
 
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
+
+    // If caller is not authenticated staff, require the ticket to be brand new.
+    const isStaff = user?.email?.endsWith('@pilatesinpinkstudio.com');
+    if (!isStaff) {
+      const ageMs = Date.now() - new Date(ticket.created_date).getTime();
+      if (ageMs > 5 * 60 * 1000) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
 
     // Find the most recent message in the thread to attach this assignment
     // notification to. Falls back to the welcome email if nothing else exists.
