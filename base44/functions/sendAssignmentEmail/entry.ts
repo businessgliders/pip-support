@@ -67,15 +67,15 @@ Deno.serve(async (req) => {
     // thread uses so Gmail groups everything in one conversation.
     const ticketRef = ticket.ticket_number ? String(ticket.ticket_number) : ticket.id.slice(-8);
     const subjectTag = `[Ticket #${ticketRef}]`;
-    let baseSubject;
+    let subject;
     if (threadAnchor && threadAnchor.subject) {
-      baseSubject = threadAnchor.subject.startsWith(subjectTag)
-        ? threadAnchor.subject
-        : `${subjectTag} ${threadAnchor.subject}`;
+      // Strip any prior "🚨 URGENT: " prefix so we always match the clean
+      // `[Ticket #N] ...` subject used by the welcome email and client replies.
+      const cleaned = threadAnchor.subject.replace(/^🚨\s*URGENT:\s*/i, '');
+      subject = cleaned.startsWith(subjectTag) ? cleaned : `${subjectTag} ${cleaned}`;
     } else {
-      baseSubject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
+      subject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
     }
-    const subject = `${isUrgent ? '🚨 URGENT: ' : ''}${baseSubject}`;
 
     // Sender — same branding as sendTicketEmail
     const fromName = 'Pilates in Pink \u2122';
