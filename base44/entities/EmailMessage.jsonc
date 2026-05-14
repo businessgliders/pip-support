@@ -107,8 +107,29 @@
     "subject"
   ],
   "rls": {
-    "create": true,
-    "read": null,
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.sent_by": "{{user.email}}"
+        },
+        {
+          "data.from_email": "{{user.email}}"
+        },
+        {
+          "data.to_email": "{{user.email}}"
+        }
+      ]
+    },
     "update": {
       "user_condition": {
         "role": "admin"
