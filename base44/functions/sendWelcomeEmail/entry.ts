@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
     }
 
     const ticketRef = String(ticket.ticket_number);
-    const subject = `[Ticket #${ticketRef}] ${ticket.inquiry_type} - Pilates in Pink`;
+    const subject = `[Ticket #${ticketRef}] ${ticket.inquiry_type} — ${ticket.client_name}`;
     const htmlBody = welcomeHtml({
       clientName: ticket.client_name,
       inquiryType: ticket.inquiry_type,

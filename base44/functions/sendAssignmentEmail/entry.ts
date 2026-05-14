@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
       const cleaned = threadAnchor.subject.replace(/^🚨\s*URGENT:\s*/i, '');
       subject = cleaned.startsWith(subjectTag) ? cleaned : `${subjectTag} ${cleaned}`;
     } else {
-      subject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
+      subject = `${subjectTag} ${ticket.inquiry_type} — ${ticket.client_name}`;
     }
 
     // Sender — same branding as sendTicketEmail
