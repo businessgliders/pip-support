@@ -597,31 +597,36 @@ export default function TicketBoard() {
               <Archive className="w-4 h-4" />
             </Button>
 
-            {/* Profile Avatar */}
+            {/* Profile Avatar with dropdown menu */}
             {(() => {
               const photo = getPhotoForUser(user);
               return (
-                <div
-                  className={`flex items-center justify-center h-11 w-11 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 ${photo ? "" : getUserColor(user.email)}`}
-                  title={user.full_name || user.email}
-                >
-                  {photo ? (
-                    <img src={photo} alt={user.full_name || user.email} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-white font-semibold">{getInitials(user.email)}</span>
-                  )}
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className={`flex items-center justify-center h-11 w-11 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 hover:ring-2 hover:ring-white/60 transition ${photo ? "" : getUserColor(user.email)}`}
+                      title={user.full_name || user.email}
+                    >
+                      {photo ? (
+                        <img src={photo} alt={user.full_name || user.email} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-white font-semibold">{getInitials(user.email)}</span>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                      <User className="w-4 h-4 mr-2" />
+                      Switch User
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Log Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               );
             })()}
-
-            {/* Logout Button */}
-            <Button
-              onClick={() => base44.auth.logout()}
-              className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
-              title="Log out"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
 
           </div>
         </div>
