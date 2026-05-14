@@ -107,13 +107,13 @@
     "subject"
   ],
   "rls": {
-    "create": {
+    "create": true,
+    "read": null,
+    "update": {
       "user_condition": {
         "role": "admin"
       }
     },
-    "read": true,
-    "update": true,
     "delete": {
       "user_condition": {
         "role": "admin"
