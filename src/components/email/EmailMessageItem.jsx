@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -28,12 +29,22 @@ const formatFullDate = (s) => {
   });
 };
 
-export default function EmailMessageItem({ message, isHighlighted }) {
+export default function EmailMessageItem({ message, isHighlighted, isUnread = false, onMarkAsRead }) {
   const [open, setOpen] = useState(false);
+  const [localUnread, setLocalUnread] = useState(isUnread);
   const isInbound = message.direction === "inbound";
   const senderName = message.from_name || message.from_email || (isInbound ? "Client" : "Support");
   const failed = message.send_status === "failed";
   const highlightRing = isHighlighted ? "ring-4 ring-yellow-300 ring-offset-2" : "";
+
+  // Sync local unread state if parent prop changes (e.g. real-time update)
+  React.useEffect(() => { setLocalUnread(isUnread); }, [isUnread]);
+
+  const handleMarkAsRead = (e) => {
+    e.stopPropagation();
+    setLocalUnread(false); // optimistic
+    if (onMarkAsRead) onMarkAsRead(message);
+  };
 
   // Auto-reply welcome → compact light-pink bubble with icon + short preview
   if (message.is_welcome) {
@@ -96,11 +107,30 @@ export default function EmailMessageItem({ message, isHighlighted }) {
   return (
     <>
       <div className={`flex ${isInbound ? "justify-start" : "justify-end"} mb-1`}>
-        <div className={`max-w-[85%] flex flex-col ${isInbound ? "items-start" : "items-end"}`}>
-          <span className="text-[10px] text-gray-500 mb-0.5 px-1">{senderName}</span>
-          <button
+        <div className={`max-w-[85%] flex flex-col ${isInbound ? "items-start" : "items-end"} relative`}>
+          <div className="flex items-center gap-1.5 mb-0.5 px-1">
+            <span className="text-[10px] text-gray-500">{senderName}</span>
+            <AnimatePresence>
+              {localUnread && isInbound && (
+                <motion.span
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="w-2 h-2 rounded-full bg-pink-500 shadow-sm shadow-pink-300"
+                  aria-label="Unread"
+                />
+              )}
+            </AnimatePresence>
+          </div>
+          <motion.button
             onClick={() => setOpen(true)}
-            className={`text-left rounded-2xl px-3.5 py-2 shadow-sm transition-all hover:shadow-md ${highlightRing} ${
+            animate={{
+              borderLeftColor: localUnread && isInbound && !failed ? "rgb(236, 72, 153)" : "rgba(0,0,0,0)",
+            }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={localUnread && isInbound && !failed ? { borderLeftWidth: "3px" } : undefined}
+            className={`text-left rounded-2xl px-3.5 py-2 shadow-sm transition-shadow hover:shadow-md ${highlightRing} ${
               failed
                 ? "bg-red-50 border border-red-300 text-red-900 rounded-br-sm"
                 : isInbound
@@ -126,8 +156,25 @@ export default function EmailMessageItem({ message, isHighlighted }) {
                 Tap to view full message
               </span>
             )}
-          </button>
-          <span className="text-[10px] text-gray-400 mt-0.5 px-1">{formatTime(message.sent_at)}</span>
+          </motion.button>
+          <div className="flex items-center gap-2 mt-0.5 px-1">
+            <span className="text-[10px] text-gray-400">{formatTime(message.sent_at)}</span>
+            <AnimatePresence>
+              {localUnread && isInbound && onMarkAsRead && (
+                <motion.button
+                  initial={{ opacity: 0, x: -4 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -4 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleMarkAsRead}
+                  className="text-[10px] text-pink-600 hover:text-pink-700 font-medium flex items-center gap-0.5"
+                >
+                  <Check className="w-3 h-3" /> Mark as read
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

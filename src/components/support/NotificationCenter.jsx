@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Bell, Check } from "lucide-react";
-import { motion, useAnimationControls } from "framer-motion";
+import { motion, useAnimationControls, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NotificationRow from "./NotificationRow";
 
 // Keep notifications visible (greyed out) this many hours after being marked as read
 const KEEP_READ_HOURS = 4;
@@ -189,52 +190,26 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
           </div>
         ) : (
           <div className="divide-y">
-            {ticketEntries.map(({ ticket, msgs, unreadMsgs, allRead }) => {
-              const latest = msgs[0];
-              return (
-                <div
-                  key={ticket.id}
-                  className={`flex items-stretch transition-colors ${allRead ? "opacity-50 hover:opacity-70" : "hover:bg-pink-50"}`}
-                >
-                  <button
-                    onClick={() => {
+            <AnimatePresence initial={false}>
+              {ticketEntries.map(({ ticket, msgs, unreadMsgs, allRead }) => {
+                const latest = msgs[0];
+                return (
+                  <NotificationRow
+                    key={ticket.id}
+                    ticket={ticket}
+                    latest={latest}
+                    unreadCount={unreadMsgs.length}
+                    allRead={allRead}
+                    onOpen={() => {
                       setOpen(false);
                       onTicketClick(ticket, latest?.id);
+                      if (!allRead) markTicketAsRead(unreadMsgs);
                     }}
-                    className="flex-1 text-left px-4 py-3 min-w-0"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className={`font-semibold text-sm truncate ${allRead ? "text-gray-600" : "text-gray-900"}`}>{ticket.client_name}</span>
-                        {!allRead && (
-                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 flex-shrink-0">
-                            {unreadMsgs.length}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[11px] text-gray-500 flex-shrink-0">
-                        {formatRelative(latest?.sent_at)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      {latest?.snippet || latest?.body_text?.slice(0, 120) || "(new reply)"}
-                    </p>
-                  </button>
-                  {!allRead && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        markTicketAsRead(unreadMsgs);
-                      }}
-                      title="Mark as read"
-                      className="flex-shrink-0 px-3 flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-50 border-l border-gray-100 transition-colors"
-                    >
-                      <Check className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                    onMarkRead={() => markTicketAsRead(unreadMsgs)}
+                  />
+                );
+              })}
+            </AnimatePresence>
           </div>
         )}
       </DropdownMenuContent>

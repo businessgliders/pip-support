@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Mail, Phone, MoreVertical, Gift, User } from "lucide-react";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { getPhotoForEmail } from "@/lib/userProfile";
 
 const priorityBorderColors = {
@@ -97,6 +98,19 @@ const formatRelativeTime = (dateString) => {
 };
 
 export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [], viewMode = "status", unreadCount = 0 }) {
+  // Shake the mail icon when a NEW unread message arrives (count goes up)
+  const mailShake = useAnimationControls();
+  const prevUnreadRef = useRef(unreadCount);
+  useEffect(() => {
+    if (unreadCount > prevUnreadRef.current) {
+      mailShake.start({
+        rotate: [0, -10, 10, -6, 6, 0],
+        transition: { duration: 0.5, ease: "easeOut" },
+      });
+    }
+    prevUnreadRef.current = unreadCount;
+  }, [unreadCount, mailShake]);
+
   // Watermark only shown in category view (where status isn't already visible via column).
   // In status view, category is already shown as a badge on the card, so no watermark needed.
   const watermarkText = viewMode === "category" ? ticket.status : null;
@@ -135,19 +149,31 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
       )}
 
       {/* Unread inbound emails badge */}
-      {unreadCount > 0 && (
-        <div
-          title={`${unreadCount} unread ${unreadCount === 1 ? "reply" : "replies"}`}
-          className="absolute top-2 right-3 z-10"
-        >
-          <div className="relative bg-red-500 rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center shadow-md ring-2 ring-white">
-            <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
-            <span className="absolute -top-1.5 -right-1.5 bg-white text-red-600 text-[9px] md:text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1 shadow ring-1 ring-red-500">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {unreadCount > 0 && (
+          <motion.div
+            key="unread-badge"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [1, 1.15, 1], opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{
+              scale: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
+              opacity: { duration: 0.2, ease: "easeOut" },
+            }}
+            title={`${unreadCount} unread ${unreadCount === 1 ? "reply" : "replies"}`}
+            className="absolute top-2 right-3 z-10"
+          >
+            <div className="relative bg-red-500 rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center shadow-md ring-2 ring-white">
+              <motion.span animate={mailShake} style={{ display: "inline-flex", transformOrigin: "50% 50%" }}>
+                <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
+              </motion.span>
+              <span className="absolute -top-1.5 -right-1.5 bg-white text-red-600 text-[9px] md:text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1 shadow ring-1 ring-red-500">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Compact View */}
       <div className="md:hidden">

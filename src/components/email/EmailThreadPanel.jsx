@@ -13,6 +13,25 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
     refetchInterval: 15000,
   });
 
+  // Optimistic mark-as-read: stamp read_by/read_at for the current user on a
+  // specific inbound message. Reverts on server error.
+  const handleMarkAsRead = async (msg) => {
+    if (!currentUser?.email || !msg?.id) return;
+    if ((msg.read_by || []).includes(currentUser.email)) return;
+    const nowIso = new Date().toISOString();
+    const readAtEntries = (msg.read_at || []).filter(r => r.email !== currentUser.email);
+    readAtEntries.push({ email: currentUser.email, timestamp: nowIso });
+    try {
+      await base44.entities.EmailMessage.update(msg.id, {
+        read_by: [...(msg.read_by || []), currentUser.email],
+        read_at: readAtEntries,
+      });
+      refetch();
+    } catch (_e) {
+      refetch();
+    }
+  };
+
   const shortId = ticket.ticket_number ? String(ticket.ticket_number) : (ticket.id ? ticket.id.slice(-8) : "");
 
   // Always show the original intake notes as the first inbound message.
@@ -180,14 +199,23 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
         </div>
       ) : (
         <div ref={threadRef} className="bg-gradient-to-b from-white/60 to-amber-50/40 rounded-xl p-3 mb-3 max-h-[480px] overflow-y-auto border border-amber-100">
-          {messages.map((m) => (
-            <div key={m.id} id={`email-msg-${m.id}`}>
-              <EmailMessageItem
-                message={m}
-                isHighlighted={m.id === highlightMessageId}
-              />
-            </div>
-          ))}
+          {messages.map((m) => {
+            const isUnread =
+              m.direction === "inbound" &&
+              !String(m.id).startsWith("intake-") &&
+              currentUser?.email &&
+              !(m.read_by || []).includes(currentUser.email);
+            return (
+              <div key={m.id} id={`email-msg-${m.id}`}>
+                <EmailMessageItem
+                  message={m}
+                  isHighlighted={m.id === highlightMessageId}
+                  isUnread={isUnread}
+                  onMarkAsRead={isUnread ? handleMarkAsRead : undefined}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
 
