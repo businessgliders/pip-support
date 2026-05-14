@@ -128,17 +128,7 @@ Deno.serve(async (req) => {
     const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
     const fromEmail = 'support@pilatesinpinkstudio.com';
     const fromHeader = `${fromNameEncoded} <${fromEmail}>`;
-    // BCC the owner so they receive the welcome email silently. Gmail will group
-    // it with the assignment notification (same subject) on the owner's side,
-    // and surface the assignment email as the "primary" message since the owner
-    // is only a BCC'd recipient on the welcome.
-    const raw = buildMime({
-      from: fromHeader,
-      to: ticket.client_email,
-      bcc: 'info@pilatesinpinkstudio.com',
-      subject,
-      htmlBody,
-    });
+    const raw = buildMime({ from: fromHeader, to: ticket.client_email, subject, htmlBody });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
     const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
