@@ -596,6 +596,23 @@ export default function TicketBoard() {
               <Archive className="w-4 h-4" />
             </Button>
 
+            {/* Profile Avatar */}
+            <div
+              className={`flex items-center justify-center h-11 w-11 rounded-xl text-white font-semibold shadow-lg border border-white/80 ${getUserColor(user.email)}`}
+              title={user.full_name || user.email}
+            >
+              {getInitials(user.email)}
+            </div>
+
+            {/* Logout Button */}
+            <Button
+              onClick={() => base44.auth.logout()}
+              className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
+              title="Log out"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+
           </div>
         </div>
 
