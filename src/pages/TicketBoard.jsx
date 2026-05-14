@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu, Settings as SettingsIcon, BarChart3, ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { ExternalLink, Archive, X, Search, Columns, LogOut, User, Menu, Settings as SettingsIcon, BarChart3, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { DragDropContext } from "@hello-pangea/dnd";
@@ -549,14 +549,14 @@ export default function TicketBoard() {
                   setSelectedTicket(ticket);
                 }}
               />
-              <Link to={createPageUrl("IntakeForm")} target="_blank" rel="noopener noreferrer">
+              <a href="/" target="_blank" rel="noopener noreferrer">
                 <Button
                   className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
-                  title="Open intake form"
+                  title="New ticket"
                 >
-                  <FileText className="w-4 h-4" />
+                  <Plus className="w-4 h-4" />
                 </Button>
-              </Link>
+              </a>
             </div>
 
             {/* Search Bar (Desktop) / Button (Mobile) */}
