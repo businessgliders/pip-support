@@ -31,9 +31,6 @@ export default function IntakeForm() {
   const [showPrivateEvents, setShowPrivateEvents] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [adminError, setAdminError] = useState(""); // Initialize with an empty string
   const [isEmbedded, setIsEmbedded] = useState(false);
   const [systemAlert, setSystemAlert] = useState(null);
 
@@ -64,13 +61,9 @@ export default function IntakeForm() {
   };
 
   const handleAdminAccess = () => {
-    // Simple password check - you can change "pip6161" to your preferred password
-    if (adminPassword === "pip6161") {
-      navigate(createPageUrl("TicketBoard"));
-    } else {
-      setAdminError("Incorrect password");
-      setTimeout(() => setAdminError(""), 2000);
-    }
+    // TicketBoard enforces real authentication + domain restriction on entry,
+    // so we just navigate there and let Base44 handle login.
+    navigate(createPageUrl("TicketBoard"));
   };
 
   const handleSubmit = async (e) => {
@@ -459,10 +452,11 @@ export default function IntakeForm() {
       {!isEmbedded && (
         <div className="absolute top-4 right-4 z-10">
           <Button
-            onClick={() => setShowAdminLogin(true)}
+            onClick={handleAdminAccess}
             variant="ghost"
             size="icon"
             className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
+            title="Staff login"
           >
             <Lock className="w-4 h-4" />
           </Button>
@@ -644,49 +638,6 @@ export default function IntakeForm() {
         )}
       </div>
 
-      {/* Admin Login Dialog */}
-      <Dialog open={showAdminLogin} onOpenChange={setShowAdminLogin}>
-        <DialogContent className="backdrop-blur-2xl bg-white/95 border-white/40">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" />
-              Admin Access
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="admin-password">Password</Label>
-              <Input
-                id="admin-password"
-                type="password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAdminAccess()}
-                placeholder="Enter admin password"
-                className={adminError ? "border-red-500" : ""}
-              />
-              {adminError && (
-                <p className="text-red-600 text-sm">{adminError}</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowAdminLogin(false);
-              setAdminPassword("");
-              setAdminError("");
-            }}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAdminAccess}
-              className="bg-[#b67651] hover:bg-[#a56541] text-white"
-            >
-              Access Dashboard
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
