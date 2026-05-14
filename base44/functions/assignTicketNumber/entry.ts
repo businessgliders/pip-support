@@ -13,6 +13,21 @@ Deno.serve(async (req) => {
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
+    // Hybrid auth: authenticated staff can call freely. Anonymous callers (public
+    // IntakeForm) are only allowed when the ticket was just created (< 5 min old)
+    // — prevents replaying old ticket IDs to spam-trigger ticket number bumps.
+    // The function is idempotent (returns existing number) so this is mostly
+    // defense-in-depth against junk calls.
+    let caller = null;
+    try { caller = await base44.auth.me(); } catch (_e) { caller = null; }
+    const isStaff = caller?.email?.endsWith('@pilatesinpinkstudio.com');
+    if (!isStaff) {
+      const ageMs = Date.now() - new Date(ticket.created_date).getTime();
+      if (ageMs > 5 * 60 * 1000) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
     if (ticket.ticket_number) {
       return Response.json({ success: true, ticket_number: ticket.ticket_number });
     }

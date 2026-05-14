@@ -105,6 +105,26 @@ Deno.serve(async (req) => {
     let ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
+    // Hybrid auth: authenticated staff can call freely. Anonymous callers (public
+    // IntakeForm) are only allowed when the ticket was just created (< 5 min old)
+    // — prevents replaying old ticket IDs to spam-trigger welcome emails.
+    // Also block if a welcome was already sent (idempotency + abuse guard).
+    let caller = null;
+    try { caller = await base44.auth.me(); } catch (_e) { caller = null; }
+    const isStaff = caller?.email?.endsWith('@pilatesinpinkstudio.com');
+    if (!isStaff) {
+      const ageMs = Date.now() - new Date(ticket.created_date).getTime();
+      if (ageMs > 5 * 60 * 1000) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      const existingWelcome = await base44.asServiceRole.entities.EmailMessage.filter(
+        { ticket_id, is_welcome: true }, '-sent_at', 1
+      );
+      if (existingWelcome.length > 0) {
+        return Response.json({ success: true, already_sent: true });
+      }
+    }
+
     // Ensure the ticket has a sequential ticket_number before sending — guarantees
     // a clean numeric reference in the subject (no random ID fallback).
     if (!ticket.ticket_number) {
