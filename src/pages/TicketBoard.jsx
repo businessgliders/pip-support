@@ -557,17 +557,6 @@ export default function TicketBoard() {
                   <Plus className="w-4 h-4" />
                 </Button>
               </a>
-              <Button
-                onClick={() => setShowArchived(!showArchived)}
-                className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
-                  showArchived
-                    ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
-                    : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
-                }`}
-                title={showArchived ? "Hide archived" : "Show archived"}
-              >
-                <Archive className="w-4 h-4" />
-              </Button>
             </div>
 
             {/* Search Bar (Desktop) / Button (Mobile) */}
@@ -616,6 +605,19 @@ export default function TicketBoard() {
                 </button>
               </div>
             )}
+
+            {/* Archive Toggle Button */}
+            <Button
+              onClick={() => setShowArchived(!showArchived)}
+              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
+                showArchived
+                  ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
+                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
+              }`}
+              title={showArchived ? "Hide archived" : "Show archived"}
+            >
+              <Archive className="w-4 h-4" />
+            </Button>
 
             {/* Profile Avatar with dropdown menu */}
             {(() => {
