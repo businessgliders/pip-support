@@ -393,11 +393,14 @@ export default function TicketBoard() {
   const getTicketsByColumn = (column) => {
     // This function is only called when showArchived is false,
     // as the archived view has its own rendering logic.
+    // When the user is actively searching, include archived tickets so they
+    // can find old/cancelled tickets without having to toggle the archive view.
+    const isSearching = searchQuery.trim().length > 0;
     let filtered = [];
     if (viewMode === "status") {
-      filtered = tickets.filter(ticket => ticket.status === column && !ticket.archived);
+      filtered = tickets.filter(ticket => ticket.status === column && (isSearching || !ticket.archived));
     } else { // viewMode === "category"
-      filtered = tickets.filter(ticket => ticket.inquiry_type === column && !ticket.archived);
+      filtered = tickets.filter(ticket => ticket.inquiry_type === column && (isSearching || !ticket.archived));
     }
     
     // Apply user filter (owner sees all or filtered, regular users only see their tickets)
