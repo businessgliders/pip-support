@@ -221,6 +221,11 @@ export default function ArchivedTicketsList({ tickets, onView, onRestore }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h4 className="text-gray-900 font-bold">{ticket.client_name}</h4>
+                      {ticket.ticket_number && (
+                        <span className="text-xs font-semibold text-[#b67651] bg-white/60 border border-white/70 rounded-md px-2 py-0.5 shadow-sm">
+                          #{ticket.ticket_number}
+                        </span>
+                      )}
                       <Badge className="bg-white/60 text-gray-900 border-white/70 shadow-sm">
                         {ticket.inquiry_type}
                       </Badge>
