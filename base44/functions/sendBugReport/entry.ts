@@ -112,8 +112,14 @@ Deno.serve(async (req) => {
       platform = "Support Portal",
       urgency = "Soon",
       image_urls = [],
-      transcript = []
+      transcript = [],
+      rep_name = ""
     } = body || {};
+
+    // If a Front Desk rep name was provided, prefer it as the reporter name
+    const reporterName = (rep_name && rep_name.trim())
+      ? rep_name.trim()
+      : (user.full_name || user.email);
 
     if (!description || !String(description).trim()) {
       return Response.json({ error: "Missing description" }, { status: 400 });
@@ -131,7 +137,7 @@ Deno.serve(async (req) => {
       image_urls,
       transcript,
       reported_by_email: user.email,
-      reported_by_name: user.full_name || user.email,
+      reported_by_name: reporterName,
       escalated_to: ESCALATION_TO,
       email_status: "pending"
     });
@@ -140,7 +146,7 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("gmail");
 
     const html = buildHtml({ ...created, id: created.id });
-    const subject = `🐛 [${urgency}] Bug report${ticket_number ? ` • Ticket #${ticket_number}` : ""} - ${user.full_name || user.email}`;
+    const subject = `🐛 [${urgency}] Bug report${ticket_number ? ` • Ticket #${ticket_number}` : ""} - ${reporterName}`;
 
     const raw = buildRawEmail({
       to: ESCALATION_TO,
