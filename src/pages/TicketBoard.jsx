@@ -31,6 +31,7 @@ import NotificationCenter from "../components/support/NotificationCenter";
 import ChangelogPopup from "../components/support/ChangelogPopup";
 import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
+import BugReportChat from "../components/support/BugReportChat";
 import { getPhotoForUser } from "@/lib/userPhotos";
 
 const userColors = {
@@ -851,6 +852,9 @@ export default function TicketBoard() {
         }}
         onClose={() => setMobileSearchDialog(false)}
       />
+
+      {/* Floating Bug Report Chat */}
+      <BugReportChat currentUser={user} tickets={tickets} />
 
       {/* Footer */}
       <div className="mt-2 mb-0 flex items-center justify-center gap-3 flex-shrink-0">
