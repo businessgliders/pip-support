@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Hardcoded escalation recipient(s). Can be moved to settings later.
-const ESCALATION_TO = "talia@pilatesinpinkstudio.com";
+const ESCALATION_TO = "gurpreen@pilatesinpinkstudio.com";
 const FROM_NAME = "PiP Support Bug Report";
 
 const URGENCY_COLOR = {
