@@ -31,7 +31,7 @@ import NotificationCenter from "../components/support/NotificationCenter";
 import ChangelogPopup from "../components/support/ChangelogPopup";
 import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
-import BugReportChat from "../components/support/BugReportChat.jsx";
+import BugReportChat from "../components/support/BugReportChat";
 import EscalationSwimlane from "../components/support/EscalationSwimlane";
 import { getPhotoForUser } from "@/lib/userPhotos";
 
