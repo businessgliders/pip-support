@@ -121,7 +121,7 @@ export default function BugReportIssueList({ currentUser }) {
                       ? "bg-blue-600 text-white"
                       : "bg-white text-slate-600 border border-slate-200"
                   }`}>
-                    <MessageSquare className="w-2.5 h-2.5" />
+                    <MessageSquare className="w-3.5 h-3.5" />
                     {replies.length}{unreadReplies > 0 ? ` • ${unreadReplies} new` : ""}
                   </span>
                 )}

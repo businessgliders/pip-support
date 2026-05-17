@@ -201,36 +201,45 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                           </span>
                         )}
                         {replies.length > 0 && (
-                          <span className={`ml-auto flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                            unreadReplies > 0
-                              ? "bg-blue-600 text-white"
-                              : "bg-white text-slate-600 border border-slate-200"
-                          }`}>
-                            <MessageSquare className="w-2.5 h-2.5" />
-                            {replies.length}{unreadReplies > 0 ? ` • ${unreadReplies} new` : ""}
-                          </span>
-                        )}
+                           <span className={`ml-auto flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                             unreadReplies > 0
+                               ? "bg-blue-600 text-white"
+                               : "bg-white text-slate-600 border border-slate-200"
+                           }`}>
+                             <MessageSquare className="w-3.5 h-3.5" />
+                             {replies.length}{unreadReplies > 0 ? ` • ${unreadReplies} new` : ""}
+                           </span>
+                         )}
                         {r.email_status === "failed" && replies.length === 0 && (
                           <AlertCircle className="w-3 h-3 text-red-500 ml-auto" />
                         )}
                       </div>
                       {r.title && (
-                        <div className="w-full min-w-0 text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
+                        <div className="w-full min-w-0 text-sm text-slate-900 font-bold line-clamp-1 mb-1 break-words">
                           {r.title}
                         </div>
                       )}
-                      <div className="w-full min-w-0 text-xs text-slate-700 line-clamp-2 mb-1.5 break-words">
+                      <div className="w-full min-w-0 text-xs text-slate-700 line-clamp-1 mb-1.5 break-words">
                         {r.description}
                       </div>
-                      {r.ticket_id && ticketSummaryById[r.ticket_id] && (
-                        <div className="w-full min-w-0 text-[11px] text-slate-600 italic line-clamp-1 mb-1.5 break-words">
-                          Ticket: {ticketSummaryById[r.ticket_id]}
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
-                        <span className="truncate">{r.reported_by_name || r.reported_by_email}</span>
-                        <span className="flex-shrink-0">{formatDate(r.created_date)}</span>
+                      <div className="flex items-center gap-1.5 flex-wrap text-[10px] mb-1">
+                        {r.client_name && (
+                          <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
+                            {r.client_name}
+                          </span>
+                        )}
+                        {r.booking_info && (
+                          <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
+                            {r.booking_info}
+                          </span>
+                        )}
+                        {r.reported_by_name && (
+                          <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
+                            {r.reported_by_name}
+                          </span>
+                        )}
                       </div>
+                      <div className="text-[10px] text-slate-500">{formatDate(r.created_date)}</div>
                     </button>
                   );
                 })}
