@@ -22,9 +22,9 @@ export default function ReportBug() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f1899b] to-white">
+    <div className="h-screen flex flex-col bg-gradient-to-b from-[#f1899b] to-white overflow-hidden">
       {/* Header */}
-      <div className="sticky top-0 z-30 backdrop-blur-md bg-[#f1899b]/90 border-b border-white/30 shadow-sm">
+      <div className="flex-shrink-0 backdrop-blur-md bg-[#f1899b]/90 border-b border-white/30 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <Link
             to={createPageUrl("TicketBoard")}
@@ -45,21 +45,23 @@ export default function ReportBug() {
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 pt-5 pb-32">
-        <div className="mb-4">
+      <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto px-4 pt-5 pb-5 flex flex-col">
+        <div className="mb-4 flex-shrink-0">
           <h1 className="text-2xl font-bold text-white drop-shadow-sm">Report an Issue</h1>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl p-3 sm:p-4 shadow-lg">
-          <h2 className="text-sm font-semibold text-slate-700 mb-3 px-1">Open Issues</h2>
-          <BugReportIssueList currentUser={user} />
+        <div className="flex-1 min-h-0 bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col">
+          <h2 className="text-sm font-semibold text-slate-700 mb-3 px-1 flex-shrink-0">Open Issues</h2>
+          <div className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1">
+            <BugReportIssueList currentUser={user} />
+          </div>
         </div>
 
         {/* Dedicated full-width Report a Bug button */}
         <button
           type="button"
           onClick={() => setChatSignal(s => s + 1)}
-          className="mt-5 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
+          className="mt-5 flex-shrink-0 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
         >
           <LifeBuoy className="w-6 h-6" />
           <span className="text-lg font-semibold tracking-wide">Report an Issue</span>
