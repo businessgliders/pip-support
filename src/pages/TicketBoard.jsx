@@ -652,8 +652,11 @@ export default function TicketBoard() {
           </div>
         </div>
 
-        {/* Floating Action Icons (top-right on desktop, below header on mobile to avoid covering buttons) */}
-        <div className="fixed top-20 md:top-4 right-4 z-40 flex flex-col gap-2">
+        {/* Floating Action Icons (top-right on desktop, above mobile tab bar on mobile) */}
+        <div
+          className="fixed md:top-4 md:bottom-auto right-4 z-40 flex flex-col gap-2"
+          style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
+        >
           <Link to={createPageUrl("Analytics")}>
             <Button
               variant="ghost"
