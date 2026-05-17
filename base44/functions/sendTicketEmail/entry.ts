@@ -30,14 +30,30 @@ function toQuotedPrintable(str) {
   return out;
 }
 
-function buildMime({ from, to, subject, htmlBody, inReplyTo, references }) {
-  const boundary = "____pip_boundary_" + Math.random().toString(36).slice(2);
+// Wrap base64 to 76-char lines (RFC 2045)
+function wrapBase64(b64) {
+  return b64.match(/.{1,76}/g)?.join("\r\n") || b64;
+}
+
+// Encode filename per RFC 2047 if it contains non-ASCII
+function encodeFilename(name) {
+  if (/^[\x20-\x7E]+$/.test(name)) return `"${name.replace(/"/g, '')}"`;
+  return `=?UTF-8?B?${btoa(unescape(encodeURIComponent(name)))}?=`;
+}
+
+function buildMime({ from, to, subject, htmlBody, inReplyTo, references, attachments = [] }) {
+  const altBoundary = "____pip_alt_" + Math.random().toString(36).slice(2);
+  const hasAttachments = attachments.length > 0;
+  const mixedBoundary = hasAttachments ? "____pip_mixed_" + Math.random().toString(36).slice(2) : null;
+
   const headers = [
     `From: ${from}`,
     `To: ${to}`,
     `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`,
     `MIME-Version: 1.0`,
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    hasAttachments
+      ? `Content-Type: multipart/mixed; boundary="${mixedBoundary}"`
+      : `Content-Type: multipart/alternative; boundary="${altBoundary}"`,
   ];
   if (inReplyTo) headers.push(`In-Reply-To: ${inReplyTo}`);
   if (references) headers.push(`References: ${references}`);
@@ -55,28 +71,78 @@ function buildMime({ from, to, subject, htmlBody, inReplyTo, references }) {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  const body = [
-    `--${boundary}`,
+  const altPart = [
+    `Content-Type: multipart/alternative; boundary="${altBoundary}"`,
+    ``,
+    `--${altBoundary}`,
     `Content-Type: text/plain; charset="UTF-8"`,
     `Content-Transfer-Encoding: quoted-printable`,
     ``,
     toQuotedPrintable(plainText),
     ``,
-    `--${boundary}`,
+    `--${altBoundary}`,
     `Content-Type: text/html; charset="UTF-8"`,
     `Content-Transfer-Encoding: quoted-printable`,
     ``,
     toQuotedPrintable(htmlBody),
     ``,
-    `--${boundary}--`,
+    `--${altBoundary}--`,
   ].join("\r\n");
+
+  let body;
+  if (hasAttachments) {
+    const parts = [
+      `--${mixedBoundary}`,
+      altPart,
+      ``,
+    ];
+    for (const att of attachments) {
+      const fname = encodeFilename(att.filename || 'attachment');
+      parts.push(`--${mixedBoundary}`);
+      parts.push(`Content-Type: ${att.mimeType || 'application/octet-stream'}; name=${fname}`);
+      parts.push(`Content-Transfer-Encoding: base64`);
+      parts.push(`Content-Disposition: attachment; filename=${fname}`);
+      parts.push(``);
+      parts.push(wrapBase64(att.base64));
+      parts.push(``);
+    }
+    parts.push(`--${mixedBoundary}--`);
+    body = parts.join("\r\n");
+  } else {
+    body = altPart;
+  }
 
   const raw = headers.join("\r\n") + "\r\n\r\n" + body;
   // Base64url encode the full raw message
   const rawBytes = new TextEncoder().encode(raw);
   let binary = '';
-  for (const b of rawBytes) binary += String.fromCharCode(b);
+  const CHUNK = 0x8000;
+  for (let i = 0; i < rawBytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, rawBytes.subarray(i, i + CHUNK));
+  }
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// Fetch a file URL and convert it to base64 for MIME embedding
+async function fetchAttachment(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch attachment ${url}: ${res.status}`);
+  const buf = new Uint8Array(await res.arrayBuffer());
+  let binary = '';
+  const CHUNK = 0x8000;
+  for (let i = 0; i < buf.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, buf.subarray(i, i + CHUNK));
+  }
+  const base64 = btoa(binary);
+  const mimeType = res.headers.get('content-type')?.split(';')[0]?.trim() || 'application/octet-stream';
+  // Try to derive filename from URL path
+  let filename = 'attachment';
+  try {
+    const u = new URL(url);
+    const last = u.pathname.split('/').filter(Boolean).pop();
+    if (last) filename = decodeURIComponent(last);
+  } catch (_) { /* ignore */ }
+  return { base64, mimeType, filename };
 }
 
 Deno.serve(async (req) => {
@@ -88,9 +154,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { ticket_id, body_html, is_welcome } = await req.json();
+    const { ticket_id, body_html, is_welcome, attachment_urls } = await req.json();
     if (!ticket_id || !body_html) {
       return Response.json({ error: 'ticket_id and body_html required' }, { status: 400 });
+    }
+
+    // Fetch any attachments (uploaded via UploadFile -> file_url) and base64-encode them
+    const attachments = [];
+    if (Array.isArray(attachment_urls) && attachment_urls.length > 0) {
+      for (const url of attachment_urls) {
+        try {
+          attachments.push(await fetchAttachment(url));
+        } catch (e) {
+          console.error('Attachment fetch failed:', e);
+          return Response.json({ error: `Attachment fetch failed: ${e.message}` }, { status: 400 });
+        }
+      }
     }
 
     const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
@@ -161,6 +240,7 @@ Deno.serve(async (req) => {
       htmlBody: finalHtml,
       inReplyTo,
       references,
+      attachments,
     });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');

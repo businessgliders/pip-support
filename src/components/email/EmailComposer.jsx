@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2, Bold, Italic, List, Link as LinkIcon } from "lucide-react";
+import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2, Bold, Italic, List, Link as LinkIcon, Paperclip, Plus, FileText } from "lucide-react";
 import AiAssistBar from "./AiAssistBar";
 import TemplatePicker from "./TemplatePicker";
 
@@ -10,12 +10,15 @@ import TemplatePicker from "./TemplatePicker";
 // AI suggestions / templates flow into the editor as HTML and are sent as HTML.
 export default function EmailComposer({ ticket, currentUser, onSent, onCancel }) {
   const editorRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [draftHtml, setDraftHtml] = useState("");
   const [sending, setSending] = useState(false);
   const [polishing, setPolishing] = useState(false);
   const [error, setError] = useState(null);
   const [showDescribe, setShowDescribe] = useState(false);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [attachments, setAttachments] = useState([]); // [{ name, url, size, type }]
+  const [uploading, setUploading] = useState(false);
 
   const staffFirstName = currentUser?.full_name?.split(" ")[0] || "";
   const templateVars = {
@@ -75,6 +78,39 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
     return stripped.length === 0;
   };
 
+  const handleAttachClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length) return;
+    setUploading(true);
+    setError(null);
+    try {
+      for (const file of files) {
+        const res = await base44.integrations.Core.UploadFile({ file });
+        if (res?.file_url) {
+          setAttachments(prev => [...prev, { name: file.name, url: res.file_url, size: file.size, type: file.type }]);
+        }
+      }
+    } catch (err) {
+      setError(`Upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeAttachment = (idx) => {
+    setAttachments(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const formatBytes = (b) => {
+    if (!b && b !== 0) return "";
+    if (b < 1024) return `${b} B`;
+    if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
+    return `${(b / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   const handleSend = async () => {
     if (isEmpty(draftHtml)) return;
     setSending(true);
@@ -83,9 +119,11 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
       const res = await base44.functions.invoke("sendTicketEmail", {
         ticket_id: ticket.id,
         body_html: draftHtml,
+        attachment_urls: attachments.map(a => a.url),
       });
       if (res.data?.error) throw new Error(res.data.error);
       setEditorHtml("");
+      setAttachments([]);
       onSent?.();
     } catch (e) {
       setError(e.message || "Failed to send email");
@@ -165,9 +203,49 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         className="min-h-32 max-h-80 overflow-y-auto border border-gray-300 border-t-0 rounded-b-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 prose prose-sm max-w-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400"
       />
 
+      {/* Attachments list */}
+      {attachments.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {attachments.map((a, i) => (
+            <div key={i} className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-xs">
+              <FileText className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-slate-800 max-w-[180px] truncate" title={a.name}>{a.name}</span>
+              {a.size ? <span className="text-slate-500">({formatBytes(a.size)})</span> : null}
+              <button
+                type="button"
+                onClick={() => removeAttachment(i)}
+                className="text-slate-500 hover:text-red-600"
+                title="Remove"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex justify-end gap-2 pt-2 border-t">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={handleAttachClick}
+          disabled={uploading || sending}
+          title="Attach files"
+          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+        </Button>
         <Button
           type="button"
           variant="outline"
