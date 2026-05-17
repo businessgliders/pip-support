@@ -516,8 +516,8 @@ export default function TicketBoard() {
         {/* Sticky wrapper for header + filter on mobile/tablet */}
         <div className="sticky top-0 z-30 lg:static -mx-4 md:-mx-8 px-4 md:px-8 pt-4 md:pt-8 -mt-4 md:-mt-8 mb-4 lg:mb-0 bg-gradient-to-b from-[#f1899b] via-[#f1899b]/95 to-[#f1899b]/80 lg:bg-none backdrop-blur-sm lg:backdrop-blur-none lg:p-0 lg:m-0 pb-3 lg:pb-0">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center md:items-center gap-4 mb-4 lg:mb-8">
-          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-row justify-between items-center gap-3 md:gap-4 mb-4 lg:mb-8">
+          <div className="flex flex-row items-center gap-2 md:gap-4 min-w-0">
             <Link 
               to={createPageUrl("TicketBoard")} 
               onClick={() => { 
@@ -526,14 +526,15 @@ export default function TicketBoard() {
                 setViewMode("status"); 
                 setUserFilter("all");
               }}
+              className="flex-shrink-0"
             >
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/a1b923375_PiPSupport.png"
                 alt="PiP Support"
-                className="h-12 md:h-16 drop-shadow-xl hover:scale-105 transition-transform"
+                className="h-10 md:h-16 drop-shadow-xl hover:scale-105 transition-transform"
               />
             </Link>
-            <div className="text-center md:text-left">
+            <div className="hidden md:block text-left">
               <p className="text-white/90">
                 {showArchived 
                   ? `${archivedTickets.length} archived tickets`
@@ -542,7 +543,7 @@ export default function TicketBoard() {
               </p>
             </div>
           </div>
-          <div className="flex gap-3 flex-wrap items-center justify-center md:justify-start w-full md:w-auto">
+          <div className="flex gap-2 md:gap-3 flex-nowrap md:flex-wrap items-center justify-end">
             {/* Notification Bell - first on desktop, last (after archive) on mobile/tablet */}
             <div className="order-last lg:order-none flex items-center gap-2">
               <NotificationCenter
