@@ -39,7 +39,11 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
   }, [tickets]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [descExpanded, setDescExpanded] = useState(false);
   const queryClient = useQueryClient();
+
+  // Reset description expansion when opening a different issue
+  useEffect(() => { setDescExpanded(false); }, [selected?.id]);
 
   useEffect(() => {
     if (openSignal > 0) setOpen(true);
@@ -282,8 +286,19 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
               </div>
 
               <div>
-                <div className="text-xs text-slate-500 mb-1">Description</div>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap">
+                <div className="text-xs text-slate-500 mb-1 flex items-center justify-between">
+                  <span>Description</span>
+                  {selected.description && selected.description.length > 140 && (
+                    <button
+                      type="button"
+                      onClick={() => setDescExpanded(v => !v)}
+                      className="text-[#b67651] hover:underline text-xs font-medium"
+                    >
+                      {descExpanded ? "Show less" : "Show more"}
+                    </button>
+                  )}
+                </div>
+                <div className={`bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap ${descExpanded ? "" : "line-clamp-2"}`}>
                   {selected.description}
                 </div>
               </div>
