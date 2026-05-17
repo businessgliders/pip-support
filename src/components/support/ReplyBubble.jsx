@@ -49,28 +49,26 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
           {sender} • {formatDate(reply.received_at)}
         </div>
         <button
-          type="button"
-          onClick={() => setShowFull(true)}
-          className={`transition rounded-2xl px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm ${
-            isOutbound
-              ? isBugReport ? "text-right bg-green-100 hover:bg-green-200 border border-green-200 rounded-tr-sm" : "text-right bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tr-sm"
-              : "text-left bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tl-sm"
-          }`}
-          title="Click to view full email"
-        >
-          {(reply.image_urls || []).length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-1">
-              {reply.image_urls.map((u, i) => (
-                <img key={i} src={u} alt="" className="w-12 h-12 object-cover rounded border border-slate-200" />
-              ))}
-            </div>
-          )}
-          {clean.slice(0, 280)}
-          {clean.length > 280 && "…"}
-          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 mt-1 ml-1 align-middle">
-            <Maximize2 className="w-2.5 h-2.5" />
-          </span>
-        </button>
+           type="button"
+           onClick={() => setShowFull(true)}
+           className={`transition rounded-2xl px-3 py-2 text-xs text-slate-800 break-words shadow-sm line-clamp-1 ${
+             isOutbound
+               ? isBugReport ? "text-right bg-green-100 hover:bg-green-200 border border-green-200 rounded-tr-sm" : "text-right bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tr-sm"
+               : "text-left bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tl-sm"
+           }`}
+           title="Click to view full email"
+         >
+           {(reply.image_urls || []).length > 0 && (
+             <div className="flex flex-wrap gap-1 mb-1">
+               {reply.image_urls.map((u, i) => (
+                 <img key={i} src={u} alt="" className="w-12 h-12 object-cover rounded border border-slate-200" />
+               ))}
+             </div>
+           )}
+           <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 ml-1">
+             {clean || "No preview"} <Maximize2 className="w-2.5 h-2.5" />
+           </span>
+         </button>
       </div>
 
       {showFull && (
