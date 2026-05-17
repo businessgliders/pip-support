@@ -361,10 +361,13 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
               {onOpenEscalations && (
                 <button
                   onClick={() => { onOpenEscalations(); setOpen(false); }}
-                  className="md:hidden px-2.5 py-1 bg-white/25 hover:bg-white/40 border border-white/40 rounded-lg transition text-xs font-semibold shadow-sm"
+                  className="md:hidden flex items-center gap-1.5 px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
                   title="Open reported issues"
                 >
-                  Open {escalationCount}
+                  <span>Open</span>
+                  <span className="bg-white text-[#b67651] rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[11px] font-bold">
+                    {escalationCount}
+                  </span>
                 </button>
               )}
               <button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition">
