@@ -33,6 +33,7 @@ import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
 import BugReportChat from "../components/support/BugReportChat";
 import EscalationSwimlane from "../components/support/EscalationSwimlane";
+import MobileTabBar from "../components/support/MobileTabBar";
 import { getPhotoForUser } from "@/lib/userPhotos";
 
 const userColors = {
@@ -544,7 +545,7 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-2 md:gap-3 flex-nowrap md:flex-wrap items-center justify-end">
-            {/* Notification Bell + New ticket */}
+            {/* Notification Bell + New ticket (notification visible on all sizes; new ticket desktop-only) */}
             <div className="flex items-center gap-2">
               <NotificationCenter
                 currentUser={user}
@@ -574,15 +575,7 @@ export default function TicketBoard() {
                 className="backdrop-blur-md bg-white/70 border-white/80 text-gray-900 placeholder:text-gray-600 rounded-xl h-11 w-64"
               />
             </div>
-            <Button
-              onClick={() => {
-                setMobileSearchInput(searchQuery);
-                setMobileSearchDialog(true);
-              }}
-              className="md:hidden backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
-            >
-              <Search className="w-4 h-4" />
-            </Button>
+
 
             {/* View Mode Toggle */}
             {!showArchived && (
@@ -612,10 +605,10 @@ export default function TicketBoard() {
               </div>
             )}
 
-            {/* Archive Toggle Button */}
+            {/* Archive Toggle Button (desktop only - mobile uses tab bar) */}
             <Button
               onClick={() => setShowArchived(!showArchived)}
-              className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
+              className={`hidden md:flex backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
                 showArchived
                   ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
                   : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
@@ -625,14 +618,14 @@ export default function TicketBoard() {
               <Archive className="w-4 h-4" />
             </Button>
 
-            {/* Profile Avatar with dropdown menu */}
+            {/* Profile Avatar with dropdown menu (desktop only - mobile uses tab bar) */}
             {(() => {
               const photo = getPhotoForUser(user);
               return (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className={`flex items-center justify-center h-11 w-11 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 hover:ring-2 hover:ring-white/60 transition ${photo ? "" : getUserColor(user.email)}`}
+                      className={`hidden md:flex items-center justify-center h-11 w-11 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 hover:ring-2 hover:ring-white/60 transition ${photo ? "" : getUserColor(user.email)}`}
                       title={user.full_name || user.email}
                     >
                       {photo ? (
@@ -857,6 +850,23 @@ export default function TicketBoard() {
 
       {/* Floating Bug Report Chat */}
       <BugReportChat currentUser={user} tickets={tickets} />
+
+      {/* iOS-style Mobile Tab Bar */}
+      <MobileTabBar
+        user={user}
+        showArchived={showArchived}
+        onHome={() => {
+          setShowArchived(false);
+          setSearchQuery("");
+          setViewMode("status");
+          setUserFilter("all");
+        }}
+        onSearch={() => {
+          setMobileSearchInput(searchQuery);
+          setMobileSearchDialog(true);
+        }}
+        onToggleArchived={() => setShowArchived(!showArchived)}
+      />
 
       {/* Peeking Escalations Swimlane */}
       <EscalationSwimlane />
