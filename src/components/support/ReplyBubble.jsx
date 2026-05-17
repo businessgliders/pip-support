@@ -44,17 +44,17 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
 
   return (
     <>
-      <div className={`flex flex-col max-w-[85%] ${isOutbound ? "items-start" : "items-end ml-auto"}`}>
-        <div className={`text-[10px] text-slate-500 mb-1 px-2 ${isOutbound ? "text-left" : "text-right"}`}>
+      <div className={`flex flex-col max-w-[85%] ${isOutbound ? "items-end ml-auto" : "items-start"}`}>
+        <div className={`text-[10px] text-slate-500 mb-1 px-2 ${isOutbound ? "text-right" : "text-left"}`}>
           {sender} • {formatDate(reply.received_at)}
         </div>
         <button
           type="button"
           onClick={() => setShowFull(true)}
-          className={`text-left transition rounded-2xl px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm ${
+          className={`transition rounded-2xl px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm ${
             isOutbound
-              ? isBugReport ? "bg-green-100 hover:bg-green-200 border border-green-200 rounded-tl-sm" : "bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tl-sm"
-              : "bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tr-sm"
+              ? isBugReport ? "text-right bg-green-100 hover:bg-green-200 border border-green-200 rounded-tr-sm" : "text-right bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tr-sm"
+              : "text-left bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tl-sm"
           }`}
           title="Click to view full email"
         >
