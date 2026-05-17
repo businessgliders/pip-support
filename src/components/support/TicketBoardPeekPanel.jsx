@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { LayoutDashboard, X, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { DragDropContext } from "@hello-pangea/dnd";
 import KanbanColumn from "@/components/support/KanbanColumn";
 import TicketDetailsModal from "@/components/support/TicketDetailsModal";
 
@@ -112,26 +113,28 @@ export default function TicketBoardPeekPanel({ currentUser }) {
             {isLoading ? (
               <div className="p-4 text-center text-slate-500 text-sm">Loading tickets...</div>
             ) : (
-              <div className="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto h-full snap-x snap-mandatory lg:snap-none">
-                {STATUS_COLUMNS.map((column) => (
-                  <div
-                    key={column}
-                    className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none"
-                  >
-                    <KanbanColumn
-                      status={column}
-                      tickets={getTicketsByColumn(column)}
-                      onStatusChange={() => {}}
-                      onTicketClick={setSelectedTicket}
-                      isLoading={isLoading}
-                      highlightedTicketId={null}
-                      viewMode="status"
-                      allUsers={allUsers}
-                      unreadByTicket={{}}
-                    />
-                  </div>
-                ))}
-              </div>
+              <DragDropContext onDragEnd={() => {}}>
+                <div className="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto h-full snap-x snap-mandatory lg:snap-none">
+                  {STATUS_COLUMNS.map((column) => (
+                    <div
+                      key={column}
+                      className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none"
+                    >
+                      <KanbanColumn
+                        status={column}
+                        tickets={getTicketsByColumn(column)}
+                        onStatusChange={() => {}}
+                        onTicketClick={setSelectedTicket}
+                        isLoading={isLoading}
+                        highlightedTicketId={null}
+                        viewMode="status"
+                        allUsers={allUsers}
+                        unreadByTicket={{}}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </DragDropContext>
             )}
           </div>
         </div>
