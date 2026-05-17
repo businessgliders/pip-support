@@ -29,9 +29,13 @@ const SIDE_LABELS = {
   both: "Both"
 };
 
-export default function BugReportChat({ currentUser, tickets = [] }) {
+export default function BugReportChat({ currentUser, tickets = [], hideFab = false, openSignal = 0 }) {
   const isFrontDesk = currentUser?.email === FRONT_DESK_EMAIL;
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (openSignal > 0) setOpen(true);
+  }, [openSignal]);
   const [step, setStep] = useState("describe");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -327,7 +331,7 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
 
   return (
     <>
-      {!open && (
+      {!open && !hideFab && (
         <button
           type="button"
           onClick={() => setOpen(true)}

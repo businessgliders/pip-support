@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LifeBuoy } from "lucide-react";
 import BugReportChat from "@/components/support/BugReportChat";
 import BugReportIssueList from "@/components/support/BugReportIssueList";
 
 export default function ReportBug() {
   const [user, setUser] = useState(null);
+  const [chatSignal, setChatSignal] = useState(0);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -56,10 +57,20 @@ export default function ReportBug() {
           <h2 className="text-sm font-semibold text-slate-700 mb-3 px-1">Open Issues</h2>
           <BugReportIssueList currentUser={user} />
         </div>
+
+        {/* Dedicated full-width Report a Bug button */}
+        <button
+          type="button"
+          onClick={() => setChatSignal(s => s + 1)}
+          className="mt-5 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
+        >
+          <LifeBuoy className="w-6 h-6" />
+          <span className="text-lg font-semibold tracking-wide">Report a Bug — Live Chat</span>
+        </button>
       </div>
 
-      {/* Floating chat button (BugReportChat shows its own FAB + panel) */}
-      <BugReportChat currentUser={user} tickets={tickets} />
+      {/* Chat panel only (no floating FAB on this page) */}
+      <BugReportChat currentUser={user} tickets={tickets} hideFab openSignal={chatSignal} />
     </div>
   );
 }
