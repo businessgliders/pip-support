@@ -337,10 +337,10 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
           onClick={() => setOpen(true)}
           style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
           className="fixed md:!bottom-5 right-5 z-50 group flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
-          title="Report a bug"
+          title="Report an issue"
         >
           <LifeBuoy className="w-5 h-5" />
-          <span className="hidden sm:inline text-sm font-semibold">Report a bug</span>
+          <span className="hidden sm:inline text-sm font-semibold">Report an issue</span>
         </button>
       )}
 
@@ -353,7 +353,7 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
             <div className="flex items-center gap-2">
               <LifeBuoy className="w-4 h-4" />
               <div>
-                <div className="font-semibold text-sm">Report a bug</div>
+                <div className="font-semibold text-sm">Report an issue</div>
                 <div className="text-[11px] text-white/80">Internal escalation</div>
               </div>
             </div>

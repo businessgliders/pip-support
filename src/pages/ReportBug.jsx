@@ -47,10 +47,7 @@ export default function ReportBug() {
       {/* Content */}
       <div className="max-w-2xl mx-auto px-4 pt-5 pb-32">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-white drop-shadow-sm">Report a Bug</h1>
-          <p className="text-sm text-white/90 mt-1">
-            See open issues below, or tap the chat button to report a new one.
-          </p>
+          <h1 className="text-2xl font-bold text-white drop-shadow-sm">Report an Issue</h1>
         </div>
 
         <div className="bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl p-3 sm:p-4 shadow-lg">
@@ -65,7 +62,7 @@ export default function ReportBug() {
           className="mt-5 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
         >
           <LifeBuoy className="w-6 h-6" />
-          <span className="text-lg font-semibold tracking-wide">Report a Bug — Live Chat</span>
+          <span className="text-lg font-semibold tracking-wide">Report an Issue — Live Chat</span>
         </button>
       </div>
 
