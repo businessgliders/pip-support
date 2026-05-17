@@ -217,12 +217,13 @@ export default function BugReportIssueList({ currentUser }) {
                     </div>
                   </div>
 
-                  {selected.client_name && (
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2">
+                    <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Client & Booking Info</div>
                     <div className="flex flex-wrap gap-4 text-xs">
-                      <div><span className="text-slate-500">Client:</span> <span className="text-slate-800 font-medium">{selected.client_name}</span></div>
-                      {selected.booking_info && <div><span className="text-slate-500">Booking:</span> <span className="text-slate-800">{selected.booking_info}</span></div>}
+                      <div><span className="text-slate-500">Client:</span> <span className="text-slate-800 font-medium">{selected.client_name || "—"}</span></div>
+                      <div><span className="text-slate-500">Booking:</span> <span className="text-slate-800">{selected.booking_info || "—"}</span></div>
                     </div>
-                  )}
+                  </div>
 
                   <div className="flex flex-wrap gap-4 text-xs">
                     <div><span className="text-slate-500">Reported by:</span> <span className="text-slate-800">{selected.reported_by_name || selected.reported_by_email}</span></div>
@@ -230,7 +231,7 @@ export default function BugReportIssueList({ currentUser }) {
 
                   <div className="flex flex-wrap gap-4 text-xs">
                     <div><span className="text-slate-500">Escalated to:</span> <span className="text-slate-800">{selected.escalated_to}</span></div>
-                    <div><span className="text-slate-500">When:</span> <span className="text-slate-800">{formatDate(selected.created_date)}</span></div>
+                    <div><span className="text-slate-500">Reported:</span> <span className="text-slate-800">{formatDate(selected.created_date)}</span></div>
                   </div>
 
                   {selected.image_urls?.length > 0 && (
