@@ -36,6 +36,8 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [repNameInput, setRepNameInput] = useState("");
+  const [clientNameInput, setClientNameInput] = useState("");
+  const [bookingInput, setBookingInput] = useState("");
   const [data, setData] = useState({
     description: "",
     rep_name: "",
@@ -77,6 +79,8 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
     setMessages([]);
     setInput("");
     setRepNameInput("");
+    setClientNameInput("");
+    setBookingInput("");
     setData({
       description: "",
       rep_name: "",
@@ -131,22 +135,55 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
     setTimeout(() => pushAssistant("Thanks! Is this related to an existing ticket?"), 250);
   };
 
+  // Try to extract a client name from free-text description.
+  // Looks for simple patterns like "client John Smith", "for Jane Doe", "with Mary Jones".
+  const extractClientName = (text) => {
+    if (!text) return "";
+    const patterns = [
+      /\bclient(?:\s+is|\s+named|:)?\s+([A-Z][a-zA-Z'’-]+(?:\s+[A-Z][a-zA-Z'’-]+){0,2})/,
+      /\bfor\s+([A-Z][a-zA-Z'’-]+\s+[A-Z][a-zA-Z'’-]+)/,
+      /\bwith\s+([A-Z][a-zA-Z'’-]+\s+[A-Z][a-zA-Z'’-]+)/,
+    ];
+    for (const re of patterns) {
+      const m = text.match(re);
+      if (m && m[1]) return m[1].trim();
+    }
+    return "";
+  };
+
   const answerLinkTicket = (yes) => {
     pushUser(yes ? "Yes" : "No");
     if (yes) {
       setStep("ticketSelect");
       setTimeout(() => pushAssistant("Pick the ticket it relates to:"), 200);
     } else {
-      setStep("affectedSide");
-      setTimeout(() => pushAssistant("Is this happening on client-side, our side, or both?"), 200);
+      // No linked ticket — try to auto-extract a client name from description
+      const guessed = extractClientName(data.description);
+      if (guessed) {
+        setData(d => ({ ...d, client_name: guessed }));
+        setClientNameInput(guessed);
+        setStep("clientName");
+        setTimeout(() => pushAssistant(`Is this about client "${guessed}"? You can edit or clear the name below.`), 200);
+      } else {
+        setStep("clientName");
+        setTimeout(() => pushAssistant("Which client is this about? (or skip if not client-specific)"), 200);
+      }
     }
   };
 
   const pickTicket = (ticketId) => {
     if (ticketId === "__none__") {
       pushUser("Can't find it");
-      setStep("affectedSide");
-      setTimeout(() => pushAssistant("No problem. Is this happening on client-side, our side, or both?"), 200);
+      const guessed = extractClientName(data.description);
+      if (guessed) {
+        setData(d => ({ ...d, client_name: guessed }));
+        setClientNameInput(guessed);
+        setStep("clientName");
+        setTimeout(() => pushAssistant(`No problem. Is this about client "${guessed}"? You can edit or clear the name below.`), 200);
+      } else {
+        setStep("clientName");
+        setTimeout(() => pushAssistant("No problem. Which client is this about? (or skip)"), 200);
+      }
       return;
     }
     const t = tickets.find(x => x.id === ticketId);
@@ -158,8 +195,36 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
       ticket_number: t.ticket_number ? String(t.ticket_number) : "",
       client_name: t.client_name || ""
     }));
+    setStep("bookingInfo");
+    setTimeout(() => pushAssistant("Got it. Is there a specific booking date & time of concern? (or skip)"), 200);
+  };
+
+  const submitClientName = (skip = false) => {
+    const name = clientNameInput.trim();
+    if (skip || !name) {
+      pushUser("Skip");
+      setData(d => ({ ...d, client_name: "" }));
+    } else {
+      pushUser(name);
+      setData(d => ({ ...d, client_name: name }));
+    }
+    setClientNameInput("");
+    setStep("bookingInfo");
+    setTimeout(() => pushAssistant("Is there a specific booking date & time of concern? (or skip)"), 200);
+  };
+
+  const submitBookingInfo = (skip = false) => {
+    const info = bookingInput.trim();
+    if (skip || !info) {
+      pushUser("Skip");
+      setData(d => ({ ...d, booking_info: "" }));
+    } else {
+      pushUser(info);
+      setData(d => ({ ...d, booking_info: info }));
+    }
+    setBookingInput("");
     setStep("affectedSide");
-    setTimeout(() => pushAssistant("Great. Is this happening on client-side, our side, or both?"), 200);
+    setTimeout(() => pushAssistant("Is this happening on client-side, our side, or both?"), 200);
   };
 
   const pickSide = (side) => {
@@ -395,7 +460,9 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
                 <div className="bg-white border border-slate-200 rounded-xl p-3 text-xs space-y-1">
                   <div><span className="text-slate-500">Description:</span> <span className="text-slate-800">{data.description}</span></div>
                   {data.rep_name && <div><span className="text-slate-500">Front Desk Rep:</span> {data.rep_name}</div>}
-                  {data.ticket_number && <div><span className="text-slate-500">Ticket:</span> <strong>#{data.ticket_number}</strong> {data.client_name && `• ${data.client_name}`}</div>}
+                  {data.ticket_number && <div><span className="text-slate-500">Ticket:</span> <strong>#{data.ticket_number}</strong></div>}
+                  {data.client_name && <div><span className="text-slate-500">Client:</span> {data.client_name}</div>}
+                  {data.booking_info && <div><span className="text-slate-500">Booking:</span> {data.booking_info}</div>}
                   <div><span className="text-slate-500">Platform:</span> {platformSummary || "—"}</div>
                   <div><span className="text-slate-500">Urgency:</span> {data.urgency}</div>
                   {data.image_urls.length > 0 && <div><span className="text-slate-500">Attachments:</span> {data.image_urls.length}</div>}
@@ -461,6 +528,50 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
                 }}
               />
               <Button onClick={submitRepName} disabled={!repNameInput.trim()} className="bg-[#b67651] hover:bg-[#a05a3a] text-white">
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
+          {step === "clientName" && (
+            <div className="border-t border-slate-200 p-2 bg-white flex gap-2">
+              <Input
+                autoFocus
+                value={clientNameInput}
+                onChange={e => setClientNameInput(e.target.value)}
+                placeholder="Client name (or skip)"
+                className="text-sm"
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitClientName();
+                  }
+                }}
+              />
+              <Button variant="outline" onClick={() => submitClientName(true)} className="bg-white">Skip</Button>
+              <Button onClick={() => submitClientName()} disabled={!clientNameInput.trim()} className="bg-[#b67651] hover:bg-[#a05a3a] text-white">
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
+          {step === "bookingInfo" && (
+            <div className="border-t border-slate-200 p-2 bg-white flex gap-2">
+              <Input
+                autoFocus
+                value={bookingInput}
+                onChange={e => setBookingInput(e.target.value)}
+                placeholder="e.g. Mon May 19, 9am"
+                className="text-sm"
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitBookingInfo();
+                  }
+                }}
+              />
+              <Button variant="outline" onClick={() => submitBookingInfo(true)} className="bg-white">Skip</Button>
+              <Button onClick={() => submitBookingInfo()} disabled={!bookingInput.trim()} className="bg-[#b67651] hover:bg-[#a05a3a] text-white">
                 <Send className="w-4 h-4" />
               </Button>
             </div>
