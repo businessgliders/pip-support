@@ -62,7 +62,7 @@ export default function ReportBug() {
           className="mt-5 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
         >
           <LifeBuoy className="w-6 h-6" />
-          <span className="text-lg font-semibold tracking-wide">Report an Issue — Live Chat</span>
+          <span className="text-lg font-semibold tracking-wide">Report an Issue</span>
         </button>
       </div>
 

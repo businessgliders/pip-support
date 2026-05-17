@@ -24,6 +24,7 @@ function escapeHtml(s = "") {
 // Plain-text summary designed for copy/paste into a vendor support ticket.
 function buildVendorSummary(report) {
   const lines = [];
+  if (report.bug_number) lines.push(`Issue ID: B${report.bug_number}`);
   lines.push(`Issue: ${report.description || "—"}`);
   if (report.client_name) lines.push(`Customer: ${report.client_name}`);
   if (report.booking_info) lines.push(`Booking date & time: ${report.booking_info}`);
@@ -64,8 +65,8 @@ function buildHtml(report) {
   return `
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:0 auto;background:#ffffff;padding:24px;">
     <div style="border-left:4px solid ${urgencyColor};padding-left:14px;margin-bottom:18px;">
-      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">🐛 Bug Report • ${escapeHtml(report.urgency || 'Soon')}</div>
-      <h1 style="margin:4px 0 0;font-size:20px;color:#0f172a;">New bug reported from Support Portal</h1>
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">🐛 Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
+      <h1 style="margin:4px 0 0;font-size:20px;color:#0f172a;">New issue reported from Support Portal</h1>
     </div>
 
     <!-- VENDOR COPY-PASTE BLOCK -->
@@ -154,8 +155,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Missing description" }, { status: 400 });
     }
 
+    // Assign next sequential bug_number starting at 100
+    let bugNumber = 100;
+    try {
+      const latest = await base44.asServiceRole.entities.BugReport.list("-bug_number", 1);
+      const lastNum = latest?.[0]?.bug_number;
+      if (typeof lastNum === "number" && lastNum >= 100) bugNumber = lastNum + 1;
+    } catch (e) {
+      console.error("Failed to compute next bug_number, defaulting to 100:", e);
+    }
+
     // Persist the bug report
     const created = await base44.asServiceRole.entities.BugReport.create({
+      bug_number: bugNumber,
       description,
       ticket_number: ticket_number || "",
       ticket_id: ticket_id || "",
@@ -176,7 +188,7 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("gmail");
 
     const html = buildHtml({ ...created, id: created.id });
-    const subject = `🐛 [${urgency}] Bug report${ticket_number ? ` • Ticket #${ticket_number}` : ""} - ${reporterName}`;
+    const subject = `🐛 [${urgency}] Issue B${bugNumber}${ticket_number ? ` • Ticket #${ticket_number}` : ""} - ${reporterName}`;
 
     const raw = buildRawEmail({
       to: ESCALATION_TO,

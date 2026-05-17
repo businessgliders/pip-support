@@ -103,6 +103,11 @@ export default function BugReportIssueList({ currentUser }) {
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${u.text}`}>
                   {r.urgency || "Soon"}
                 </span>
+                {r.bug_number && (
+                  <span className="text-[10px] font-bold text-[#b67651] bg-white border border-[#b67651]/30 rounded px-1.5 py-0.5">
+                    B{r.bug_number}
+                  </span>
+                )}
                 {r.ticket_number && (
                   <span className="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 rounded px-1.5 py-0.5">
                     #{r.ticket_number}
@@ -146,7 +151,9 @@ export default function BugReportIssueList({ currentUser }) {
             <div className="px-5 py-4 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Bug className="w-4 h-4" />
-                <div className="font-semibold">Bug Report</div>
+                <div className="font-semibold">
+                  Issue{selected.bug_number ? ` B${selected.bug_number}` : ""}
+                </div>
               </div>
               <button onClick={() => setSelected(null)} className="p-1 hover:bg-white/20 rounded-lg">
                 <X className="w-4 h-4" />
