@@ -36,6 +36,7 @@ export default function ReportBug() {
   const [user, setUser] = useState(null);
   const [chatSignal, setChatSignal] = useState(0);
   const location = useLocation();
+  const highlightId = new URLSearchParams(location.search).get("highlight") || null;
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -114,7 +115,7 @@ export default function ReportBug() {
         <div className="flex-1 min-h-0 w-full max-w-2xl bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col">
           <h2 className="text-sm font-semibold text-slate-700 mb-3 px-1 flex-shrink-0">Open Issues</h2>
           <div className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1">
-            <BugReportIssueList currentUser={user} />
+            <BugReportIssueList currentUser={user} highlightId={highlightId} />
           </div>
         </div>
 

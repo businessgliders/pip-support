@@ -39,11 +39,12 @@ const STATUS_TABS = [
   { status: "Closed", color: "bg-gray-500", textColor: "text-gray-700", bg: "bg-gray-100", border: "border-gray-300" }
 ];
 
-export default function BugReportIssueList({ currentUser }) {
+export default function BugReportIssueList({ currentUser, highlightId = null }) {
   const [selected, setSelected] = useState(null);
   const [lightboxUrl, setLightboxUrl] = useState(null);
   const [attachmentsCollapsed, setAttachmentsCollapsed] = useState(false);
   const [statusFilter, setStatusFilter] = useState("New");
+  const [pulseId, setPulseId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -57,6 +58,20 @@ export default function BugReportIssueList({ currentUser }) {
     const fresh = reports.find(r => r.id === selected.id);
     if (fresh && fresh !== selected) setSelected(fresh);
   }, [reports]); // eslint-disable-line
+
+  // When navigated from notification with ?highlight=<id>, open that report
+  // and switch the status tab to match it. Also flash a pulse on the row.
+  useEffect(() => {
+    if (!highlightId || reports.length === 0) return;
+    const target = reports.find(r => r.id === highlightId);
+    if (!target) return;
+    setStatusFilter(target.status || "New");
+    setSelected(target);
+    markRepliesRead(target);
+    setPulseId(highlightId);
+    const t = setTimeout(() => setPulseId(null), 2500);
+    return () => clearTimeout(t);
+  }, [highlightId, reports]); // eslint-disable-line
 
   const markRepliesRead = async (report) => {
     if (!report || !currentUser?.email) return;
@@ -155,7 +170,9 @@ export default function BugReportIssueList({ currentUser }) {
               key={r.id}
               type="button"
               onClick={() => { setSelected(r); markRepliesRead(r); }}
-              className={`w-full text-left p-2.5 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all`}
+              className={`w-full text-left p-2.5 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all ${
+                pulseId === r.id ? "ring-2 ring-blue-400 animate-pulse" : ""
+              }`}
             >
               <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                 <span className={`w-2 h-2 rounded-full ${u.dot} flex-shrink-0`} />

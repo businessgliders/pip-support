@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Bell, Check, MessageSquare, Bug } from "lucide-react";
 import { motion, useAnimationControls, AnimatePresence } from "framer-motion";
@@ -39,6 +40,7 @@ const formatRelative = (iso) => {
 export default function NotificationCenter({ currentUser, tickets, onTicketClick, variant = "floating" }) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const myTicketIds = (tickets || [])
     .filter(t => t.assigned_to === currentUser?.email && !t.archived)
@@ -278,6 +280,7 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
                   onClick={() => {
                     setOpen(false);
                     markBugReportRead(entry);
+                    navigate(`/ReportBug?highlight=${entry.report.id}`);
                   }}
                   className="w-full text-left px-3 py-2 hover:bg-slate-50 transition flex items-start gap-2"
                 >
