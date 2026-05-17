@@ -132,7 +132,7 @@ export default function BugReportIssueList({ currentUser }) {
                   {r.title}
                 </div>
               )}
-              <div className="text-xs text-slate-700 line-clamp-1 mb-1 break-words">
+              <div className="text-xs text-slate-700 line-clamp-2 mb-1 break-words">
                 {r.description}
               </div>
               <div className="flex items-center justify-between text-[11px] text-slate-500">

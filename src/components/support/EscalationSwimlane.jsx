@@ -217,7 +217,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                           {r.title}
                         </div>
                       )}
-                      <div className="block text-xs text-slate-700 line-clamp-1 mb-1.5 break-words">
+                      <div className="block text-xs text-slate-700 line-clamp-2 mb-1.5 break-words">
                         {r.description}
                       </div>
                       {r.ticket_id && ticketSummaryById[r.ticket_id] && (
