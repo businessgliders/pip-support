@@ -15,6 +15,10 @@ import SignatureSettings from './pages/SignatureSettings';
 import Analytics from './pages/Analytics';
 import Templates from './pages/Templates';
 import ReportBug from './pages/ReportBug';
+import { Navigate } from 'react-router-dom';
+
+const isBugsSubdomain = typeof window !== 'undefined' &&
+  window.location.hostname === 'bugs.pilatesinpinkstudio.com';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -53,7 +57,10 @@ const AuthenticatedApp = () => {
   return (
     <LayoutWrapper currentPageName={mainPageKey}>
       <Routes>
-        <Route path="/" element={<MainPage />} />
+        <Route
+          path="/"
+          element={isBugsSubdomain ? <Navigate to="/ReportBug" replace /> : <MainPage />}
+        />
         {Object.entries(Pages).map(([path, Page]) => (
           path !== mainPageKey && <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
