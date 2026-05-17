@@ -32,10 +32,18 @@ const formatClientName = (name) => {
   return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
 };
 
+const STATUS_TABS = [
+  { status: "New", color: "bg-slate-500", textColor: "text-slate-700", bg: "bg-slate-100", border: "border-slate-300" },
+  { status: "In Progress", color: "bg-blue-500", textColor: "text-blue-700", bg: "bg-blue-50", border: "border-blue-300" },
+  { status: "Resolved", color: "bg-green-500", textColor: "text-green-700", bg: "bg-green-50", border: "border-green-300" },
+  { status: "Closed", color: "bg-gray-500", textColor: "text-gray-700", bg: "bg-gray-100", border: "border-gray-300" }
+];
+
 export default function BugReportIssueList({ currentUser }) {
   const [selected, setSelected] = useState(null);
   const [lightboxUrl, setLightboxUrl] = useState(null);
   const [attachmentsCollapsed, setAttachmentsCollapsed] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("New");
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -94,10 +102,49 @@ export default function BugReportIssueList({ currentUser }) {
     );
   }
 
+  const statusCounts = STATUS_TABS.reduce((acc, tab) => {
+    acc[tab.status] = reports.filter(r => (r.status || "New") === tab.status).length;
+    return acc;
+  }, {});
+
+  const filteredReports = reports.filter(r => (r.status || "New") === statusFilter);
+
   return (
     <>
+      {/* Mini Swimlane Status Tabs */}
+      <div className="flex items-center gap-1 mb-3 overflow-x-auto pb-1">
+        {STATUS_TABS.map(tab => {
+          const isActive = statusFilter === tab.status;
+          const count = statusCounts[tab.status] || 0;
+          return (
+            <button
+              key={tab.status}
+              type="button"
+              onClick={() => setStatusFilter(tab.status)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                isActive
+                  ? `${tab.color} text-white shadow-md`
+                  : `${tab.bg} ${tab.textColor} border ${tab.border} hover:shadow-sm`
+              }`}
+            >
+              <span>{tab.status}</span>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                isActive ? "bg-white/25" : "bg-white"
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredReports.length === 0 ? (
+        <div className="p-6 text-center text-slate-500 text-sm bg-slate-50 rounded-xl border border-slate-200">
+          No issues in <span className="font-semibold">{statusFilter}</span>
+        </div>
+      ) : (
       <div className="space-y-2">
-        {reports.map(r => {
+        {filteredReports.map(r => {
           const u = URGENCY_STYLE[r.urgency] || URGENCY_STYLE.Soon;
           const replies = r.replies || [];
           const unreadReplies = currentUser?.email
@@ -162,6 +209,7 @@ export default function BugReportIssueList({ currentUser }) {
           );
         })}
       </div>
+      )}
 
       {selected && createPortal(
         <div
