@@ -192,6 +192,7 @@ Deno.serve(async (req) => {
           gmail_message_id: message.id,
           rfc_message_id: messageIdHeader,
           read_by: [],
+          direction: 'inbound',
         });
         await base44.asServiceRole.entities.BugReport.update(bugReport.id, { replies });
         processed++;
