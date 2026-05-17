@@ -82,7 +82,7 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
                   {sender} <span className="font-normal text-white/70">&lt;{reply.from_email || "unknown"}&gt;</span>
                 </div>
                 <div className="text-[11px] text-white/70 truncate">
-                  {reply.subject} • {formatDate(reply.received_at)}
+                  To: reportbug@pilatesinpinkstudio.com • {reply.subject} • {formatDate(reply.received_at)}
                 </div>
               </div>
               <button onClick={() => setShowFull(false)} className="p-1 hover:bg-white/20 rounded-lg flex-shrink-0 ml-2">
