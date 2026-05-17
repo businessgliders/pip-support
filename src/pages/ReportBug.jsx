@@ -64,7 +64,7 @@ export default function ReportBug() {
             className="flex items-center gap-2 text-white/90 hover:text-white transition"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm font-medium hidden sm:inline">Back to board</span>
+            <span className="text-sm font-medium hidden sm:inline">Back</span>
           </Link>
           <Link to={createPageUrl("TicketBoard")} className="flex items-center gap-2">
             <img
