@@ -127,7 +127,12 @@ export default function BugReportIssueList({ currentUser }) {
                   <AlertCircle className="w-3 h-3 text-red-500 ml-auto" />
                 )}
               </div>
-              <div className="text-sm text-slate-800 font-medium line-clamp-2 mb-1">
+              {r.title && (
+                <div className="text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
+                  {r.title}
+                </div>
+              )}
+              <div className="text-xs text-slate-700 line-clamp-1 mb-1 break-words">
                 {r.description}
               </div>
               <div className="flex items-center justify-between text-[11px] text-slate-500">
