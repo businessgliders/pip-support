@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Bug, X, AlertCircle, CheckCircle2, ChevronRight, MessageSquare } from "lucide-react";
+import { Bug, X, AlertCircle, CheckCircle2, ChevronRight, MessageSquare, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const URGENCY_STYLE = {
   Critical: { dot: "bg-red-500", text: "text-red-700", bg: "bg-red-50", border: "border-red-200" },
@@ -124,13 +125,23 @@ export default function EscalationSwimlane({ currentUser } = {}) {
                 <div className="text-[11px] text-white/80">{openCount} active • {count} total</div>
               </div>
             </div>
-            <button
-              onClick={() => { setOpen(false); setSelected(null); }}
-              className="p-1 hover:bg-white/20 rounded-lg transition"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <Link
+                to="/ReportBug"
+                onClick={() => { setOpen(false); setSelected(null); }}
+                className="p-1 hover:bg-white/20 rounded-lg transition"
+                title="Open full page"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={() => { setOpen(false); setSelected(null); }}
+                className="p-1 hover:bg-white/20 rounded-lg transition"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* List */}
