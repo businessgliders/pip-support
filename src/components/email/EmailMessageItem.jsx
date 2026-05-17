@@ -107,10 +107,22 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
     );
   }
 
+  // Strip signature from HTML (everything after signature markers)
+  const stripSignature = (h) => {
+    if (!h) return h;
+    const signatureIdx = h.indexOf("<!-- Signature -->");
+    if (signatureIdx !== -1) return h.substring(0, signatureIdx);
+    // Also strip common signature dividers (border-top divs in second half of content)
+    const dividerIdx = h.indexOf("<div style=\"border-top:");
+    if (dividerIdx !== -1 && dividerIdx > h.length * 0.5) return h.substring(0, dividerIdx);
+    return h;
+  };
+
   // Build preview text — fall back to stripping HTML if body_text/snippet missing
   const stripHtml = (h) => (h || "").replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-  const rawText = message.body_text || message.snippet || stripHtml(message.body_html) || "";
+  const bodyWithoutSignature = stripSignature(message.body_html) || message.body_text || "";
+  const rawText = bodyWithoutSignature || message.snippet || stripHtml(message.body_html) || "";
   // Strip quoted reply chains so the inline preview only shows the new content
   // (e.g. cut at "On <date> ... wrote:" or leading ">" quote markers).
   const trimQuoted = (t) => {
@@ -220,7 +232,7 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
           </DialogHeader>
           <div
             className="prose prose-sm max-w-none text-gray-800 mt-2"
-            dangerouslySetInnerHTML={{ __html: message.body_html || message.body_text || "" }}
+            dangerouslySetInnerHTML={{ __html: bodyWithoutSignature || message.body_text || "" }}
           />
           {hasAttachments && (
             <div className="mt-4 pt-3 border-t border-gray-200">
