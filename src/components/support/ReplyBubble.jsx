@@ -40,10 +40,7 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
   const [showFull, setShowFull] = useState(false);
   const clean = stripQuoted(reply.body_text || "") || reply.snippet || "";
   const sender = reply.from_name || reply.from_email || "Unknown";
-  const fromEmail = (reply.from_email || "").toLowerCase();
-  const isOutbound =
-    reply.direction === "outbound" ||
-    fromEmail.endsWith("@pilatesinpinkstudio.com");
+  const isOutbound = reply.direction === "outbound";
 
   return (
     <>
@@ -56,7 +53,7 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
           onClick={() => setShowFull(true)}
           className={`text-left transition rounded-2xl px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm ${
             isOutbound
-              ? isBugReport ? "bg-sky-100 hover:bg-sky-200 border border-sky-200 rounded-tl-sm" : "bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tl-sm"
+              ? isBugReport ? "bg-green-100 hover:bg-green-200 border border-green-200 rounded-tl-sm" : "bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tl-sm"
               : "bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tr-sm"
           }`}
           title="Click to view full email"
