@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Bug, X, Send, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
+import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -270,7 +270,7 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
           className="fixed md:!bottom-5 right-5 z-50 group flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
           title="Report a bug"
         >
-          <Bug className="w-5 h-5" />
+          <LifeBuoy className="w-5 h-5" />
           <span className="hidden sm:inline text-sm font-semibold">Report a bug</span>
         </button>
       )}
@@ -282,7 +282,7 @@ export default function BugReportChat({ currentUser, tickets = [] }) {
         >
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white">
             <div className="flex items-center gap-2">
-              <Bug className="w-4 h-4" />
+              <LifeBuoy className="w-4 h-4" />
               <div>
                 <div className="font-semibold text-sm">Report a bug</div>
                 <div className="text-[11px] text-white/80">Internal escalation</div>
