@@ -30,6 +30,7 @@ const formatDate = (s) => {
 export default function BugReportIssueList({ currentUser }) {
   const [selected, setSelected] = useState(null);
   const [lightboxUrl, setLightboxUrl] = useState(null);
+  const [attachmentsCollapsed, setAttachmentsCollapsed] = useState(true);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -174,28 +175,45 @@ export default function BugReportIssueList({ currentUser }) {
               <div className="flex flex-col md:flex-row gap-6 h-full">
                 {/* Left Column: Details */}
                 <div className="w-full md:flex-1 md:min-w-0 space-y-3 md:overflow-y-auto md:pr-2">
+                  {/* Status Filter */}
+                  <div className="flex items-center gap-1.5">
+                    {[
+                      { status: "New", color: "bg-slate-500" },
+                      { status: "In Progress", color: "bg-blue-500" },
+                      { status: "Resolved", color: "bg-green-500" },
+                      { status: "Closed", color: "bg-gray-500" }
+                    ].map(({ status, color }, index) => {
+                      const isActive = selected.status === status;
+                      return (
+                        <React.Fragment key={status}>
+                          <button
+                            onClick={() => {
+                              if (!isActive) {
+                                base44.entities.BugReport.update(selected.id, { status }).then(() => {
+                                  queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
+                                });
+                              }
+                            }}
+                            disabled={isActive}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                              isActive
+                                ? `${color} text-white shadow-md ring-2 ring-offset-2 ring-slate-300`
+                                : "bg-white border border-slate-300 text-slate-600 hover:border-slate-400 hover:shadow-sm cursor-pointer"
+                            }`}
+                          >
+                            {status}
+                          </button>
+                          {index < 3 && <div className="text-slate-300 text-xs">→</div>}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  {/* Priority Pill */}
                   <div className="flex flex-wrap gap-2">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      selected.status === "New" ? "bg-slate-100 text-slate-700 border border-slate-200" :
-                      selected.status === "In Progress" ? "bg-blue-50 text-blue-700 border border-blue-200" :
-                      selected.status === "Resolved" ? "bg-green-50 text-green-700 border border-green-200" :
-                      "bg-slate-100 text-slate-700 border border-slate-200"
-                    }`}>
-                      {selected.status || "New"}
-                    </span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
                       {selected.urgency}
                     </span>
-                    {selected.client_name && (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
-                        {selected.client_name}
-                      </span>
-                    )}
-                    {selected.booking_info && (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
-                        {selected.booking_info}
-                      </span>
-                    )}
                   </div>
 
                   {selected.title && (
@@ -236,19 +254,27 @@ export default function BugReportIssueList({ currentUser }) {
 
                   {selected.image_urls?.length > 0 && (
                     <div>
-                      <div className="text-xs text-slate-500 mb-1">Attachments ({selected.image_urls.length})</div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {selected.image_urls.map((u, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => setLightboxUrl(u)}
-                            className="block focus:outline-none"
-                          >
-                            <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition cursor-zoom-in" />
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAttachmentsCollapsed(!attachmentsCollapsed)}
+                        className="text-xs text-slate-500 mb-1 hover:text-slate-700 flex items-center gap-1"
+                      >
+                        {attachmentsCollapsed ? "+" : "−"} Attachments ({selected.image_urls.length})
+                      </button>
+                      {!attachmentsCollapsed && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {selected.image_urls.map((u, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => setLightboxUrl(u)}
+                              className="block focus:outline-none"
+                            >
+                              <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition cursor-zoom-in" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -257,40 +283,6 @@ export default function BugReportIssueList({ currentUser }) {
                       <strong>Error:</strong> {selected.email_error}
                     </div>
                   )}
-
-                  {/* Status Switcher */}
-                  <div className="flex items-center gap-1.5 pt-2">
-                    {[
-                      { status: "New", color: "bg-slate-500" },
-                      { status: "In Progress", color: "bg-blue-500" },
-                      { status: "Resolved", color: "bg-green-500" },
-                      { status: "Closed", color: "bg-gray-500" }
-                    ].map(({ status, color }, index) => {
-                      const isActive = selected.status === status;
-                      return (
-                        <React.Fragment key={status}>
-                          <button
-                            onClick={() => {
-                              if (!isActive) {
-                                base44.entities.BugReport.update(selected.id, { status }).then(() => {
-                                  queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
-                                });
-                              }
-                            }}
-                            disabled={isActive}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                              isActive
-                                ? `${color} text-white shadow-md ring-2 ring-offset-2 ring-slate-300`
-                                : "bg-white border border-slate-300 text-slate-600 hover:border-slate-400 hover:shadow-sm cursor-pointer"
-                            }`}
-                          >
-                            {status}
-                          </button>
-                          {index < 3 && <div className="text-slate-300 text-xs">→</div>}
-                        </React.Fragment>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 {/* Divider */}
