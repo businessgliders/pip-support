@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { AlertCircle, CheckCircle2, MessageSquare, Bug, X } from "lucide-react";
@@ -149,7 +150,7 @@ export default function BugReportIssueList({ currentUser }) {
         })}
       </div>
 
-      {selected && (
+      {selected && createPortal(
         <div
           className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 pt-20 sm:pt-4 overflow-y-auto animate-in fade-in duration-150"
           onClick={() => setSelected(null)}
@@ -309,10 +310,11 @@ export default function BugReportIssueList({ currentUser }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {lightboxUrl && (
+      {lightboxUrl && createPortal(
         <div
           className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
           onClick={() => setLightboxUrl(null)}
@@ -330,7 +332,8 @@ export default function BugReportIssueList({ currentUser }) {
             onClick={(e) => e.stopPropagation()}
             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
           />
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
