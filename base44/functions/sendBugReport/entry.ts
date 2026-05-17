@@ -36,7 +36,7 @@ function buildHtml(report) {
   return `
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:0 auto;background:#ffffff;padding:24px;">
     <div style="border-left:4px solid ${urgencyColor};padding-left:14px;margin-bottom:18px;">
-      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">🐛 Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">⚠️ Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
       <h1 style="margin:4px 0 0;font-size:22px;color:#0f172a;">${escapeHtml(report.title || 'New issue reported')}</h1>
     </div>
 
