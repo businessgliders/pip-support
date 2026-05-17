@@ -247,7 +247,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[calc(100vh-6rem)] sm:max-h-[85vh] overflow-hidden flex flex-col my-auto"
+            className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[calc(100vh-6rem)] sm:max-h-[90vh] overflow-hidden flex flex-col my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 py-4 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white flex items-center justify-between flex-shrink-0">
@@ -261,82 +261,93 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-5 space-y-3 text-sm">
-              <div className="flex flex-wrap gap-2">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
-                  {selected.urgency}
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
-                  {selected.platform}
-                </span>
-                {selected.ticket_number && (
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-[#b67651]/10 text-[#b67651] border border-[#b67651]/30 font-semibold">
-                    Ticket #{selected.ticket_number}
-                  </span>
-                )}
-                <span className={`px-2 py-0.5 rounded-full text-xs ${
-                  selected.email_status === "sent" ? "bg-green-50 text-green-700 border border-green-200" :
-                  selected.email_status === "failed" ? "bg-red-50 text-red-700 border border-red-200" :
-                  "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                }`}>
-                  Email: {selected.email_status}
-                </span>
-              </div>
-
-              <div>
-                <div className="text-xs text-slate-500 mb-1">Description</div>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap">
-                  {selected.description}
-                </div>
-              </div>
-
-              {selected.client_name && (
-                <div className="flex gap-4 text-xs">
-                  <div><span className="text-slate-500">Client:</span> <span className="text-slate-800 font-medium">{selected.client_name}</span></div>
-                  {selected.booking_info && <div><span className="text-slate-500">Booking:</span> <span className="text-slate-800">{selected.booking_info}</span></div>}
-                </div>
-              )}
-
-              <div className="flex gap-4 text-xs">
-                <div><span className="text-slate-500">Reported by:</span> <span className="text-slate-800">{selected.reported_by_name || selected.reported_by_email}</span></div>
-              </div>
-
-              <div className="flex gap-4 text-xs">
-                <div><span className="text-slate-500">Escalated to:</span> <span className="text-slate-800">{selected.escalated_to}</span></div>
-                <div><span className="text-slate-500">When:</span> <span className="text-slate-800">{formatDate(selected.created_date)}</span></div>
-              </div>
-
-              {selected.image_urls?.length > 0 && (
-                <div>
-                  <div className="text-xs text-slate-500 mb-1">Attachments ({selected.image_urls.length})</div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {selected.image_urls.map((u, i) => (
-                      <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="block">
-                        <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
-                      </a>
-                    ))}
+            <div className="flex-1 overflow-y-auto p-5 text-sm">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Left Column: Details */}
+                <div className="w-full md:flex-1 md:min-w-0 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
+                      {selected.urgency}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                      {selected.platform}
+                    </span>
+                    {selected.ticket_number && (
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-[#b67651]/10 text-[#b67651] border border-[#b67651]/30 font-semibold">
+                        Ticket #{selected.ticket_number}
+                      </span>
+                    )}
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      selected.email_status === "sent" ? "bg-green-50 text-green-700 border border-green-200" :
+                      selected.email_status === "failed" ? "bg-red-50 text-red-700 border border-red-200" :
+                      "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                    }`}>
+                      Email: {selected.email_status}
+                    </span>
                   </div>
-                </div>
-              )}
 
-              {selected.email_error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
-                  <strong>Error:</strong> {selected.email_error}
-                </div>
-              )}
+                  <div>
+                    <div className="text-xs text-slate-500 mb-1">Description</div>
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap">
+                      {selected.description}
+                    </div>
+                  </div>
 
-              {(selected.replies || []).length > 0 && (
-                <div>
-                  <div className="text-xs text-slate-500 mb-2 flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3" /> Replies ({selected.replies.length})
+                  {selected.client_name && (
+                    <div className="flex gap-4 text-xs">
+                      <div><span className="text-slate-500">Client:</span> <span className="text-slate-800 font-medium">{selected.client_name}</span></div>
+                      {selected.booking_info && <div><span className="text-slate-500">Booking:</span> <span className="text-slate-800">{selected.booking_info}</span></div>}
+                    </div>
+                  )}
+
+                  <div className="flex gap-4 text-xs">
+                    <div><span className="text-slate-500">Reported by:</span> <span className="text-slate-800">{selected.reported_by_name || selected.reported_by_email}</span></div>
                   </div>
-                  <div className="space-y-3">
-                    {selected.replies.map((r, i) => (
-                      <ReplyBubble key={r.gmail_message_id || i} reply={r} isBugReport={true} />
-                    ))}
+
+                  <div className="flex gap-4 text-xs">
+                    <div><span className="text-slate-500">Escalated to:</span> <span className="text-slate-800">{selected.escalated_to}</span></div>
+                    <div><span className="text-slate-500">When:</span> <span className="text-slate-800">{formatDate(selected.created_date)}</span></div>
                   </div>
+
+                  {selected.image_urls?.length > 0 && (
+                    <div>
+                      <div className="text-xs text-slate-500 mb-1">Attachments ({selected.image_urls.length})</div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {selected.image_urls.map((u, i) => (
+                          <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="block">
+                            <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selected.email_error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
+                      <strong>Error:</strong> {selected.email_error}
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {/* Divider */}
+                <div className="hidden md:block w-px bg-slate-200 self-stretch flex-shrink-0" />
+
+                {/* Right Column: Email Communications */}
+                <div className="w-full md:flex-1 md:min-w-0">
+                  <div className="text-xs text-slate-500 mb-2 flex items-center gap-1 font-semibold uppercase tracking-wider">
+                    <MessageSquare className="w-3 h-3" /> Email Communications {(selected.replies || []).length > 0 && `(${selected.replies.length})`}
+                  </div>
+                  {(selected.replies || []).length > 0 ? (
+                    <div className="space-y-3">
+                      {selected.replies.map((r, i) => (
+                        <ReplyBubble key={r.gmail_message_id || i} reply={r} isBugReport={true} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-slate-400 italic py-4">No replies yet</div>
+                  )}
+                </div>
+              </div>
             </div>
             <BugReportReplyComposer
               report={selected}
