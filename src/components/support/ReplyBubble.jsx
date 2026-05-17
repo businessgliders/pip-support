@@ -53,7 +53,7 @@ export default function ReplyBubble({ reply }) {
           onClick={() => setShowFull(true)}
           className={`text-left transition rounded-2xl px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm ${
             isOutbound
-              ? "bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tl-sm"
+              ? "bg-sky-100 hover:bg-sky-200 border border-sky-200 rounded-tl-sm"
               : "bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tr-sm"
           }`}
           title="Click to view full email"
