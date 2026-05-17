@@ -25,10 +25,14 @@ const formatDate = (s) => {
   });
 };
 
-export default function EscalationSwimlane({ currentUser } = {}) {
+export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {}) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (openSignal > 0) setOpen(true);
+  }, [openSignal]);
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["bug-reports"],
@@ -96,11 +100,11 @@ export default function EscalationSwimlane({ currentUser } = {}) {
         }`}
         style={{ height: open ? "min(70vh, 600px)" : undefined }}
       >
-        {/* Peek tab (always visible sliver) */}
+        {/* Peek tab (always visible sliver) - hidden on mobile */}
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="w-7 py-3 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
+          className="hidden md:flex w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
           title="Reported Issues"
         >
           <Bug className="w-3.5 h-3.5" />

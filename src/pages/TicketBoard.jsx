@@ -70,8 +70,16 @@ export default function TicketBoard() {
   const [cleanupDismissed, setCleanupDismissed] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [escalationOpenSignal, setEscalationOpenSignal] = useState(0);
   const swimlaneScrollRef = React.useRef(null);
   const queryClient = useQueryClient();
+
+  const { data: bugReports = [] } = useQuery({
+    queryKey: ['bug-reports'],
+    queryFn: () => base44.entities.BugReport.list("-created_date", 50),
+    refetchInterval: 15000,
+    enabled: !!user
+  });
 
   const updateScrollButtons = React.useCallback(() => {
     const el = swimlaneScrollRef.current;
@@ -881,7 +889,12 @@ export default function TicketBoard() {
       />
 
       {/* Floating Bug Report Chat */}
-      <BugReportChat currentUser={user} tickets={tickets} />
+      <BugReportChat
+        currentUser={user}
+        tickets={tickets}
+        escalationCount={bugReports.length}
+        onOpenEscalations={() => setEscalationOpenSignal(s => s + 1)}
+      />
 
       {/* iOS-style Mobile Tab Bar */}
       <MobileTabBar
@@ -900,7 +913,7 @@ export default function TicketBoard() {
       />
 
       {/* Peeking Escalations Swimlane */}
-      <EscalationSwimlane currentUser={user} />
+      <EscalationSwimlane currentUser={user} openSignal={escalationOpenSignal} />
 
       {/* Footer */}
       <div className="mt-2 mb-0 flex items-center justify-center gap-3 flex-shrink-0">

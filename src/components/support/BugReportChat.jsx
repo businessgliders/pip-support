@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
+import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, PanelRightOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,7 +29,7 @@ const SIDE_LABELS = {
   both: "Both"
 };
 
-export default function BugReportChat({ currentUser, tickets = [], hideFab = false, openSignal = 0 }) {
+export default function BugReportChat({ currentUser, tickets = [], hideFab = false, openSignal = 0, onOpenEscalations, escalationCount = 0 }) {
   const isFrontDesk = currentUser?.email === FRONT_DESK_EMAIL;
   const [open, setOpen] = useState(false);
 
@@ -357,9 +357,26 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
                 <div className="text-[11px] text-white/80">Internal escalation</div>
               </div>
             </div>
-            <button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition">
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              {onOpenEscalations && (
+                <button
+                  onClick={() => { onOpenEscalations(); setOpen(false); }}
+                  className="md:hidden flex items-center gap-1 px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
+                  title="Open reported issues"
+                >
+                  <PanelRightOpen className="w-3.5 h-3.5" />
+                  <span>Open</span>
+                  {escalationCount > 0 && (
+                    <span className="bg-white text-[#b67651] rounded-full px-1.5 py-0.5 text-[10px] font-bold min-w-[18px] text-center">
+                      {escalationCount}
+                    </span>
+                  )}
+                </button>
+              )}
+              <button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-slate-50">
