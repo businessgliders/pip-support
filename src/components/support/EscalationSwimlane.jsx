@@ -184,7 +184,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {})
                         )}
                         {r.ticket_number && (
                           <span className="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 rounded px-1.5 py-0.5">
-                            #{r.ticket_number}
+                            #{r.ticket_number}{r.client_name ? ` • ${r.client_name}` : ""}
                           </span>
                         )}
                         {replies.length > 0 && (
