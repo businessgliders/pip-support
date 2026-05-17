@@ -56,13 +56,24 @@ export default function BugReportFeaturePopup({ open, onClose, onMarkRead }) {
       >
         {/* Header */}
         <div className="relative px-6 py-5 bg-gradient-to-br from-[#b67651] via-[#a05a3a] to-[#8f4d31] text-white flex-shrink-0">
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            <button
+              onClick={onMarkRead}
+              className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-white/15 hover:bg-white/25 border border-white/30 rounded-md transition"
+              aria-label="Mark as read"
+              title="Don't show this again"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              Mark as read
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-white/20 rounded-lg transition"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-6 h-6" />
