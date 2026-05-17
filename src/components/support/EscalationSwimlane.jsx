@@ -66,13 +66,13 @@ export default function EscalationSwimlane() {
         className={`fixed top-1/2 -translate-y-1/2 right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-[calc(100%-28px)]"
         }`}
-        style={{ height: "min(70vh, 600px)" }}
+        style={{ height: open ? "min(70vh, 600px)" : undefined }}
       >
         {/* Peek tab (always visible sliver) */}
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="w-7 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors"
+          className="w-7 py-2 md:py-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors md:h-auto"
           title="Escalations"
         >
           <Bug className="w-3.5 h-3.5" />
@@ -87,7 +87,7 @@ export default function EscalationSwimlane() {
         </button>
 
         {/* Panel content */}
-        <div className="w-[340px] bg-white shadow-2xl border-y border-l border-slate-200 rounded-l-xl flex flex-col overflow-hidden">
+        <div className="w-[340px] max-w-[calc(100vw-28px)] bg-white shadow-2xl border-y border-l border-slate-200 rounded-l-xl flex flex-col overflow-hidden" style={{ height: open ? "min(70vh, 600px)" : undefined }}>
           {/* Header */}
           <div className="px-4 py-3 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
