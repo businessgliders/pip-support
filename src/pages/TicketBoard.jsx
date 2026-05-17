@@ -34,6 +34,7 @@ import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
 import BugReportChat from "../components/support/BugReportChat";
 import EscalationSwimlane from "../components/support/EscalationSwimlane";
+import BugReportFeaturePopup from "../components/support/BugReportFeaturePopup";
 import MobileTabBar from "../components/support/MobileTabBar";
 import { getPhotoForUser } from "@/lib/userPhotos";
 
@@ -71,6 +72,7 @@ export default function TicketBoard() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [escalationOpenSignal, setEscalationOpenSignal] = useState(0);
+  const [showBugFeaturePopup, setShowBugFeaturePopup] = useState(false);
   const swimlaneScrollRef = React.useRef(null);
   const queryClient = useQueryClient();
 
@@ -141,6 +143,11 @@ export default function TicketBoard() {
         if (!currentUser.seen_changelog_v1) {
           setShowChangelog(true);
         }
+        try {
+          if (!localStorage.getItem('pip_seen_bug_report_feature_v1')) {
+            setShowBugFeaturePopup(true);
+          }
+        } catch { /* ignore */ }
       } catch (error) {
         // Not authenticated - show user selection
         setUser(null);
@@ -914,6 +921,16 @@ export default function TicketBoard() {
 
       {/* Peeking Escalations Swimlane */}
       <EscalationSwimlane currentUser={user} openSignal={escalationOpenSignal} tickets={tickets} />
+
+      {/* Bug Report feature announcement */}
+      <BugReportFeaturePopup
+        open={showBugFeaturePopup}
+        onClose={() => setShowBugFeaturePopup(false)}
+        onMarkRead={() => {
+          try { localStorage.setItem('pip_seen_bug_report_feature_v1', '1'); } catch { /* ignore */ }
+          setShowBugFeaturePopup(false);
+        }}
+      />
 
       {/* Footer */}
       <div className="mt-2 mb-0 flex items-center justify-center gap-3 flex-shrink-0">
