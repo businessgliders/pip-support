@@ -140,21 +140,19 @@ export default function BugReportIssueList({ currentUser }) {
               <div className="flex items-center gap-1.5 flex-wrap text-[10px] mb-1">
                 {r.client_name && (
                   <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
-                    {r.client_name}
+                    Client Name: {r.client_name}
                   </span>
                 )}
                 {r.booking_info && (
                   <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
-                    {r.booking_info}
-                  </span>
-                )}
-                {r.reported_by_name && (
-                  <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
-                    {r.reported_by_name}
+                    Booking Details: {r.booking_info}
                   </span>
                 )}
               </div>
-              <div className="text-[10px] text-slate-500">{formatDate(r.created_date)}</div>
+              <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                <span>{formatDate(r.created_date)}</span>
+                {r.reported_by_name && <span>Reported by: {r.reported_by_name}</span>}
+              </div>
             </button>
           );
         })}
