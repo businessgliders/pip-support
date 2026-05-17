@@ -78,7 +78,9 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
           >
             <div className="px-5 py-3 bg-gradient-to-r from-slate-700 to-slate-800 text-white flex items-center justify-between flex-shrink-0">
               <div className="min-w-0">
-                <div className="font-semibold text-sm truncate">{sender}</div>
+                <div className="font-semibold text-sm truncate">
+                  {sender} <span className="font-normal text-white/70">&lt;{reply.from_email || "unknown"}&gt;</span>
+                </div>
                 <div className="text-[11px] text-white/70 truncate">
                   {reply.subject} • {formatDate(reply.received_at)}
                 </div>
@@ -86,10 +88,6 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
               <button onClick={() => setShowFull(false)} className="p-1 hover:bg-white/20 rounded-lg flex-shrink-0 ml-2">
                 <X className="w-4 h-4" />
               </button>
-            </div>
-            <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-200 text-xs text-slate-700 space-y-1">
-              <div><span className="font-semibold">From:</span> <span className="text-slate-600">{reply.from_email || "Unknown"}</span></div>
-              <div><span className="font-semibold">To:</span> <span className="text-slate-600">{reply.to_email || "Unknown"}</span></div>
             </div>
             <div className="flex-1 overflow-y-auto p-5 text-sm">
               {reply.body_html ? (
