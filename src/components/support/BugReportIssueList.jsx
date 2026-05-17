@@ -221,7 +221,7 @@ export default function BugReportIssueList({ currentUser }) {
                       <div className="text-xs text-slate-500 mb-1">Title</div>
                       <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-slate-800 font-medium mb-3 flex items-end justify-between gap-2">
                         <div>{selected.title}</div>
-                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-semibold whitespace-nowrap flex-shrink-0">AI Generated</span>
+                        <span className="text-[9px] bg-slate-200 text-slate-500 px-1 py-0.5 rounded whitespace-nowrap flex-shrink-0">AI</span>
                       </div>
                     </div>
                   )}
