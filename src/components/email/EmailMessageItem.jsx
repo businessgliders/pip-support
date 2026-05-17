@@ -232,7 +232,7 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
           </DialogHeader>
           <div
             className="prose prose-sm max-w-none text-gray-800 mt-2"
-            dangerouslySetInnerHTML={{ __html: bodyWithoutSignature || message.body_text || "" }}
+            dangerouslySetInnerHTML={{ __html: message.body_html || message.body_text || "" }}
           />
           {hasAttachments && (
             <div className="mt-4 pt-3 border-t border-gray-200">
