@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Bug, X, AlertCircle, CheckCircle2, ChevronRight, MessageSquare, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import ReplyBubble from "@/components/support/ReplyBubble";
 
 const URGENCY_STYLE = {
   Critical: { dot: "bg-red-500", text: "text-red-700", bg: "bg-red-50", border: "border-red-200" },
@@ -328,17 +329,9 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                   <div className="text-xs text-slate-500 mb-2 flex items-center gap-1">
                     <MessageSquare className="w-3 h-3" /> Replies ({selected.replies.length})
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {selected.replies.map((r, i) => (
-                      <div key={r.gmail_message_id || i} className="border border-slate-200 rounded-lg p-3 bg-white">
-                        <div className="flex items-center justify-between mb-1 text-xs">
-                          <span className="font-semibold text-slate-800">{r.from_name || r.from_email}</span>
-                          <span className="text-slate-500">{formatDate(r.received_at)}</span>
-                        </div>
-                        <div className="text-xs text-slate-600 whitespace-pre-wrap">
-                          {r.body_text?.slice(0, 800) || r.snippet}
-                        </div>
-                      </div>
+                      <ReplyBubble key={r.gmail_message_id || i} reply={r} />
                     ))}
                   </div>
                 </div>
