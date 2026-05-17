@@ -45,29 +45,30 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
   return (
     <>
       <div className={`flex flex-col max-w-[85%] ${isOutbound ? "items-end ml-auto" : "items-start"}`}>
-        <div className={`text-[10px] text-slate-500 mb-1 px-2 ${isOutbound ? "text-right" : "text-left"}`}>
-          {sender} • {formatDate(reply.received_at)}
-        </div>
         <button
            type="button"
            onClick={() => setShowFull(true)}
-           className={`transition rounded-2xl px-3 py-2 text-xs text-slate-800 break-words shadow-sm line-clamp-1 ${
+           className={`transition rounded-lg px-4 py-3 text-sm text-slate-800 break-words shadow-md border ${
              isOutbound
-               ? isBugReport ? "text-right bg-green-100 hover:bg-green-200 border border-green-200 rounded-tr-sm" : "text-right bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tr-sm"
-               : "text-left bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tl-sm"
+               ? isBugReport ? "bg-green-50 hover:bg-green-100 border-green-200 rounded-tr-none" : "bg-slate-50 hover:bg-slate-100 border-slate-300 rounded-tr-none"
+               : "bg-white hover:bg-slate-50 border-slate-300 rounded-tl-none"
            }`}
            title="Click to view full email"
          >
            {(reply.image_urls || []).length > 0 && (
-             <div className="flex flex-wrap gap-1 mb-1">
+             <div className="flex flex-wrap gap-2 mb-2">
                {reply.image_urls.map((u, i) => (
-                 <img key={i} src={u} alt="" className="w-12 h-12 object-cover rounded border border-slate-200" />
+                 <img key={i} src={u} alt="" className="w-16 h-16 object-cover rounded border border-slate-200" />
                ))}
              </div>
            )}
-           <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 ml-1">
-             {clean || "No preview"} <Maximize2 className="w-2.5 h-2.5" />
-           </span>
+           <div className="line-clamp-1 text-slate-700">
+             {clean || "No preview"}
+           </div>
+           <div className="flex items-center justify-end gap-2 mt-2 text-[10px] text-slate-500">
+             <span>{sender} • {formatDate(reply.received_at)}</span>
+             <Maximize2 className="w-3 h-3" />
+           </div>
          </button>
       </div>
 
