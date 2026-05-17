@@ -271,26 +271,24 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
         </div>
 
         {ticket.inquiry_type === "Cancellation" && ticket.discount_offered && (
-          <div className="mt-3 mb-3 space-y-2">
-            <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 flex items-center gap-2">
-              <Gift className="w-4 h-4 text-gray-900 flex-shrink-0" />
-              <span className="text-gray-900 text-xs font-medium">
-                {ticket.discount_offered} offer
-              </span>
-            </div>
-            
-            {ticket.discount_accepted !== undefined && ticket.discount_accepted !== null && (
-              <div className={`rounded-lg p-2 flex items-center gap-2 ${
-                ticket.discount_accepted 
-                  ? 'bg-green-500/30 border border-green-400/50' 
-                  : 'bg-gray-400/30 border border-gray-300/50'
-              }`}>
-                <span className="text-sm">{ticket.discount_accepted ? '🎉' : '😔'}</span>
+          <div className="mt-3 mb-3">
+            <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4 text-gray-900 flex-shrink-0" />
                 <span className="text-gray-900 text-xs font-medium">
-                  {ticket.discount_accepted ? 'Accepted!' : 'Declined'}
+                  {ticket.discount_offered} offer
                 </span>
               </div>
-            )}
+              {ticket.discount_accepted !== undefined && ticket.discount_accepted !== null && (
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
+                  ticket.discount_accepted 
+                    ? 'bg-green-500/40 text-green-800' 
+                    : 'bg-gray-400/40 text-gray-800'
+                }`}>
+                  {ticket.discount_accepted ? '✓ Accepted' : '✗ Declined'}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
