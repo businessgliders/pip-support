@@ -118,11 +118,11 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
     return h;
   };
 
-  // Build preview text — fall back to stripping HTML if body_text/snippet missing
+  // Build preview text — always strip HTML tags so raw markup never shows in bubble
   const stripHtml = (h) => (h || "").replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
   const bodyWithoutSignature = stripSignature(message.body_html) || message.body_text || "";
-  const rawText = bodyWithoutSignature || message.snippet || stripHtml(message.body_html) || "";
+  const rawText = stripHtml(bodyWithoutSignature) || message.snippet || "";
   // Strip quoted reply chains so the inline preview only shows the new content
   // (e.g. cut at "On <date> ... wrote:" or leading ">" quote markers).
   const trimQuoted = (t) => {
