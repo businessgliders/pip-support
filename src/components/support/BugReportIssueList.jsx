@@ -139,7 +139,7 @@ export default function BugReportIssueList({ currentUser }) {
                   {r.title}
                 </div>
               )}
-              <div className="text-xs text-slate-700 line-clamp-1 mb-1.5 break-words">
+              <div className="text-xs text-slate-700 line-clamp-1 mb-1.5 break-words italic">
                 {r.description}
               </div>
               <div className="flex items-center gap-1.5 flex-wrap text-[10px] mb-1">
@@ -240,7 +240,7 @@ export default function BugReportIssueList({ currentUser }) {
 
                   <div>
                     <div className="text-xs text-slate-500 mb-1">Description</div>
-                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap">
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap italic">
                       {selected.description}
                     </div>
                   </div>
