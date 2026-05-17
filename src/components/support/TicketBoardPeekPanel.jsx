@@ -108,9 +108,9 @@ export default function TicketBoardPeekPanel({ currentUser }) {
             </div>
           </div>
 
-          {/* Swimlanes */}
+          {/* Swimlanes — only mount drag context when panel is open to avoid context issues */}
           <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[#fbe0e2] to-white p-4">
-            {isLoading ? (
+            {!open ? null : isLoading ? (
               <div className="p-4 text-center text-slate-500 text-sm">Loading tickets...</div>
             ) : (
               <DragDropContext onDragEnd={() => {}}>
