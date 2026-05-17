@@ -332,7 +332,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                   </div>
                   <div className="space-y-3">
                     {selected.replies.map((r, i) => (
-                      <ReplyBubble key={r.gmail_message_id || i} reply={r} />
+                      <ReplyBubble key={r.gmail_message_id || i} reply={r} isBugReport={true} />
                     ))}
                   </div>
                 </div>
