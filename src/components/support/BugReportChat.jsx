@@ -361,7 +361,7 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
               {onOpenEscalations && (
                 <button
                   onClick={() => { onOpenEscalations(); setOpen(false); }}
-                  className="md:hidden flex items-center gap-1.5 px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
+                  className="sm:hidden flex items-center gap-1.5 px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
                   title="Open reported issues"
                 >
                   <span>Open</span>

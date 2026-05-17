@@ -96,7 +96,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {})
       {/* Peeking tab + expanded panel */}
       <div
         className={`fixed top-1/2 -translate-y-1/2 right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
-          open ? "translate-x-0" : "translate-x-full md:translate-x-[calc(100%-28px)]"
+          open ? "translate-x-0" : "translate-x-full sm:translate-x-[calc(100%-28px)]"
         }`}
         style={{ height: open ? "min(70vh, 600px)" : undefined }}
       >
@@ -104,7 +104,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {})
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="hidden md:flex w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
+          className="hidden sm:flex w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
           title="Reported Issues"
         >
           <Bug className="w-3.5 h-3.5" />
