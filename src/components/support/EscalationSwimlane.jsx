@@ -71,11 +71,11 @@ export default function EscalationSwimlane() {
           type="button"
           onClick={() => setOpen(v => !v)}
           className="w-7 py-2 md:py-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors md:h-auto"
-          title="Escalations"
+          title="Reported Issues"
         >
           <Bug className="w-3.5 h-3.5" />
           <div className="text-[10px] font-bold tracking-wider" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
-            ESCALATIONS
+            REPORTED ISSUES
           </div>
           {count > 0 && (
             <span className="text-[10px] font-bold bg-white text-[#b67651] rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
@@ -91,7 +91,7 @@ export default function EscalationSwimlane() {
             <div className="flex items-center gap-2">
               <Bug className="w-4 h-4" />
               <div>
-                <div className="font-semibold text-sm">Escalations</div>
+                <div className="font-semibold text-sm">Reported Issues</div>
                 <div className="text-[11px] text-white/80">{openCount} active • {count} total</div>
               </div>
             </div>
@@ -111,7 +111,7 @@ export default function EscalationSwimlane() {
             ) : reports.length === 0 ? (
               <div className="p-6 text-center text-slate-500 text-sm">
                 <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500" />
-                No escalations yet
+                No reported issues yet
               </div>
             ) : (
               <div className="p-2 space-y-2">
