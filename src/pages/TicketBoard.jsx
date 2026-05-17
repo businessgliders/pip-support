@@ -544,8 +544,8 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-2 md:gap-3 flex-nowrap md:flex-wrap items-center justify-end">
-            {/* Notification Bell - first on desktop, last (after archive) on mobile/tablet */}
-            <div className="order-last lg:order-none flex items-center gap-2">
+            {/* Notification Bell + New ticket */}
+            <div className="flex items-center gap-2">
               <NotificationCenter
                 currentUser={user}
                 tickets={tickets}
