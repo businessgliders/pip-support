@@ -49,7 +49,7 @@ export default function ReportBug() {
     <div className="h-screen flex flex-col bg-gradient-to-b from-[#f1899b] to-white overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 backdrop-blur-md bg-[#f1899b]/90 border-b border-white/30 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div className="max-w-2xl lg:max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <Link
             to={createPageUrl("TicketBoard")}
             className="flex items-center gap-2 text-white/90 hover:text-white transition"
@@ -97,7 +97,7 @@ export default function ReportBug() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto px-4 pt-5 pb-5 flex flex-col">
+      <div className="flex-1 min-h-0 max-w-2xl lg:max-w-5xl w-full mx-auto px-4 pt-5 pb-5 flex flex-col">
         <div className="mb-4 flex-shrink-0">
           <h1 className="text-2xl font-bold text-white drop-shadow-sm">Report an Issue</h1>
         </div>
