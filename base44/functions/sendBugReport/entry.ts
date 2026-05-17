@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Hardcoded escalation recipient(s). Can be moved to settings later.
 const ESCALATION_TO = "gurpreen@pilatesinpinkstudio.com";
-const FROM_EMAIL = "support@pilatesinpinkstudio.com";
+const FROM_EMAIL = "reportbug@pilatesinpinkstudio.com";
 const FROM_NAME = "PiP Support Bug Report";
 
 const URGENCY_COLOR = {
@@ -165,8 +165,9 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("gmail");
 
     const html = buildHtml({ ...created, id: created.id });
-    const titlePart = title ? ` - ${title}` : "";
-    const subject = `🐛 [${urgency}] Issue B${bugNumber}${ticket_number ? ` • Ticket #${ticket_number}` : ""}${titlePart}`;
+    const titlePart = title ? ` ${title}` : " New Issue Reported";
+    const clientPart = client_name ? ` - ${client_name}` : "";
+    const subject = `⚠️ [Bug #${bugNumber}]${titlePart}${clientPart}`;
 
     const raw = buildRawEmail({
       to: ESCALATION_TO,

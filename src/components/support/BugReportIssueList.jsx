@@ -312,9 +312,9 @@ export default function BugReportIssueList({ currentUser }) {
 
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1 text-xs">
                     <div className="text-amber-700 font-semibold uppercase tracking-wider text-[10px] mb-1">📧 Email Sent</div>
-                    <div><span className="text-slate-500">Subject:</span> <span className="text-slate-800 font-medium">🐛 [{selected.urgency || "Soon"}] Issue B{selected.bug_number}{selected.ticket_number ? ` • Ticket #${selected.ticket_number}` : ""}{selected.title ? ` - ${selected.title}` : ""}</span></div>
-                    <div><span className="text-slate-500">From:</span> <span className="text-slate-800">PiP Support Bug Report &lt;support@pilatesinpinkstudio.com&gt;</span></div>
-                    <div><span className="text-slate-500">Reply-To:</span> <span className="text-slate-800">support@pilatesinpinkstudio.com</span></div>
+                    <div><span className="text-slate-500">Subject:</span> <span className="text-slate-800 font-medium">⚠️ [Bug #{selected.bug_number}] {selected.title || "New Issue Reported"}{selected.client_name ? ` - ${selected.client_name}` : ""}</span></div>
+                    <div><span className="text-slate-500">From:</span> <span className="text-slate-800">PiP Support Bug Report &lt;reportbug@pilatesinpinkstudio.com&gt;</span></div>
+                    <div><span className="text-slate-500">Reply-To:</span> <span className="text-slate-800">reportbug@pilatesinpinkstudio.com</span></div>
                     <div><span className="text-slate-500">To:</span> <span className="text-slate-800">{selected.escalated_to}</span></div>
                   </div>
 
