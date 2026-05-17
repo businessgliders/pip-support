@@ -198,6 +198,18 @@ export default function BugReportIssueList({ currentUser }) {
                     )}
                   </div>
 
+                  {selected.title && (
+                    <div>
+                      <div className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                        Title
+                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-semibold">AI Generated</span>
+                      </div>
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-slate-800 font-medium mb-3">
+                        {selected.title}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <div className="text-xs text-slate-500 mb-1">Description</div>
                     <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-800 whitespace-pre-wrap">
