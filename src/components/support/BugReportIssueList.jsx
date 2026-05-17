@@ -103,9 +103,9 @@ export default function BugReportIssueList({ currentUser }) {
               key={r.id}
               type="button"
               onClick={() => { setSelected(r); markRepliesRead(r); }}
-              className={`w-full text-left p-3 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all`}
+              className={`w-full text-left p-2.5 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all`}
             >
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                 <span className={`w-2 h-2 rounded-full ${u.dot} flex-shrink-0`} />
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${u.text}`}>
                   {r.urgency || "Soon"}
@@ -113,11 +113,6 @@ export default function BugReportIssueList({ currentUser }) {
                 {r.bug_number && (
                   <span className="text-[10px] font-bold text-[#b67651] bg-white border border-[#b67651]/30 rounded px-1.5 py-0.5">
                     B{r.bug_number}
-                  </span>
-                )}
-                {r.ticket_number && (
-                  <span className="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 rounded px-1.5 py-0.5">
-                    #{r.ticket_number}{r.client_name ? ` • ${r.client_name}` : ""}
                   </span>
                 )}
                 {replies.length > 0 && (
@@ -135,17 +130,31 @@ export default function BugReportIssueList({ currentUser }) {
                 )}
               </div>
               {r.title && (
-                <div className="text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
+                <div className="text-sm text-slate-900 font-bold line-clamp-1 mb-1 break-words">
                   {r.title}
                 </div>
               )}
-              <div className="text-xs text-slate-700 line-clamp-2 mb-1 break-words">
+              <div className="text-xs text-slate-700 line-clamp-1 mb-1.5 break-words">
                 {r.description}
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-500">
-                <span className="truncate">{r.reported_by_name || r.reported_by_email}</span>
-                <span>{formatDate(r.created_date)}</span>
+              <div className="flex items-center gap-1.5 flex-wrap text-[10px] mb-1">
+                {r.client_name && (
+                  <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
+                    {r.client_name}
+                  </span>
+                )}
+                {r.booking_info && (
+                  <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
+                    {r.booking_info}
+                  </span>
+                )}
+                {r.reported_by_name && (
+                  <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
+                    {r.reported_by_name}
+                  </span>
+                )}
               </div>
+              <div className="text-[10px] text-slate-500">{formatDate(r.created_date)}</div>
             </button>
           );
         })}
