@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
         }
       }
       if (signatureHtml) {
-        finalHtml = `${body_html}<br><br>${signatureHtml}`;
+        finalHtml = `${body_html}<br><br><!--SIGNATURE-->${signatureHtml}`;
       } else {
         console.log(`No signature found for ${user.email}`);
       }

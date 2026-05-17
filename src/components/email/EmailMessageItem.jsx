@@ -107,14 +107,21 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
     );
   }
 
-  // Strip signature from HTML (everything after signature markers)
+  // Strip signature from HTML (everything after signature marker, or legacy patterns)
   const stripSignature = (h) => {
     if (!h) return h;
-    const signatureIdx = h.indexOf("<!-- Signature -->");
-    if (signatureIdx !== -1) return h.substring(0, signatureIdx);
-    // Also strip common signature dividers (border-top divs in second half of content)
-    const dividerIdx = h.indexOf("<div style=\"border-top:");
-    if (dividerIdx !== -1 && dividerIdx > h.length * 0.5) return h.substring(0, dividerIdx);
+    const idx = h.indexOf("<!--SIGNATURE-->");
+    if (idx !== -1) return h.substring(0, idx);
+    // Legacy fallback: signatures use <table data-source-location="pages/SignatureSettings...">
+    const tableIdx = h.indexOf('data-source-location="pages/SignatureSettings');
+    if (tableIdx !== -1) {
+      // Walk back to the opening <table tag
+      const tableStart = h.lastIndexOf("<table", tableIdx);
+      if (tableStart !== -1) {
+        // Also strip preceding <br><br> separators
+        return h.substring(0, tableStart).replace(/(<br\s*\/?>\s*)+$/i, "");
+      }
+    }
     return h;
   };
 
