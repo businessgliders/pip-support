@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
@@ -34,10 +34,18 @@ const getInitials = (user) => {
 export default function ReportBug() {
   const [user, setUser] = useState(null);
   const [chatSignal, setChatSignal] = useState(0);
+  const location = useLocation();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
   }, []);
+
+  // Auto-open the bug report chat when the URL is /ReportBug/new
+  useEffect(() => {
+    if (/\/ReportBug\/new\/?$/i.test(location.pathname)) {
+      setChatSignal(s => s + 1);
+    }
+  }, [location.pathname]);
 
   const { data: tickets = [] } = useQuery({
     queryKey: ["tickets-for-bug-report"],

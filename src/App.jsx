@@ -69,6 +69,7 @@ const AuthenticatedApp = () => {
         <Route path="/Settings/Templates" element={<Templates />} />
         <Route path="/Analytics" element={<Analytics />} />
         <Route path="/ReportBug" element={<ReportBug />} />
+        <Route path="/ReportBug/new" element={<ReportBug />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
