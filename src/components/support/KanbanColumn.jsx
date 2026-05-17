@@ -33,7 +33,7 @@ const headerColors = {
 export default function KanbanColumn({ status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId, onArchiveSome, onArchiveAll, onTidyUp, viewMode, allUsers, unreadByTicket = {} }) {
   const isDimmed = status === "Closed";
   return (
-    <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col max-h-[70vh] lg:max-h-none lg:h-[calc(100vh-220px)] ${isDimmed ? "opacity-60 hover:opacity-100 transition-opacity" : ""}`}>
+    <div className={`backdrop-blur-xl bg-gradient-to-b ${columnColors[status]} border rounded-2xl overflow-hidden shadow-xl flex flex-col h-[calc(100dvh-260px)] lg:h-[calc(100vh-220px)] ${isDimmed ? "opacity-60 hover:opacity-100 transition-opacity" : ""}`}>
       {/* Column Header */}
       <div className={`backdrop-blur-md ${headerColors[status]} border-b px-3 md:px-4 py-3 md:py-4 flex-shrink-0`}>
         <div className="flex items-center justify-between mb-2">

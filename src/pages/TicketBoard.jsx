@@ -486,7 +486,7 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="min-h-screen lg:h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-x-hidden lg:overflow-hidden">
+    <div className="h-[100dvh] lg:h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-hidden">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
