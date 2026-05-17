@@ -213,15 +213,15 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                         )}
                       </div>
                       {r.title && (
-                        <div className="block text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
+                        <div className="w-full min-w-0 text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
                           {r.title}
                         </div>
                       )}
-                      <div className="block text-xs text-slate-700 line-clamp-2 mb-1.5 break-words">
+                      <div className="w-full min-w-0 text-xs text-slate-700 line-clamp-2 mb-1.5 break-words">
                         {r.description}
                       </div>
                       {r.ticket_id && ticketSummaryById[r.ticket_id] && (
-                        <div className="block text-[11px] text-slate-600 italic line-clamp-1 mb-1.5 break-words">
+                        <div className="w-full min-w-0 text-[11px] text-slate-600 italic line-clamp-1 mb-1.5 break-words">
                           Ticket: {ticketSummaryById[r.ticket_id]}
                         </div>
                       )}
