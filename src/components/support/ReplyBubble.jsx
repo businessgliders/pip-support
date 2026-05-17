@@ -40,7 +40,10 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
   const [showFull, setShowFull] = useState(false);
   const clean = stripQuoted(reply.body_text || "") || reply.snippet || "";
   const sender = reply.from_name || reply.from_email || "Unknown";
-  const isOutbound = reply.direction === "outbound";
+  const fromEmail = (reply.from_email || "").toLowerCase();
+  const isOutbound =
+    reply.direction === "outbound" ||
+    fromEmail.endsWith("@pilatesinpinkstudio.com");
 
   return (
     <>
