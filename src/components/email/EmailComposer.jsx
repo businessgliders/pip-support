@@ -1,9 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2, Bold, Italic, List, Link as LinkIcon, Paperclip, FileText } from "lucide-react";
+import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2, Bold, Italic, List, Link as LinkIcon, Paperclip, FileText, Save, Check } from "lucide-react";
 import AiAssistBar from "./AiAssistBar";
 import TemplatePicker from "./TemplatePicker";
+
+const DRAFT_AUTOSAVE_INTERVAL_MS = 30 * 1000; // every 30 seconds
 
 // Lightweight contentEditable rich-text composer.
 // Preserves HTML formatting (bold, italics, lists, links) end-to-end —
@@ -19,6 +21,12 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
   const [showSuggest, setShowSuggest] = useState(false);
   const [attachments, setAttachments] = useState([]); // [{ name, url, size, type }]
   const [uploading, setUploading] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState(null);
+  const [isDirty, setIsDirty] = useState(false);
+
+  const draftKey = `ticketDraft:${ticket.id}:${currentUser?.email || "anon"}`;
+  const lastSavedRef = useRef(""); // serialized snapshot of last saved state
+  const hasRestoredRef = useRef(false);
 
   const staffFirstName = currentUser?.full_name?.split(" ")[0] || "";
   const templateVars = {
@@ -78,6 +86,104 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
     return stripped.length === 0;
   };
 
+  const hasContent = !isEmpty(draftHtml) || attachments.length > 0;
+
+  const serializeDraft = useCallback((html, atts) => {
+    return JSON.stringify({ html, attachments: atts });
+  }, []);
+
+  const saveDraft = useCallback(() => {
+    if (!hasContent) return;
+    const snapshot = serializeDraft(draftHtml, attachments);
+    try {
+      localStorage.setItem(draftKey, JSON.stringify({
+        html: draftHtml,
+        attachments,
+        savedAt: Date.now(),
+      }));
+      lastSavedRef.current = snapshot;
+      setDraftSavedAt(Date.now());
+      setIsDirty(false);
+    } catch (e) {
+      console.warn("Failed to save draft", e);
+    }
+  }, [draftHtml, attachments, draftKey, hasContent, serializeDraft]);
+
+  const clearDraft = useCallback(() => {
+    try { localStorage.removeItem(draftKey); } catch {}
+    lastSavedRef.current = "";
+    setDraftSavedAt(null);
+    setIsDirty(false);
+  }, [draftKey]);
+
+  // Restore draft on mount
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved?.html && !isEmpty(saved.html)) {
+        setDraftHtml(saved.html);
+        if (editorRef.current) editorRef.current.innerHTML = saved.html;
+      }
+      if (Array.isArray(saved?.attachments) && saved.attachments.length) {
+        setAttachments(saved.attachments);
+      }
+      if (saved?.savedAt) setDraftSavedAt(saved.savedAt);
+      lastSavedRef.current = serializeDraft(saved?.html || "", saved?.attachments || []);
+    } catch (e) {
+      console.warn("Failed to restore draft", e);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
+  // Track dirty state vs last saved snapshot
+  useEffect(() => {
+    const current = serializeDraft(draftHtml, attachments);
+    setIsDirty(current !== lastSavedRef.current && hasContent);
+  }, [draftHtml, attachments, hasContent, serializeDraft]);
+
+  // Autosave every interval if dirty
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (isDirty && hasContent) saveDraft();
+    }, DRAFT_AUTOSAVE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [isDirty, hasContent, saveDraft]);
+
+  // Warn before unloading the tab/window when there are unsaved changes
+  useEffect(() => {
+    const handler = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  const handleCancel = () => {
+    if (isDirty) {
+      const choice = window.confirm("You have unsaved changes. Save this draft before closing?\n\nOK = Save draft\nCancel = Discard");
+      if (choice) saveDraft();
+      else clearDraft();
+    }
+    onCancel?.();
+  };
+
+  const formatSavedTime = (ts) => {
+    if (!ts) return "";
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 5) return "just now";
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  };
+
   const handleAttachClick = () => fileInputRef.current?.click();
 
   const handleFileChange = async (e) => {
@@ -124,6 +230,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
       if (res.data?.error) throw new Error(res.data.error);
       setEditorHtml("");
       setAttachments([]);
+      clearDraft();
       onSent?.();
     } catch (e) {
       setError(e.message || "Failed to send email");
@@ -138,11 +245,23 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         <div className="text-sm text-gray-700">
           <span className="text-gray-500">To:</span> <span className="font-medium">{ticket.client_email}</span>
         </div>
-        {onCancel && (
-          <Button type="button" variant="ghost" size="icon" onClick={onCancel} className="h-7 w-7">
-            <X className="w-4 h-4" />
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {draftSavedAt && !isDirty && (
+            <span className="flex items-center gap-1 text-xs text-green-600">
+              <Check className="w-3 h-3" /> Draft saved {formatSavedTime(draftSavedAt)}
+            </span>
+          )}
+          {isDirty && (
+            <span className="flex items-center gap-1 text-xs text-amber-600">
+              Unsaved changes
+            </span>
+          )}
+          {onCancel && (
+            <Button type="button" variant="ghost" size="icon" onClick={handleCancel} className="h-7 w-7">
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Action bar: Describe + Suggest + Templates */}
@@ -281,9 +400,21 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         <Button
           type="button"
           variant="outline"
+          size="sm"
+          onClick={saveDraft}
+          disabled={!isDirty || !hasContent}
+          title="Save draft"
+          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+        >
+          <Save className="w-4 h-4 mr-1.5" />
+          Save Draft
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
           size="icon"
-          onClick={() => setEditorHtml("")}
-          disabled={isEmpty(draftHtml)}
+          onClick={() => { setEditorHtml(""); setAttachments([]); clearDraft(); }}
+          disabled={!hasContent}
           title="Clear"
           className="border-gray-300 text-gray-600 hover:bg-gray-50"
         >
