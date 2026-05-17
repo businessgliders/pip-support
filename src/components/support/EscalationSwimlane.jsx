@@ -277,21 +277,16 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
                       {selected.urgency}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
-                      {selected.platform}
-                    </span>
-                    {selected.ticket_number && (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-[#b67651]/10 text-[#b67651] border border-[#b67651]/30 font-semibold">
-                        Ticket #{selected.ticket_number}
+                    {selected.client_name && (
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                        {selected.client_name}
                       </span>
                     )}
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${
-                      selected.email_status === "sent" ? "bg-green-50 text-green-700 border border-green-200" :
-                      selected.email_status === "failed" ? "bg-red-50 text-red-700 border border-red-200" :
-                      "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                    }`}>
-                      Email: {selected.email_status}
-                    </span>
+                    {selected.booking_info && (
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                        {selected.booking_info}
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -335,6 +330,40 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                       <strong>Error:</strong> {selected.email_error}
                     </div>
                   )}
+
+                  {/* Status Switcher */}
+                  <div className="flex items-center gap-1.5 pt-2">
+                    {[
+                      { status: "New", color: "bg-slate-500" },
+                      { status: "In Progress", color: "bg-blue-500" },
+                      { status: "Resolved", color: "bg-green-500" },
+                      { status: "Closed", color: "bg-gray-500" }
+                    ].map(({ status, color }, index) => {
+                      const isActive = selected.status === status;
+                      return (
+                        <React.Fragment key={status}>
+                          <button
+                            onClick={() => {
+                              if (!isActive) {
+                                base44.entities.BugReport.update(selected.id, { status }).then(() => {
+                                  queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
+                                });
+                              }
+                            }}
+                            disabled={isActive}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                              isActive
+                                ? `${color} text-white shadow`
+                                : "bg-white border border-slate-300 text-slate-600 hover:border-slate-400 hover:shadow-sm"
+                            }`}
+                          >
+                            {status}
+                          </button>
+                          {index < 3 && <div className="text-slate-300 text-xs">→</div>}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Divider */}
