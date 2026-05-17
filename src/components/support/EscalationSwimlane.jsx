@@ -181,9 +181,9 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                       key={r.id}
                       type="button"
                       onClick={() => { setSelected(r); markRepliesRead(r); }}
-                      className={`w-full text-left p-3 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all`}
+                      className={`w-full text-left p-3 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all flex flex-col`}
                     >
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                         <span className={`w-2 h-2 rounded-full ${u.dot} flex-shrink-0`} />
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${u.text}`}>
                           {r.urgency || "Soon"}
@@ -212,17 +212,17 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                           <AlertCircle className="w-3 h-3 text-red-500 ml-auto" />
                         )}
                       </div>
-                      <div className="text-sm text-slate-800 font-medium line-clamp-2 mb-1">
+                      <div className="block text-sm text-slate-800 font-medium line-clamp-2 mb-1.5 break-words">
                         {r.description}
                       </div>
                       {r.ticket_id && ticketSummaryById[r.ticket_id] && (
-                        <div className="text-[11px] text-slate-600 italic line-clamp-1 mb-1">
+                        <div className="block text-[11px] text-slate-600 italic line-clamp-1 mb-1.5 break-words">
                           Ticket: {ticketSummaryById[r.ticket_id]}
                         </div>
                       )}
-                      <div className="flex items-center justify-between text-[11px] text-slate-500">
+                      <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
                         <span className="truncate">{r.reported_by_name || r.reported_by_email}</span>
-                        <span>{formatDate(r.created_date)}</span>
+                        <span className="flex-shrink-0">{formatDate(r.created_date)}</span>
                       </div>
                     </button>
                   );
