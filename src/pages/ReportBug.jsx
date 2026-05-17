@@ -106,12 +106,12 @@ export default function ReportBug() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0 w-full px-4 pt-5 pb-5 flex flex-col">
-        <div className="mb-4 flex-shrink-0">
+      <div className="flex-1 min-h-0 w-full px-4 pt-5 pb-5 flex flex-col items-center">
+        <div className="mb-4 flex-shrink-0 w-full max-w-2xl">
           <h1 className="text-2xl font-bold text-white drop-shadow-sm">Report an Issue</h1>
         </div>
 
-        <div className="flex-1 min-h-0 bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col">
+        <div className="flex-1 min-h-0 w-full max-w-2xl bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col">
           <h2 className="text-sm font-semibold text-slate-700 mb-3 px-1 flex-shrink-0">Open Issues</h2>
           <div className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1">
             <BugReportIssueList currentUser={user} />
@@ -122,7 +122,7 @@ export default function ReportBug() {
         <button
           type="button"
           onClick={() => setChatSignal(s => s + 1)}
-          className="mt-5 flex-shrink-0 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
+          className="mt-5 flex-shrink-0 w-full max-w-2xl flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-all border border-white/30"
         >
           <LifeBuoy className="w-6 h-6" />
           <span className="text-lg font-semibold tracking-wide">Report an Issue</span>
