@@ -166,6 +166,11 @@ export default function BugReportIssueList({ currentUser }) {
                 <div className="font-semibold">
                   Issue{selected.bug_number ? ` B${selected.bug_number}` : ""}
                 </div>
+                {selected.urgency && (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/20 border border-white/30">
+                    {selected.urgency}
+                  </span>
+                )}
               </div>
               <button onClick={() => setSelected(null)} className="p-1 hover:bg-white/20 rounded-lg">
                 <X className="w-4 h-4" />
@@ -209,12 +214,7 @@ export default function BugReportIssueList({ currentUser }) {
                     })}
                   </div>
 
-                  {/* Priority Pill */}
-                  <div className="flex flex-wrap gap-2">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
-                      {selected.urgency}
-                    </span>
-                  </div>
+
 
                   {selected.title && (
                     <div>
