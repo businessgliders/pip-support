@@ -99,6 +99,29 @@
       },
       "default": [],
       "description": "When each staff member marked this message as read"
+    },
+    "attachments": {
+      "type": "array",
+      "description": "File attachments associated with this email",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "description": "MIME type"
+          }
+        }
+      },
+      "default": []
     }
   },
   "required": [

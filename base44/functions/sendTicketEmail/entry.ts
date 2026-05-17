@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { ticket_id, body_html, is_welcome, attachment_urls } = await req.json();
+    const { ticket_id, body_html, is_welcome, attachment_urls, attachments: attachmentMeta } = await req.json();
     if (!ticket_id || !body_html) {
       return Response.json({ error: 'ticket_id and body_html required' }, { status: 400 });
     }
@@ -290,6 +290,22 @@ Deno.serve(async (req) => {
     const headers = fullMsg.payload?.headers || [];
     const rfcMessageId = headers.find(h => h.name.toLowerCase() === 'message-id')?.value || '';
 
+    // Build attachments metadata to persist on the EmailMessage record.
+    // Prefer client-supplied metadata (name/size/type); fall back to derived values.
+    const persistedAttachments = Array.isArray(attachmentMeta) && attachmentMeta.length > 0
+      ? attachmentMeta.map(a => ({
+          name: a.name || 'attachment',
+          url: a.url,
+          size: a.size || 0,
+          type: a.type || 'application/octet-stream',
+        }))
+      : (Array.isArray(attachment_urls) ? attachment_urls.map((url, i) => ({
+          name: attachments[i]?.filename || 'attachment',
+          url,
+          size: 0,
+          type: attachments[i]?.mimeType || 'application/octet-stream',
+        })) : []);
+
     await base44.asServiceRole.entities.EmailMessage.create({
       ticket_id,
       gmail_thread_id: sentMessage.threadId,
@@ -310,6 +326,7 @@ Deno.serve(async (req) => {
       is_welcome: !!is_welcome,
       send_status: 'sent',
       read_by: [user.email],
+      attachments: persistedAttachments,
     });
 
     return Response.json({ success: true, message_id: sentMessage.id, thread_id: sentMessage.threadId });

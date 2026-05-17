@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Check } from "lucide-react";
+import { Sparkles, Check, Paperclip } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import AttachmentChips from "./AttachmentChips";
+import Lightbox from "./Lightbox";
 
 const formatTime = (s) => {
   if (!s) return "";
@@ -32,6 +34,11 @@ const formatFullDate = (s) => {
 export default function EmailMessageItem({ message, isHighlighted, isUnread = false, onMarkAsRead }) {
   const [open, setOpen] = useState(false);
   const [localUnread, setLocalUnread] = useState(isUnread);
+  // Shared lightbox state — both the bubble's chips and the modal's chips
+  // route image clicks here, so a single lightbox sits above everything.
+  const [lightboxAttachment, setLightboxAttachment] = useState(null);
+  const attachments = Array.isArray(message.attachments) ? message.attachments : [];
+  const hasAttachments = attachments.length > 0;
   const isInbound = message.direction === "inbound";
   const senderName = message.from_name || message.from_email || (isInbound ? "Client" : "Support");
   const failed = message.send_status === "failed";
@@ -50,6 +57,7 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
   if (message.is_welcome) {
     return (
       <>
+        <Lightbox attachment={lightboxAttachment} onClose={() => setLightboxAttachment(null)} />
         <div className="flex justify-end mb-1">
           <div className="max-w-[80%] flex flex-col items-end">
             <span className="text-[10px] text-gray-500 mb-0.5 px-1">Auto-reply</span>
@@ -81,6 +89,18 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
               className="prose prose-sm max-w-none text-gray-800 mt-2"
               dangerouslySetInnerHTML={{ __html: message.body_html || message.body_text || "" }}
             />
+            {hasAttachments && (
+              <div className="mt-4 pt-3 border-t border-gray-200">
+                <div className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+                  <Paperclip className="w-3 h-3" /> Attachments ({attachments.length})
+                </div>
+                <AttachmentChips
+                  attachments={attachments}
+                  onOpenLightbox={setLightboxAttachment}
+                  layout="modal"
+                />
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </>
@@ -106,6 +126,7 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
 
   return (
     <>
+      <Lightbox attachment={lightboxAttachment} onClose={() => setLightboxAttachment(null)} />
       <div className={`flex ${isInbound ? "justify-start" : "justify-end"} mb-1`}>
         <div className={`max-w-[85%] flex flex-col ${isInbound ? "items-start" : "items-end"} relative`}>
           <div className="flex items-center gap-1.5 mb-0.5 px-1">
@@ -157,6 +178,15 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
               </span>
             )}
           </motion.button>
+          {hasAttachments && (
+            <div className="mt-1.5 w-full">
+              <AttachmentChips
+                attachments={attachments}
+                onOpenLightbox={setLightboxAttachment}
+                layout="bubble"
+              />
+            </div>
+          )}
           <div className="flex items-center gap-2 mt-0.5 px-1">
             <span className="text-[10px] text-gray-400">{formatTime(message.sent_at)}</span>
             <AnimatePresence>
@@ -192,6 +222,18 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
             className="prose prose-sm max-w-none text-gray-800 mt-2"
             dangerouslySetInnerHTML={{ __html: message.body_html || message.body_text || "" }}
           />
+          {hasAttachments && (
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <div className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+                <Paperclip className="w-3 h-3" /> Attachments ({attachments.length})
+              </div>
+              <AttachmentChips
+                attachments={attachments}
+                onOpenLightbox={setLightboxAttachment}
+                layout="modal"
+              />
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>

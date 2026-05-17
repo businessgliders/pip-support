@@ -21,6 +21,52 @@ function extractBodies(payload) {
   return { html, text };
 }
 
+// Walk MIME payload and collect attachment parts (filename + attachmentId).
+// Skips inline parts with no filename (e.g. embedded body parts).
+function collectAttachmentParts(payload) {
+  const out = [];
+  function walk(part) {
+    if (!part) return;
+    const filename = part.filename || '';
+    const attachmentId = part.body?.attachmentId;
+    if (filename && attachmentId) {
+      out.push({
+        filename,
+        mimeType: part.mimeType || 'application/octet-stream',
+        attachmentId,
+        size: part.body?.size || 0,
+      });
+    }
+    if (Array.isArray(part.parts)) for (const p of part.parts) walk(p);
+  }
+  walk(payload);
+  return out;
+}
+
+// Download a Gmail attachment, upload it to base44 storage, return persisted metadata.
+async function downloadAndStoreAttachment(base44, accessToken, messageId, part) {
+  const res = await fetch(
+    `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/attachments/${part.attachmentId}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+  if (!res.ok) throw new Error(`Gmail attachment fetch failed: ${res.status}`);
+  const json = await res.json();
+  const b64 = (json.data || '').replace(/-/g, '+').replace(/_/g, '/');
+  // Decode base64 -> bytes -> File-like Blob for UploadFile
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const blob = new Blob([bytes], { type: part.mimeType });
+  const file = new File([blob], part.filename, { type: part.mimeType });
+  const uploaded = await base44.asServiceRole.integrations.Core.UploadFile({ file });
+  return {
+    name: part.filename,
+    url: uploaded?.file_url,
+    size: part.size || bytes.length,
+    type: part.mimeType,
+  };
+}
+
 function getHeader(headers, name) {
   return headers?.find(h => h.name.toLowerCase() === name.toLowerCase())?.value || '';
 }
@@ -181,6 +227,17 @@ Deno.serve(async (req) => {
         if (replies.some(r => r.gmail_message_id === message.id)) {
           continue;
         }
+        // Extract any inbound attachments → upload to storage
+        const brAttachmentParts = collectAttachmentParts(message.payload);
+        const brImageUrls = [];
+        for (const p of brAttachmentParts) {
+          try {
+            const stored = await downloadAndStoreAttachment(base44, accessToken, message.id, p);
+            if (stored?.url) brImageUrls.push(stored.url);
+          } catch (e) {
+            console.error('Bug-report inbound attachment failed:', e);
+          }
+        }
         replies.push({
           from_email: brFrom.email,
           from_name: brFrom.name,
@@ -191,6 +248,7 @@ Deno.serve(async (req) => {
           received_at: dateHeader ? new Date(dateHeader).toISOString() : new Date().toISOString(),
           gmail_message_id: message.id,
           rfc_message_id: messageIdHeader,
+          image_urls: brImageUrls,
           read_by: [],
           direction: 'inbound',
         });
@@ -210,6 +268,18 @@ Deno.serve(async (req) => {
 
       const { html, text } = extractBodies(message.payload);
       const from = parseFromHeader(fromHeader);
+
+      // Extract inbound attachments → upload to storage → persist metadata
+      const attachmentParts = collectAttachmentParts(message.payload);
+      const inboundAttachments = [];
+      for (const p of attachmentParts) {
+        try {
+          const stored = await downloadAndStoreAttachment(base44, accessToken, message.id, p);
+          if (stored?.url) inboundAttachments.push(stored);
+        } catch (e) {
+          console.error('Inbound attachment failed:', e);
+        }
+      }
 
       await base44.asServiceRole.entities.EmailMessage.create({
         ticket_id: ticket.id,
@@ -231,6 +301,7 @@ Deno.serve(async (req) => {
         is_welcome: false,
         send_status: 'received',
         read_by: [],
+        attachments: inboundAttachments,
       });
 
       // Auto-reopen Resolved/Closed

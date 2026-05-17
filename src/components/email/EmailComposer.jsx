@@ -226,6 +226,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
         ticket_id: ticket.id,
         body_html: draftHtml,
         attachment_urls: attachments.map(a => a.url),
+        attachments: attachments.map(a => ({ name: a.name, url: a.url, size: a.size, type: a.type })),
       });
       if (res.data?.error) throw new Error(res.data.error);
       setEditorHtml("");
