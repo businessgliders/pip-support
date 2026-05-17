@@ -21,43 +21,14 @@ function escapeHtml(s = "") {
     .replace(/'/g, "&#039;");
 }
 
-// Plain-text summary designed for copy/paste into a vendor support ticket.
-function buildVendorSummary(report) {
-  const lines = [];
-  if (report.bug_number) lines.push(`Issue ID: B${report.bug_number}`);
-  lines.push(`Issue: ${report.description || "—"}`);
-  if (report.client_name) lines.push(`Customer: ${report.client_name}`);
-  if (report.booking_info) lines.push(`Booking date & time: ${report.booking_info}`);
-  if (report.ticket_number) lines.push(`Related ticket: #${report.ticket_number}`);
-  lines.push(`Urgency: ${report.urgency || "Soon"}`);
-  lines.push(`Platform: ${report.platform || "—"}`);
-  lines.push(`Reported by: ${report.reported_by_name || report.reported_by_email || "—"}`);
-  if ((report.image_urls || []).length) {
-    lines.push(`Attachments:`);
-    for (const u of report.image_urls) lines.push(`  - ${u}`);
-  } else {
-    lines.push(`Attachments: none`);
-  }
-  return lines.join("\n");
-}
-
 function buildHtml(report) {
   const urgencyColor = URGENCY_COLOR[report.urgency] || "#64748b";
-  const vendorSummary = buildVendorSummary(report);
-
-  const transcriptHtml = (report.transcript || []).map(m => `
-    <div style="margin:6px 0;padding:8px 10px;border-radius:8px;background:${m.role === 'user' ? '#fdf2f4' : '#f8fafc'};border:1px solid ${m.role === 'user' ? '#fbcfe8' : '#e2e8f0'};">
-      <div style="font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:2px;">${escapeHtml(m.role === 'user' ? (report.reported_by_name || 'Reporter') : 'Assistant')}</div>
-      <div style="font-size:13px;color:#0f172a;white-space:pre-wrap;">${escapeHtml(m.content || '')}</div>
-    </div>
-  `).join("");
 
   const imagesHtml = (report.image_urls || []).length
     ? `<h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📎 Attachments</h3>
        <div>${report.image_urls.map(u => `
          <div style="margin:8px 0;">
-           <a href="${escapeHtml(u)}" style="color:#b67651;font-size:12px;word-break:break-all;">${escapeHtml(u)}</a><br/>
-           <img src="${escapeHtml(u)}" style="max-width:480px;border-radius:8px;border:1px solid #e2e8f0;margin-top:4px;" />
+           <img src="${escapeHtml(u)}" style="max-width:480px;border-radius:8px;border:1px solid #e2e8f0;" />
          </div>
        `).join("")}</div>`
     : "";
@@ -66,13 +37,7 @@ function buildHtml(report) {
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:0 auto;background:#ffffff;padding:24px;">
     <div style="border-left:4px solid ${urgencyColor};padding-left:14px;margin-bottom:18px;">
       <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">🐛 Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
-      <h1 style="margin:4px 0 0;font-size:20px;color:#0f172a;">New issue reported from Support Portal</h1>
-    </div>
-
-    <!-- VENDOR COPY-PASTE BLOCK -->
-    <div style="background:#0f172a;color:#e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:18px;">
-      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">📋 Copy/paste for vendor</div>
-      <pre style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12.5px;line-height:1.5;color:#e2e8f0;white-space:pre-wrap;word-break:break-word;">${escapeHtml(vendorSummary)}</pre>
+      <h1 style="margin:4px 0 0;font-size:22px;color:#0f172a;">${escapeHtml(report.title || 'New issue reported')}</h1>
     </div>
 
     <table style="width:100%;font-size:13px;color:#0f172a;border-collapse:collapse;">
@@ -85,14 +50,9 @@ function buildHtml(report) {
     </table>
 
     <h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📝 Description</h3>
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;color:#0f172a;white-space:pre-wrap;">${escapeHtml(report.description || '—')}</div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;color:#0f172a;white-space:pre-wrap;font-style:italic;">${escapeHtml(report.description || '—')}</div>
 
     ${imagesHtml}
-
-    ${(report.transcript || []).length ? `
-      <h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">💬 Conversation</h3>
-      ${transcriptHtml}
-    ` : ''}
 
     <div style="margin-top:24px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;">
       Sent automatically from PiP Support Portal • Bug Report ID: ${escapeHtml(report.id || 'n/a')}
@@ -205,7 +165,8 @@ Deno.serve(async (req) => {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("gmail");
 
     const html = buildHtml({ ...created, id: created.id });
-    const subject = `🐛 [${urgency}] Issue B${bugNumber}${ticket_number ? ` • Ticket #${ticket_number}` : ""} - ${reporterName}`;
+    const titlePart = title ? ` - ${title}` : "";
+    const subject = `🐛 [${urgency}] Issue B${bugNumber}${ticket_number ? ` • Ticket #${ticket_number}` : ""}${titlePart}`;
 
     const raw = buildRawEmail({
       to: ESCALATION_TO,

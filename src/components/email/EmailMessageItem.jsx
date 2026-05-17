@@ -150,6 +150,11 @@ export default function EmailMessageItem({ message, isHighlighted, isUnread = fa
         <div className={`max-w-[85%] flex flex-col ${isInbound ? "items-start" : "items-end"} relative`}>
           <div className="flex items-center gap-1.5 mb-0.5 px-1">
             <span className="text-[10px] text-gray-500">{senderName}</span>
+            {message.subject && (
+              <span className="text-[10px] text-gray-400 italic truncate max-w-[240px]" title={message.subject}>
+                • {message.subject}
+              </span>
+            )}
             <AnimatePresence>
               {localUnread && isInbound && (
                 <motion.span
