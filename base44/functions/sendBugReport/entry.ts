@@ -165,9 +165,26 @@ Deno.serve(async (req) => {
       console.error("Failed to compute next bug_number, defaulting to 100:", e);
     }
 
+    // Generate a short LLM title (3-6 words, headline-style)
+    let title = "";
+    try {
+      const llmRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: `Summarize the following support issue as a short headline-style title of 3-6 words (Title Case, no period, no quotes). Just output the title text and nothing else.\n\nIssue: ${description}${client_name ? `\nClient: ${client_name}` : ""}`,
+        response_json_schema: {
+          type: "object",
+          properties: { title: { type: "string" } },
+          required: ["title"]
+        }
+      });
+      title = String(llmRes?.title || "").trim().replace(/^["']|["']$/g, "").slice(0, 80);
+    } catch (e) {
+      console.error("Failed to generate title via LLM:", e);
+    }
+
     // Persist the bug report
     const created = await base44.asServiceRole.entities.BugReport.create({
       bug_number: bugNumber,
+      title,
       description,
       ticket_number: ticket_number || "",
       ticket_id: ticket_id || "",

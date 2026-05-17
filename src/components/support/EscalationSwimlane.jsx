@@ -212,7 +212,12 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                           <AlertCircle className="w-3 h-3 text-red-500 ml-auto" />
                         )}
                       </div>
-                      <div className="block text-sm text-slate-800 font-medium line-clamp-2 mb-1.5 break-words">
+                      {r.title && (
+                        <div className="block text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
+                          {r.title}
+                        </div>
+                      )}
+                      <div className="block text-xs text-slate-700 line-clamp-2 mb-1.5 break-words">
                         {r.description}
                       </div>
                       {r.ticket_id && ticketSummaryById[r.ticket_id] && (

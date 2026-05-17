@@ -6,6 +6,10 @@
       "type": "integer",
       "description": "Sequential bug report number starting at 100 (displayed as B100, B101, ...)"
     },
+    "title": {
+      "type": "string",
+      "description": "Short LLM-generated one-sentence title summarizing the issue (e.g. 'Pause Credits Missing')"
+    },
     "description": {
       "type": "string",
       "description": "What went wrong - free text description of the bug"
