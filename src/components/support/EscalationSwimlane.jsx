@@ -109,7 +109,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
         className={`fixed top-1/2 -translate-y-1/2 right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full sm:translate-x-[calc(100%-28px)]"
         }`}
-        style={{ height: open ? "min(70vh, 600px)" : undefined }}
+        style={{ height: open ? "min(60vh, 520px)" : undefined }}
       >
         {/* Peek tab (always visible sliver) - hidden on mobile */}
         <button
@@ -130,7 +130,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
         </button>
 
         {/* Panel content */}
-        <div className="w-[340px] max-w-[calc(100vw-28px)] bg-white shadow-2xl border-y border-l border-slate-200 rounded-l-xl flex flex-col overflow-hidden" style={{ height: open ? "min(70vh, 600px)" : undefined }}>
+        <div className="w-[340px] max-w-[calc(100vw-28px)] bg-white shadow-2xl border-y border-l border-slate-200 rounded-l-xl flex flex-col overflow-hidden" style={{ height: open ? "min(60vh, 520px)" : undefined }}>
           {/* Header */}
           <div className="px-4 py-3 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">

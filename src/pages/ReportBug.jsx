@@ -3,9 +3,33 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, LifeBuoy } from "lucide-react";
+import { ArrowLeft, LifeBuoy, User, LogOut } from "lucide-react";
 import BugReportChat from "@/components/support/BugReportChat";
 import BugReportIssueList from "@/components/support/BugReportIssueList";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { getPhotoForUser } from "@/lib/userPhotos";
+
+const userColors = [
+  "bg-pink-400", "bg-purple-400", "bg-blue-400", "bg-teal-400",
+  "bg-green-400", "bg-amber-400", "bg-rose-400", "bg-indigo-400"
+];
+
+const getUserColor = (email = "") => {
+  const hash = email.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return userColors[hash % userColors.length];
+};
+
+const getInitials = (user) => {
+  if (!user) return "?";
+  if (user.email === 'info@pilatesinpinkstudio.com') return 'FD';
+  if (user.full_name) return user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  return (user.email || "").substring(0, 2).toUpperCase();
+};
 
 export default function ReportBug() {
   const [user, setUser] = useState(null);
@@ -40,7 +64,35 @@ export default function ReportBug() {
               className="h-9 drop-shadow-md hover:scale-105 transition-transform"
             />
           </Link>
-          <div className="w-8" />
+          {user ? (() => {
+            const photo = getPhotoForUser(user);
+            return (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={`flex items-center justify-center h-9 w-9 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 hover:ring-2 hover:ring-white/60 transition ${photo ? "" : getUserColor(user.email)}`}
+                    title={user.full_name || user.email}
+                  >
+                    {photo ? (
+                      <img src={photo} alt={user.full_name || user.email} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-white font-semibold text-sm">{getInitials(user)}</span>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                    <User className="w-4 h-4 mr-2" />
+                    Switch User
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            );
+          })() : <div className="w-9" />}
         </div>
       </div>
 
