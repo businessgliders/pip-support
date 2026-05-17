@@ -72,6 +72,33 @@ async function findTicketByInReplyTo(base44, inReplyTo) {
   }
 }
 
+// Find a BugReport this inbound message is replying to, via Gmail thread id,
+// or via In-Reply-To / References matching the bug report's rfc_message_id.
+async function findBugReportForReply(base44, { threadId, inReplyTo, referencesHeader }) {
+  // 1) Match by Gmail thread id (fastest)
+  if (threadId) {
+    const byThread = await base44.asServiceRole.entities.BugReport.filter(
+      { gmail_thread_id: threadId }, '-created_date', 1
+    );
+    if (byThread.length > 0) return byThread[0];
+  }
+  // 2) Match by rfc_message_id present in In-Reply-To or References chain
+  const candidateIds = new Set();
+  if (inReplyTo) candidateIds.add(inReplyTo.trim());
+  if (referencesHeader) {
+    for (const id of referencesHeader.split(/\s+/)) {
+      if (id) candidateIds.add(id.trim());
+    }
+  }
+  for (const id of candidateIds) {
+    const matches = await base44.asServiceRole.entities.BugReport.filter(
+      { rfc_message_id: id }, '-created_date', 1
+    );
+    if (matches.length > 0) return matches[0];
+  }
+  return null;
+}
+
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
@@ -137,6 +164,37 @@ Deno.serve(async (req) => {
       }
       if (['bulk', 'auto_reply', 'list'].includes(precedence.toLowerCase())) {
         dropped++;
+        continue;
+      }
+
+      // First, check if this is a reply to a bug-report escalation thread
+      const bugReport = await findBugReportForReply(base44, {
+        threadId: message.threadId,
+        inReplyTo,
+        referencesHeader,
+      });
+      if (bugReport) {
+        const { html: brHtml, text: brText } = extractBodies(message.payload);
+        const brFrom = parseFromHeader(fromHeader);
+        const replies = Array.isArray(bugReport.replies) ? bugReport.replies : [];
+        // Idempotency on bug-report replies
+        if (replies.some(r => r.gmail_message_id === message.id)) {
+          continue;
+        }
+        replies.push({
+          from_email: brFrom.email,
+          from_name: brFrom.name,
+          subject,
+          body_html: brHtml,
+          body_text: brText,
+          snippet: message.snippet || '',
+          received_at: dateHeader ? new Date(dateHeader).toISOString() : new Date().toISOString(),
+          gmail_message_id: message.id,
+          rfc_message_id: messageIdHeader,
+          read_by: [],
+        });
+        await base44.asServiceRole.entities.BugReport.update(bugReport.id, { replies });
+        processed++;
         continue;
       }
 

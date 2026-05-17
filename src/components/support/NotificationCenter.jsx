@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Bell, Check } from "lucide-react";
+import { Bell, Check, MessageSquare, Bug } from "lucide-react";
 import { motion, useAnimationControls, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
@@ -90,6 +90,52 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
     return () => unsubscribe?.();
   }, [currentUser?.email, queryClient]);
 
+  // Bug report replies (vendor responses on escalation threads)
+  const { data: bugReports = [] } = useQuery({
+    queryKey: ["bug-reports-notifications"],
+    queryFn: () => base44.entities.BugReport.list("-created_date", 50),
+    enabled: !!currentUser?.email,
+    refetchInterval: 30000,
+  });
+
+  useEffect(() => {
+    if (!currentUser?.email) return;
+    const unsub = base44.entities.BugReport.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["bug-reports-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
+    });
+    return () => unsub?.();
+  }, [currentUser?.email, queryClient]);
+
+  const bugReportsWithUnread = bugReports
+    .map(r => {
+      const replies = r.replies || [];
+      const unread = replies.filter(rep => !(rep.read_by || []).includes(currentUser?.email));
+      return { report: r, replies, unread };
+    })
+    .filter(x => x.unread.length > 0)
+    .sort((a, b) => {
+      const aLatest = a.unread[a.unread.length - 1]?.received_at || "";
+      const bLatest = b.unread[b.unread.length - 1]?.received_at || "";
+      return bLatest.localeCompare(aLatest);
+    });
+
+  const markBugReportRead = async (reportEntry) => {
+    if (!currentUser?.email) return;
+    const updated = reportEntry.replies.map(r => {
+      const readBy = r.read_by || [];
+      if (readBy.includes(currentUser.email)) return r;
+      return { ...r, read_by: [...readBy, currentUser.email] };
+    });
+    try {
+      await base44.entities.BugReport.update(reportEntry.report.id, { replies: updated });
+      queryClient.invalidateQueries({ queryKey: ["bug-reports-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
+    } catch (e) {
+      console.error("Failed to mark bug report replies read", e);
+    }
+  };
+
   const markTicketAsRead = async (msgs) => {
     const nowIso = new Date().toISOString();
     await Promise.all(
@@ -127,7 +173,9 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
     return bLatest.localeCompare(aLatest);
   });
 
-  const totalUnread = visibleMessages.filter(m => !(m.read_by || []).includes(currentUser?.email)).length;
+  const unreadEmailCount = visibleMessages.filter(m => !(m.read_by || []).includes(currentUser?.email)).length;
+  const unreadBugReplyCount = bugReportsWithUnread.reduce((sum, x) => sum + x.unread.length, 0);
+  const totalUnread = unreadEmailCount + unreadBugReplyCount;
 
   // Bell wiggle when a new unread arrives
   const bellControls = useAnimationControls();
@@ -180,13 +228,18 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
         <div className="px-4 py-3 border-b bg-gradient-to-r from-pink-50 to-purple-50">
           <h3 className="font-semibold text-gray-900">Notifications</h3>
           <p className="text-xs text-gray-600">
-            {totalUnread === 0 ? "You're all caught up 🎉" : `${totalUnread} new client repl${totalUnread === 1 ? "y" : "ies"}`}
+            {totalUnread === 0
+              ? "You're all caught up 🎉"
+              : [
+                  unreadEmailCount > 0 ? `${unreadEmailCount} client repl${unreadEmailCount === 1 ? "y" : "ies"}` : null,
+                  unreadBugReplyCount > 0 ? `${unreadBugReplyCount} bug report repl${unreadBugReplyCount === 1 ? "y" : "ies"}` : null,
+                ].filter(Boolean).join(" • ")}
           </p>
         </div>
 
-        {ticketEntries.length === 0 ? (
+        {ticketEntries.length === 0 && bugReportsWithUnread.length === 0 ? (
           <div className="p-6 text-center text-sm text-gray-500">
-            No new replies on your tickets.
+            No new replies.
           </div>
         ) : (
           <div className="divide-y">
@@ -210,6 +263,46 @@ export default function NotificationCenter({ currentUser, tickets, onTicketClick
                 );
               })}
             </AnimatePresence>
+
+            {bugReportsWithUnread.length > 0 && (
+              <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-slate-500 font-semibold bg-slate-50 flex items-center gap-1">
+                <Bug className="w-3 h-3" /> Bug report replies
+              </div>
+            )}
+            {bugReportsWithUnread.map(entry => {
+              const latest = entry.unread[entry.unread.length - 1];
+              return (
+                <button
+                  key={entry.report.id}
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    markBugReportRead(entry);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-50 transition flex items-start gap-2"
+                >
+                  <span className="mt-1 inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#b67651]/10 text-[#b67651] flex-shrink-0">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-800 truncate">
+                        {latest.from_name || latest.from_email}
+                      </span>
+                      <span className="text-[10px] font-bold bg-blue-600 text-white rounded-full px-1.5">
+                        {entry.unread.length}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 truncate">
+                      Re: {entry.report.description?.slice(0, 60) || "Bug report"}
+                    </div>
+                    <div className="text-xs text-slate-600 truncate mt-0.5">
+                      {latest.snippet || latest.body_text?.slice(0, 100)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
       </DropdownMenuContent>

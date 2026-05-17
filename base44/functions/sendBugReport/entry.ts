@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Hardcoded escalation recipient(s). Can be moved to settings later.
 const ESCALATION_TO = "gurpreen@pilatesinpinkstudio.com";
+const FROM_EMAIL = "support@pilatesinpinkstudio.com";
 const FROM_NAME = "PiP Support Bug Report";
 
 const URGENCY_COLOR = {
@@ -20,8 +21,29 @@ function escapeHtml(s = "") {
     .replace(/'/g, "&#039;");
 }
 
+// Plain-text summary designed for copy/paste into a vendor support ticket.
+function buildVendorSummary(report) {
+  const lines = [];
+  lines.push(`Issue: ${report.description || "—"}`);
+  if (report.client_name) lines.push(`Customer: ${report.client_name}`);
+  if (report.booking_info) lines.push(`Booking date & time: ${report.booking_info}`);
+  if (report.ticket_number) lines.push(`Related ticket: #${report.ticket_number}`);
+  lines.push(`Urgency: ${report.urgency || "Soon"}`);
+  lines.push(`Platform: ${report.platform || "—"}`);
+  lines.push(`Reported by: ${report.reported_by_name || report.reported_by_email || "—"}`);
+  if ((report.image_urls || []).length) {
+    lines.push(`Attachments:`);
+    for (const u of report.image_urls) lines.push(`  - ${u}`);
+  } else {
+    lines.push(`Attachments: none`);
+  }
+  return lines.join("\n");
+}
+
 function buildHtml(report) {
   const urgencyColor = URGENCY_COLOR[report.urgency] || "#64748b";
+  const vendorSummary = buildVendorSummary(report);
+
   const transcriptHtml = (report.transcript || []).map(m => `
     <div style="margin:6px 0;padding:8px 10px;border-radius:8px;background:${m.role === 'user' ? '#fdf2f4' : '#f8fafc'};border:1px solid ${m.role === 'user' ? '#fbcfe8' : '#e2e8f0'};">
       <div style="font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:2px;">${escapeHtml(m.role === 'user' ? (report.reported_by_name || 'Reporter') : 'Assistant')}</div>
@@ -44,6 +66,12 @@ function buildHtml(report) {
     <div style="border-left:4px solid ${urgencyColor};padding-left:14px;margin-bottom:18px;">
       <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">🐛 Bug Report • ${escapeHtml(report.urgency || 'Soon')}</div>
       <h1 style="margin:4px 0 0;font-size:20px;color:#0f172a;">New bug reported from Support Portal</h1>
+    </div>
+
+    <!-- VENDOR COPY-PASTE BLOCK -->
+    <div style="background:#0f172a;color:#e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:18px;">
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">📋 Copy/paste for vendor</div>
+      <pre style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12.5px;line-height:1.5;color:#e2e8f0;white-space:pre-wrap;word-break:break-word;">${escapeHtml(vendorSummary)}</pre>
     </div>
 
     <table style="width:100%;font-size:13px;color:#0f172a;border-collapse:collapse;">
@@ -79,11 +107,12 @@ function encodeBase64Url(str) {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function buildRawEmail({ to, fromEmail, fromName, subject, html }) {
+function buildRawEmail({ to, fromEmail, fromName, replyTo, subject, html }) {
   const boundary = "----pipbug" + Math.random().toString(36).slice(2);
   const headers = [
     `From: ${fromName} <${fromEmail}>`,
     `To: ${to}`,
+    `Reply-To: ${replyTo}`,
     `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
@@ -139,7 +168,8 @@ Deno.serve(async (req) => {
       reported_by_email: user.email,
       reported_by_name: reporterName,
       escalated_to: ESCALATION_TO,
-      email_status: "pending"
+      email_status: "pending",
+      replies: []
     });
 
     // Send via Gmail connector
@@ -150,8 +180,9 @@ Deno.serve(async (req) => {
 
     const raw = buildRawEmail({
       to: ESCALATION_TO,
-      fromEmail: "info@pilatesinpinkstudio.com",
+      fromEmail: FROM_EMAIL,
       fromName: FROM_NAME,
+      replyTo: FROM_EMAIL,
       subject,
       html
     });
@@ -174,8 +205,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Failed to send email", details: errText }, { status: 500 });
     }
 
+    const sentMessage = await gmailRes.json();
+
+    // Fetch sent message Message-ID header so we can match inbound replies later
+    let rfcMessageId = "";
+    try {
+      const metaRes = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${sentMessage.id}?format=metadata&metadataHeaders=Message-ID`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      if (metaRes.ok) {
+        const fullMsg = await metaRes.json();
+        const headers = fullMsg.payload?.headers || [];
+        rfcMessageId = headers.find(h => h.name.toLowerCase() === "message-id")?.value || "";
+      }
+    } catch (e) {
+      console.error("Failed to fetch sent Message-ID:", e);
+    }
+
     await base44.asServiceRole.entities.BugReport.update(created.id, {
-      email_status: "sent"
+      email_status: "sent",
+      gmail_thread_id: sentMessage.threadId || "",
+      rfc_message_id: rfcMessageId
     });
 
     return Response.json({

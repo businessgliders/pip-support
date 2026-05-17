@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Bug, X, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
+import { Bug, X, AlertCircle, CheckCircle2, ChevronRight, MessageSquare } from "lucide-react";
 
 const URGENCY_STYLE = {
   Critical: { dot: "bg-red-500", text: "text-red-700", bg: "bg-red-50", border: "border-red-200" },
@@ -24,15 +24,44 @@ const formatDate = (s) => {
   });
 };
 
-export default function EscalationSwimlane() {
+export default function EscalationSwimlane({ currentUser } = {}) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["bug-reports"],
     queryFn: () => base44.entities.BugReport.list("-created_date", 50),
     refetchInterval: 15000,
   });
+
+  // Keep selected in sync with refreshed data (so new replies show up)
+  useEffect(() => {
+    if (!selected) return;
+    const fresh = reports.find(r => r.id === selected.id);
+    if (fresh && fresh !== selected) setSelected(fresh);
+  }, [reports]); // eslint-disable-line
+
+  // Mark all replies as read by the current user when a report is opened
+  const markRepliesRead = async (report) => {
+    if (!report || !currentUser?.email) return;
+    const replies = Array.isArray(report.replies) ? report.replies : [];
+    if (replies.length === 0) return;
+    let changed = false;
+    const updated = replies.map(r => {
+      const readBy = r.read_by || [];
+      if (readBy.includes(currentUser.email)) return r;
+      changed = true;
+      return { ...r, read_by: [...readBy, currentUser.email] };
+    });
+    if (!changed) return;
+    try {
+      await base44.entities.BugReport.update(report.id, { replies: updated });
+      queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
+    } catch (e) {
+      console.error("Failed to mark bug report replies as read", e);
+    }
+  };
 
   // Close on Escape
   useEffect(() => {
@@ -117,11 +146,15 @@ export default function EscalationSwimlane() {
               <div className="p-2 space-y-2">
                 {reports.map(r => {
                   const u = URGENCY_STYLE[r.urgency] || URGENCY_STYLE.Soon;
+                  const replies = r.replies || [];
+                  const unreadReplies = currentUser?.email
+                    ? replies.filter(rep => !(rep.read_by || []).includes(currentUser.email)).length
+                    : replies.length;
                   return (
                     <button
                       key={r.id}
                       type="button"
-                      onClick={() => setSelected(r)}
+                      onClick={() => { setSelected(r); markRepliesRead(r); }}
                       className={`w-full text-left p-3 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all`}
                     >
                       <div className="flex items-center gap-2 mb-1">
@@ -134,7 +167,17 @@ export default function EscalationSwimlane() {
                             #{r.ticket_number}
                           </span>
                         )}
-                        {r.email_status === "failed" && (
+                        {replies.length > 0 && (
+                          <span className={`ml-auto flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                            unreadReplies > 0
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-slate-600 border border-slate-200"
+                          }`}>
+                            <MessageSquare className="w-2.5 h-2.5" />
+                            {replies.length}{unreadReplies > 0 ? ` • ${unreadReplies} new` : ""}
+                          </span>
+                        )}
+                        {r.email_status === "failed" && replies.length === 0 && (
                           <AlertCircle className="w-3 h-3 text-red-500 ml-auto" />
                         )}
                       </div>
@@ -234,6 +277,27 @@ export default function EscalationSwimlane() {
               {selected.email_error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
                   <strong>Error:</strong> {selected.email_error}
+                </div>
+              )}
+
+              {(selected.replies || []).length > 0 && (
+                <div>
+                  <div className="text-xs text-slate-500 mb-2 flex items-center gap-1">
+                    <MessageSquare className="w-3 h-3" /> Replies ({selected.replies.length})
+                  </div>
+                  <div className="space-y-2">
+                    {selected.replies.map((r, i) => (
+                      <div key={r.gmail_message_id || i} className="border border-slate-200 rounded-lg p-3 bg-white">
+                        <div className="flex items-center justify-between mb-1 text-xs">
+                          <span className="font-semibold text-slate-800">{r.from_name || r.from_email}</span>
+                          <span className="text-slate-500">{formatDate(r.received_at)}</span>
+                        </div>
+                        <div className="text-xs text-slate-600 whitespace-pre-wrap">
+                          {r.body_text?.slice(0, 800) || r.snippet}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

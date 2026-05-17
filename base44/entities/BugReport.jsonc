@@ -87,6 +87,59 @@
     },
     "email_error": {
       "type": "string"
+    },
+    "gmail_thread_id": {
+      "type": "string",
+      "description": "Gmail thread ID for the outbound escalation email"
+    },
+    "rfc_message_id": {
+      "type": "string",
+      "description": "RFC Message-ID of the outbound escalation email (for threading inbound replies)"
+    },
+    "replies": {
+      "type": "array",
+      "description": "Inbound replies from vendor/escalation recipient",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from_email": {
+            "type": "string"
+          },
+          "from_name": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "body_text": {
+            "type": "string"
+          },
+          "body_html": {
+            "type": "string"
+          },
+          "snippet": {
+            "type": "string"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gmail_message_id": {
+            "type": "string"
+          },
+          "rfc_message_id": {
+            "type": "string"
+          },
+          "read_by": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        }
+      },
+      "default": []
     }
   },
   "required": [

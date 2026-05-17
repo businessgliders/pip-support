@@ -872,7 +872,7 @@ export default function TicketBoard() {
       />
 
       {/* Peeking Escalations Swimlane */}
-      <EscalationSwimlane />
+      <EscalationSwimlane currentUser={user} />
 
       {/* Footer */}
       <div className="mt-2 mb-0 flex items-center justify-center gap-3 flex-shrink-0">
