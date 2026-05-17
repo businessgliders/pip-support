@@ -25,7 +25,18 @@ const formatDate = (s) => {
   });
 };
 
-export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {}) {
+export default function EscalationSwimlane({ currentUser, openSignal = 0, tickets = [] } = {}) {
+  const ticketSummaryById = React.useMemo(() => {
+    const map = {};
+    for (const t of tickets) {
+      const parts = [];
+      if (t.client_name) parts.push(t.client_name);
+      if (t.inquiry_type) parts.push(t.inquiry_type);
+      if (t.status) parts.push(t.status);
+      map[t.id] = parts.join(" • ");
+    }
+    return map;
+  }, [tickets]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const queryClient = useQueryClient();
@@ -204,6 +215,11 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {})
                       <div className="text-sm text-slate-800 font-medium line-clamp-2 mb-1">
                         {r.description}
                       </div>
+                      {r.ticket_id && ticketSummaryById[r.ticket_id] && (
+                        <div className="text-[11px] text-slate-600 italic line-clamp-1 mb-1">
+                          Ticket: {ticketSummaryById[r.ticket_id]}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-[11px] text-slate-500">
                         <span className="truncate">{r.reported_by_name || r.reported_by_email}</span>
                         <span>{formatDate(r.created_date)}</span>
