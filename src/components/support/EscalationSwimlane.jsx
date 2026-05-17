@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Bug, X, AlertCircle, CheckCircle2, ChevronRight, MessageSquare, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReplyBubble from "@/components/support/ReplyBubble";
+import BugReportReplyComposer from "@/components/support/BugReportReplyComposer";
 
 const URGENCY_STYLE = {
   Critical: { dot: "bg-red-500", text: "text-red-700", bg: "bg-red-50", border: "border-red-200" },
@@ -337,6 +338,11 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                 </div>
               )}
             </div>
+            <BugReportReplyComposer
+              report={selected}
+              currentUser={currentUser}
+              onSent={() => queryClient.invalidateQueries({ queryKey: ["bug-reports"] })}
+            />
           </div>
         </div>
       )}

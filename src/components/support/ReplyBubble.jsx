@@ -40,19 +40,31 @@ export default function ReplyBubble({ reply }) {
   const [showFull, setShowFull] = useState(false);
   const clean = stripQuoted(reply.body_text || "") || reply.snippet || "";
   const sender = reply.from_name || reply.from_email || "Unknown";
+  const isOutbound = reply.direction === "outbound";
 
   return (
     <>
-      <div className="flex flex-col items-start max-w-[85%]">
-        <div className="text-[10px] text-slate-500 mb-1 px-2">
+      <div className={`flex flex-col max-w-[85%] ${isOutbound ? "items-start" : "items-end ml-auto"}`}>
+        <div className={`text-[10px] text-slate-500 mb-1 px-2 ${isOutbound ? "text-left" : "text-right"}`}>
           {sender} • {formatDate(reply.received_at)}
         </div>
         <button
           type="button"
           onClick={() => setShowFull(true)}
-          className="text-left bg-slate-100 hover:bg-slate-200 transition rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm"
+          className={`text-left transition rounded-2xl px-3 py-2 text-xs text-slate-800 whitespace-pre-wrap break-words shadow-sm ${
+            isOutbound
+              ? "bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-tl-sm"
+              : "bg-yellow-100 hover:bg-yellow-200 border border-yellow-200 rounded-tr-sm"
+          }`}
           title="Click to view full email"
         >
+          {(reply.image_urls || []).length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-1">
+              {reply.image_urls.map((u, i) => (
+                <img key={i} src={u} alt="" className="w-12 h-12 object-cover rounded border border-slate-200" />
+              ))}
+            </div>
+          )}
           {clean.slice(0, 280)}
           {clean.length > 280 && "…"}
           <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 mt-1 ml-1 align-middle">
