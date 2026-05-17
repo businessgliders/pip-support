@@ -216,7 +216,7 @@ export default function EscalationSwimlane({ currentUser } = {}) {
       {/* Detail modal */}
       {selected && (
         <div
-          className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[100] bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
           onClick={() => setSelected(null)}
         >
           <div
