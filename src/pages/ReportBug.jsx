@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { ArrowLeft, LifeBuoy, User, LogOut } from "lucide-react";
 import BugReportChat from "@/components/support/BugReportChat";
 import BugReportIssueList from "@/components/support/BugReportIssueList";
+import TicketBoardPeekPanel from "@/components/support/TicketBoardPeekPanel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -130,6 +131,9 @@ export default function ReportBug() {
 
       {/* Chat panel only (no floating FAB on this page) */}
       <BugReportChat currentUser={user} tickets={tickets} hideFab openSignal={chatSignal} />
+
+      {/* Left-edge peeking TicketBoard panel */}
+      <TicketBoardPeekPanel currentUser={user} />
     </div>
   );
 }
