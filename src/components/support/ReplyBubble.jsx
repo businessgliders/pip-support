@@ -17,21 +17,18 @@ const formatDate = (s) => {
 
 function stripQuoted(text = "") {
   if (!text) return "";
-  // Cut off Gmail-style quoted replies
-  const cutMarkers = [
-    /\n\s*On .+ wrote:\s*\n/i,
+  // Cut at the first "On ... wrote:" marker (Gmail reply pattern)
+  const match = text.match(/\n\s*On\s+.+?wrote:\s*\n/is);
+  let out = match ? text.slice(0, match.index) : text;
+  // Also cut at standard reply markers
+  const markers = [
     /\n\s*-{2,}\s*Original Message\s*-{2,}/i,
     /\n\s*From:\s.+\n\s*Sent:\s/i,
   ];
-  let out = text;
-  for (const re of cutMarkers) {
+  for (const re of markers) {
     const m = out.match(re);
     if (m) out = out.slice(0, m.index);
   }
-  // Remove quoted lines (lines starting with >, or entire reply chain)
-  const lines = out.split("\n");
-  const newReplyEnd = lines.findIndex(line => /^\s*>/.test(line));
-  if (newReplyEnd > 0) out = lines.slice(0, newReplyEnd).join("\n");
   return out.trim();
 }
 
