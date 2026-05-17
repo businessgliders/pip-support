@@ -99,12 +99,12 @@ export default function EscalationSwimlane({ currentUser } = {}) {
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="w-7 py-2 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
+          className="w-7 py-3 flex flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
           title="Reported Issues"
         >
           <Bug className="w-3.5 h-3.5" />
-          <div className="text-[9px] font-bold tracking-wider" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
-            ISSUES
+          <div className="text-[9px] font-bold tracking-wider whitespace-nowrap" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+            REPORTED ISSUES
           </div>
           {count > 0 && (
             <span className="text-[10px] font-bold bg-white text-[#b67651] rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
