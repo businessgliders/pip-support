@@ -353,8 +353,8 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                             disabled={isActive}
                             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
                               isActive
-                                ? `${color} text-white shadow`
-                                : "bg-white border border-slate-300 text-slate-600 hover:border-slate-400 hover:shadow-sm"
+                                ? `${color} text-white shadow-md ring-2 ring-offset-2 ring-slate-300`
+                                : "bg-white border border-slate-300 text-slate-600 hover:border-slate-400 hover:shadow-sm cursor-pointer"
                             }`}
                           >
                             {status}
