@@ -28,6 +28,7 @@ const formatDate = (s) => {
 
 export default function BugReportIssueList({ currentUser }) {
   const [selected, setSelected] = useState(null);
+  const [lightboxUrl, setLightboxUrl] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -64,11 +65,13 @@ export default function BugReportIssueList({ currentUser }) {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape" && selected) setSelected(null);
+      if (e.key !== "Escape") return;
+      if (lightboxUrl) setLightboxUrl(null);
+      else if (selected) setSelected(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selected]);
+  }, [selected, lightboxUrl]);
 
   if (isLoading) {
     return <div className="p-8 text-center text-slate-500 text-sm">Loading reported issues...</div>;
@@ -219,9 +222,14 @@ export default function BugReportIssueList({ currentUser }) {
                       <div className="text-xs text-slate-500 mb-1">Attachments ({selected.image_urls.length})</div>
                       <div className="grid grid-cols-3 gap-2">
                         {selected.image_urls.map((u, i) => (
-                          <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="block">
-                            <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
-                          </a>
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setLightboxUrl(u)}
+                            className="block focus:outline-none"
+                          >
+                            <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition cursor-zoom-in" />
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -260,6 +268,27 @@ export default function BugReportIssueList({ currentUser }) {
               onSent={() => queryClient.invalidateQueries({ queryKey: ["bug-reports"] })}
             />
           </div>
+        </div>
+      )}
+
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightboxUrl(null); }}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt="attachment"
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          />
         </div>
       )}
     </>
