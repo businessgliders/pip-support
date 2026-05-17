@@ -96,7 +96,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0 } = {})
       {/* Peeking tab + expanded panel */}
       <div
         className={`fixed top-1/2 -translate-y-1/2 right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
-          open ? "translate-x-0" : "translate-x-[calc(100%-28px)]"
+          open ? "translate-x-0" : "translate-x-full md:translate-x-[calc(100%-28px)]"
         }`}
         style={{ height: open ? "min(70vh, 600px)" : undefined }}
       >

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus, PanelRightOpen } from "lucide-react";
+import { LifeBuoy, X, Send, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -361,16 +361,10 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
               {onOpenEscalations && (
                 <button
                   onClick={() => { onOpenEscalations(); setOpen(false); }}
-                  className="md:hidden flex items-center gap-1 px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
+                  className="md:hidden px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
                   title="Open reported issues"
                 >
-                  <PanelRightOpen className="w-3.5 h-3.5" />
-                  <span>Open</span>
-                  {escalationCount > 0 && (
-                    <span className="bg-white text-[#b67651] rounded-full px-1.5 py-0.5 text-[10px] font-bold min-w-[18px] text-center">
-                      {escalationCount}
-                    </span>
-                  )}
+                  Open {escalationCount}
                 </button>
               )}
               <button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition">
