@@ -27,6 +27,11 @@ const formatDate = (s) => {
   });
 };
 
+const formatClientName = (name) => {
+  if (!name) return "";
+  return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+};
+
 export default function EscalationSwimlane({ currentUser, openSignal = 0, tickets = [] } = {}) {
   const ticketSummaryById = React.useMemo(() => {
     const map = {};
@@ -225,7 +230,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                       <div className="flex items-center gap-1.5 flex-wrap text-[10px] mb-1">
                         {r.client_name && (
                           <span className="bg-white border border-slate-200 text-slate-600 rounded px-1.5 py-0.5">
-                            Client Name: {r.client_name}
+                            Client Name: {formatClientName(r.client_name)}
                           </span>
                         )}
                         {r.booking_info && (
