@@ -486,7 +486,7 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-0 md:pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-hidden">
+    <div className="min-h-screen lg:h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-x-hidden lg:overflow-hidden">
       {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
@@ -514,7 +514,7 @@ export default function TicketBoard() {
         </div>
       </div>
       
-      <div className="max-w-7xl mx-auto relative z-10 flex flex-col flex-1 w-full min-h-0">
+      <div className="max-w-7xl mx-auto relative z-10 flex flex-col flex-1 w-full lg:min-h-0">
         {/* Sticky wrapper for header + filter on mobile/tablet */}
         <div className="sticky top-0 z-30 lg:static -mx-4 md:-mx-8 px-4 md:px-8 pt-4 md:pt-8 -mt-4 md:-mt-8 mb-4 lg:mb-0 bg-gradient-to-b from-[#f1899b] via-[#f1899b]/95 to-[#f1899b]/80 lg:bg-none backdrop-blur-sm lg:backdrop-blur-none lg:p-0 lg:m-0 pb-3 lg:pb-0">
         {/* Header */}
@@ -794,7 +794,7 @@ export default function TicketBoard() {
               )}
             <div
               ref={swimlaneScrollRef}
-              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 pl-6 pr-4 md:pl-10 md:pr-8 pb-1 lg:mx-0 lg:pl-0 lg:pr-0 lg:pb-0 snap-x snap-mandatory lg:snap-none flex-1 min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
+              className="flex lg:grid lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto lg:overflow-visible -mx-4 md:-mx-8 pl-6 pr-4 md:pl-10 md:pr-8 pb-2 lg:mx-0 lg:pl-0 lg:pr-0 lg:pb-0 snap-x snap-mandatory lg:snap-none lg:flex-1 lg:min-h-0 scroll-smooth touch-pan-x overscroll-x-contain"
             >
               {columns.map((column) => (
                 <div key={column} data-swimlane className="flex-shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-auto snap-start lg:snap-align-none">
@@ -903,7 +903,7 @@ export default function TicketBoard() {
       <EscalationSwimlane currentUser={user} />
 
       {/* Footer */}
-      <div className="hidden md:flex mt-2 mb-0 items-center justify-center gap-3 flex-shrink-0">
+      <div className="mt-2 mb-0 flex items-center justify-center gap-3 flex-shrink-0">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
           alt="Pilates in Pink"
