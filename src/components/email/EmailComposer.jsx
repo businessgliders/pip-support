@@ -206,21 +206,43 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
       {/* Attachments list */}
       {attachments.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {attachments.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-xs">
-              <FileText className="w-3.5 h-3.5 text-slate-500" />
-              <span className="text-slate-800 max-w-[180px] truncate" title={a.name}>{a.name}</span>
-              {a.size ? <span className="text-slate-500">({formatBytes(a.size)})</span> : null}
-              <button
-                type="button"
-                onClick={() => removeAttachment(i)}
-                className="text-slate-500 hover:text-red-600"
-                title="Remove"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
+          {attachments.map((a, i) => {
+            const isImage = a.type?.startsWith('image/');
+            return (
+              <div key={i} className="relative group">
+                {isImage ? (
+                  <div className="relative w-20 h-20 rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+                    <img src={a.url} alt={a.name} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(i)}
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Remove"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] px-1 py-0.5 truncate opacity-0 group-hover:opacity-100 transition-opacity">
+                      {a.name}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-xs">
+                    <FileText className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="text-slate-800 max-w-[180px] truncate" title={a.name}>{a.name}</span>
+                    {a.size ? <span className="text-slate-500">({formatBytes(a.size)})</span> : null}
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(i)}
+                      className="text-slate-500 hover:text-red-600"
+                      title="Remove"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
