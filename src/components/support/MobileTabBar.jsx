@@ -1,5 +1,6 @@
 import React from "react";
-import { Home, Search, Archive, User, LogOut } from "lucide-react";
+import { Home, Search, BarChart3, User, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import {
   DropdownMenu,
@@ -37,10 +38,10 @@ export default function MobileTabBar({
   user,
   onHome,
   onSearch,
-  onToggleArchived,
   showArchived,
 }) {
   const photo = user ? getPhotoForUser(user) : null;
+  const navigate = useNavigate();
 
   return (
     <>
@@ -68,10 +69,9 @@ export default function MobileTabBar({
             onClick={onSearch}
           />
           <TabButton
-            icon={<Archive className="w-5 h-5" />}
-            label="Archived"
-            active={showArchived}
-            onClick={onToggleArchived}
+            icon={<BarChart3 className="w-5 h-5" />}
+            label="Analytics"
+            onClick={() => navigate("/Analytics")}
           />
 
           <DropdownMenu>
@@ -95,6 +95,10 @@ export default function MobileTabBar({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="top" className="w-48 mb-2">
+              <DropdownMenuItem onClick={() => navigate("/Settings")}>
+                <SettingsIcon className="w-4 h-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => base44.auth.logout()}>
                 <User className="w-4 h-4 mr-2" />
                 Switch User

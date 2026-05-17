@@ -336,11 +336,11 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
           type="button"
           onClick={() => setOpen(true)}
           style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
-          className="fixed md:!bottom-5 right-5 z-50 group flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
+          className="fixed md:!bottom-5 right-0 md:right-5 z-50 group flex items-center justify-center gap-2 w-12 h-12 md:w-auto md:h-auto md:px-4 md:py-3 rounded-l-full md:rounded-full bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
           title="Report an issue"
         >
           <LifeBuoy className="w-5 h-5" />
-          <span className="hidden sm:inline text-sm font-semibold">Report an issue</span>
+          <span className="hidden md:inline text-sm font-semibold">Report an issue</span>
         </button>
       )}
 

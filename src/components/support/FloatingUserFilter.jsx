@@ -113,16 +113,6 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
 
   return (
     <>
-      {/* Mobile / Tablet: compact horizontal bar above swimlanes */}
-      <div className="lg:hidden">
-        <div className="backdrop-blur-xl bg-white/30 border border-white/50 rounded-xl px-2 py-1.5 shadow-lg">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            {renderAllButton({ compact: true })}
-            {renderUserButtons({ compact: true })}
-          </div>
-        </div>
-      </div>
-
       {/* Desktop: floating vertical sidebar */}
       <div className="hidden lg:block fixed left-4 top-1/2 -translate-y-1/2 z-40">
         <div className="backdrop-blur-xl bg-white/30 border border-white/50 rounded-2xl p-2 shadow-2xl flex flex-col items-center gap-2 max-h-[80vh] overflow-y-auto">

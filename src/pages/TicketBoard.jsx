@@ -27,6 +27,7 @@ import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
 import FloatingUserFilter from "../components/support/FloatingUserFilter";
+import MobileUserFilter from "../components/support/MobileUserFilter";
 import NotificationCenter from "../components/support/NotificationCenter";
 import ChangelogPopup from "../components/support/ChangelogPopup";
 import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
@@ -652,10 +653,9 @@ export default function TicketBoard() {
           </div>
         </div>
 
-        {/* Floating Action Icons (top-right on desktop, above mobile tab bar on mobile) */}
+        {/* Floating Action Icons (desktop only) */}
         <div
-          className="fixed md:top-4 md:bottom-auto right-4 z-40 flex flex-col gap-2"
-          style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
+          className="hidden md:flex fixed md:top-4 md:bottom-auto right-4 z-40 flex-col gap-2"
         >
           <Link to={createPageUrl("Analytics")}>
             <Button
@@ -679,13 +679,42 @@ export default function TicketBoard() {
           </Link>
         </div>
 
-        {/* Floating User Filter (left-center, owner only) */}
+        {/* Floating User Filter (left-center, owner only) - desktop sidebar */}
         {isOwner && (
           <FloatingUserFilter
             allUsers={allUsers}
             userFilter={userFilter}
             onChange={setUserFilter}
           />
+        )}
+
+        {/* Mobile: user filter dropdown + archived toggle */}
+        {isOwner && (
+          <MobileUserFilter
+            allUsers={allUsers}
+            userFilter={userFilter}
+            onChange={setUserFilter}
+            showArchived={showArchived}
+            onToggleArchived={() => setShowArchived(!showArchived)}
+          />
+        )}
+        {/* Non-owners still need archive toggle on mobile */}
+        {!isOwner && (
+          <div className="lg:hidden flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowArchived(!showArchived)}
+              title={showArchived ? "Hide archived" : "Show archived"}
+              className={`flex items-center gap-2 px-3 h-10 rounded-xl border shadow-lg backdrop-blur-xl transition ${
+                showArchived
+                  ? "bg-purple-500/80 border-purple-400/80 text-white"
+                  : "bg-white/40 border-white/60 text-gray-900 hover:bg-white/60"
+              }`}
+            >
+              <Archive className="w-4 h-4" />
+              <span className="text-sm font-medium">{showArchived ? "Hide archived" : "Archived"}</span>
+            </button>
+          </div>
         )}
         </div>
         {/* End sticky wrapper */}
@@ -868,7 +897,6 @@ export default function TicketBoard() {
           setMobileSearchInput(searchQuery);
           setMobileSearchDialog(true);
         }}
-        onToggleArchived={() => setShowArchived(!showArchived)}
       />
 
       {/* Peeking Escalations Swimlane */}
