@@ -21,7 +21,7 @@ const SIDE_OPTIONS = [
   { value: "both", label: "Both" }
 ];
 
-const CLIENT_PLATFORM_OPTIONS = ["App", "Website", "Other"];
+const CLIENT_PLATFORM_OPTIONS = ["App", "Website", "Both", "Other"];
 
 const SIDE_LABELS = {
   client: "Client-side",
