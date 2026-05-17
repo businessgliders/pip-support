@@ -174,6 +174,14 @@ export default function BugReportIssueList({ currentUser }) {
                 {/* Left Column: Details */}
                 <div className="w-full md:flex-1 md:min-w-0 space-y-3 md:overflow-y-auto md:pr-2">
                   <div className="flex flex-wrap gap-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      selected.status === "New" ? "bg-slate-100 text-slate-700 border border-slate-200" :
+                      selected.status === "In Progress" ? "bg-blue-50 text-blue-700 border border-blue-200" :
+                      selected.status === "Resolved" ? "bg-green-50 text-green-700 border border-green-200" :
+                      "bg-slate-100 text-slate-700 border border-slate-200"
+                    }`}>
+                      {selected.status || "New"}
+                    </span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
                       {selected.urgency}
                     </span>

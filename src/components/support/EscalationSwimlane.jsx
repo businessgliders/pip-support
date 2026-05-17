@@ -261,11 +261,19 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-5 text-sm">
-              <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1 overflow-hidden p-5 text-sm">
+              <div className="flex flex-col md:flex-row gap-6 h-full">
                 {/* Left Column: Details */}
-                <div className="w-full md:flex-1 md:min-w-0 space-y-3">
+                <div className="w-full md:flex-1 md:min-w-0 space-y-3 md:overflow-y-auto md:pr-2">
                   <div className="flex flex-wrap gap-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      selected.status === "New" ? "bg-slate-100 text-slate-700 border border-slate-200" :
+                      selected.status === "In Progress" ? "bg-blue-50 text-blue-700 border border-blue-200" :
+                      selected.status === "Resolved" ? "bg-green-50 text-green-700 border border-green-200" :
+                      "bg-slate-100 text-slate-700 border border-slate-200"
+                    }`}>
+                      {selected.status || "New"}
+                    </span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${URGENCY_STYLE[selected.urgency]?.bg} ${URGENCY_STYLE[selected.urgency]?.text} border ${URGENCY_STYLE[selected.urgency]?.border}`}>
                       {selected.urgency}
                     </span>
@@ -333,27 +341,31 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                 <div className="hidden md:block w-px bg-slate-200 self-stretch flex-shrink-0" />
 
                 {/* Right Column: Email Communications */}
-                <div className="w-full md:flex-1 md:min-w-0">
-                  <div className="text-xs text-slate-500 mb-2 flex items-center gap-1 font-semibold uppercase tracking-wider">
+                <div className="w-full md:flex-1 md:min-w-0 flex flex-col md:h-full md:overflow-hidden">
+                  <div className="text-xs text-slate-500 mb-2 flex items-center gap-1 font-semibold uppercase tracking-wider flex-shrink-0">
                     <MessageSquare className="w-3 h-3" /> Email Communications {(selected.replies || []).length > 0 && `(${selected.replies.length})`}
                   </div>
-                  {(selected.replies || []).length > 0 ? (
-                    <div className="space-y-3">
-                      {selected.replies.map((r, i) => (
-                        <ReplyBubble key={r.gmail_message_id || i} reply={r} isBugReport={true} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-slate-400 italic py-4">No replies yet</div>
-                  )}
+                  <div className="flex-1 md:overflow-y-auto md:pr-2">
+                    {(selected.replies || []).length > 0 ? (
+                      <div className="space-y-3">
+                        {selected.replies.map((r, i) => (
+                          <ReplyBubble key={r.gmail_message_id || i} reply={r} isBugReport={true} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-slate-400 italic py-4">No replies yet</div>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 -mx-5 -mb-5 mt-3 md:mx-0 md:mb-0">
+                    <BugReportReplyComposer
+                      report={selected}
+                      currentUser={currentUser}
+                      onSent={() => queryClient.invalidateQueries({ queryKey: ["bug-reports"] })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <BugReportReplyComposer
-              report={selected}
-              currentUser={currentUser}
-              onSent={() => queryClient.invalidateQueries({ queryKey: ["bug-reports"] })}
-            />
           </div>
         </div>
       )}

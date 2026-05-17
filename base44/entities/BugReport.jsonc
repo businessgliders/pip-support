@@ -14,6 +14,17 @@
       "type": "string",
       "description": "What went wrong - free text description of the bug"
     },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "In Progress",
+        "Resolved",
+        "Closed"
+      ],
+      "default": "New",
+      "description": "Current status of the bug report"
+    },
     "ticket_number": {
       "type": "string",
       "description": "Related SupportTicket number if applicable"

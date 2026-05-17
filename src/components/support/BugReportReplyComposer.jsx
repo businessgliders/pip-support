@@ -46,6 +46,16 @@ export default function BugReportReplyComposer({ report, currentUser, onSent }) 
       if (res?.data?.error) throw new Error(res.data.error);
       setBody("");
       setImages([]);
+      
+      // Auto-update status to "In Progress" if not already advanced
+      if (report.status !== "In Progress" && report.status !== "Resolved" && report.status !== "Closed") {
+        try {
+          await base44.entities.BugReport.update(report.id, { status: "In Progress" });
+        } catch (e) {
+          console.error("Failed to update status", e);
+        }
+      }
+      
       toast({ title: "Reply sent" });
       onSent?.();
     } catch (err) {
