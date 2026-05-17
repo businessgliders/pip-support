@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2, Bold, Italic, List, Link as LinkIcon, Paperclip, Plus, FileText } from "lucide-react";
+import { Send, Loader2, X, Wand2, Sparkles, Lightbulb, Trash2, Bold, Italic, List, Link as LinkIcon, Paperclip, FileText } from "lucide-react";
 import AiAssistBar from "./AiAssistBar";
 import TemplatePicker from "./TemplatePicker";
 
@@ -266,7 +266,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
           title="Attach files"
           className="border-gray-300 text-gray-700 hover:bg-gray-50"
         >
-          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
         </Button>
         <Button
           type="button"
