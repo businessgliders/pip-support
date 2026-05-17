@@ -30,7 +30,7 @@ const formatDate = (s) => {
 export default function BugReportIssueList({ currentUser }) {
   const [selected, setSelected] = useState(null);
   const [lightboxUrl, setLightboxUrl] = useState(null);
-  const [attachmentsCollapsed, setAttachmentsCollapsed] = useState(true);
+  const [attachmentsCollapsed, setAttachmentsCollapsed] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -166,11 +166,6 @@ export default function BugReportIssueList({ currentUser }) {
                 <div className="font-semibold">
                   Issue{selected.bug_number ? ` B${selected.bug_number}` : ""}
                 </div>
-                {selected.urgency && (
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/20 border border-white/30">
-                    {selected.urgency}
-                  </span>
-                )}
               </div>
               <button onClick={() => setSelected(null)} className="p-1 hover:bg-white/20 rounded-lg">
                 <X className="w-4 h-4" />
@@ -267,7 +262,7 @@ export default function BugReportIssueList({ currentUser }) {
                         {attachmentsCollapsed ? "+" : "−"} Attachments ({selected.image_urls.length})
                       </button>
                       {!attachmentsCollapsed && (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-4 gap-2">
                           {selected.image_urls.map((u, i) => (
                             <button
                               key={i}
@@ -275,7 +270,7 @@ export default function BugReportIssueList({ currentUser }) {
                               onClick={() => setLightboxUrl(u)}
                               className="block focus:outline-none"
                             >
-                              <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition cursor-zoom-in" />
+                              <img src={u} alt={`attachment ${i + 1}`} className="w-full h-12 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition cursor-zoom-in" />
                             </button>
                           ))}
                         </div>
