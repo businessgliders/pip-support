@@ -87,6 +87,10 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
                 <X className="w-4 h-4" />
               </button>
             </div>
+            <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-200 text-xs text-slate-700 space-y-1">
+              <div><span className="font-semibold">From:</span> <span className="text-slate-600">{reply.from_email || "Unknown"}</span></div>
+              <div><span className="font-semibold">To:</span> <span className="text-slate-600">{reply.to_email || "Unknown"}</span></div>
+            </div>
             <div className="flex-1 overflow-y-auto p-5 text-sm">
               {reply.body_html ? (
                 <div
