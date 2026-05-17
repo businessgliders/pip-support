@@ -14,6 +14,7 @@ import Settings from './pages/Settings';
 import SignatureSettings from './pages/SignatureSettings';
 import Analytics from './pages/Analytics';
 import Templates from './pages/Templates';
+import ReportBug from './pages/ReportBug';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
         <Route path="/Settings/Signature" element={<SignatureSettings />} />
         <Route path="/Settings/Templates" element={<Templates />} />
         <Route path="/Analytics" element={<Analytics />} />
+        <Route path="/ReportBug" element={<ReportBug />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
