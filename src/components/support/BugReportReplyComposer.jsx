@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Plus, Send, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Paperclip, Send, X, Loader2, Image as ImageIcon } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -91,7 +91,7 @@ export default function BugReportReplyComposer({ report, currentUser, onSent }) 
           className="flex-shrink-0 w-9 h-9 rounded-full bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-50"
           title="Attach image"
         >
-          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
         </button>
         <input
           ref={fileInputRef}
