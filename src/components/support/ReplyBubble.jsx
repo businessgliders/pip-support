@@ -17,7 +17,7 @@ const formatDate = (s) => {
 
 function stripQuoted(text = "") {
   if (!text) return "";
-  // Cut off Gmail-style quoted replies ("On ... wrote:") and lines starting with ">"
+  // Cut off Gmail-style quoted replies
   const cutMarkers = [
     /\n\s*On .+ wrote:\s*\n/i,
     /\n\s*-{2,}\s*Original Message\s*-{2,}/i,
@@ -28,12 +28,11 @@ function stripQuoted(text = "") {
     const m = out.match(re);
     if (m) out = out.slice(0, m.index);
   }
-  out = out
-    .split("\n")
-    .filter(line => !/^\s*>/.test(line))
-    .join("\n")
-    .trim();
-  return out;
+  // Remove quoted lines (lines starting with >, or entire reply chain)
+  const lines = out.split("\n");
+  const newReplyEnd = lines.findIndex(line => /^\s*>/.test(line));
+  if (newReplyEnd > 0) out = lines.slice(0, newReplyEnd).join("\n");
+  return out.trim();
 }
 
 export default function ReplyBubble({ reply, isBugReport = false }) {
@@ -44,32 +43,31 @@ export default function ReplyBubble({ reply, isBugReport = false }) {
 
   return (
     <>
-      <div className={`flex flex-col max-w-[85%] ${isOutbound ? "items-end ml-auto" : "items-start"}`}>
+      <div className={`flex flex-col gap-1 max-w-[75%] ${isOutbound ? "items-end ml-auto" : "items-start"}`}>
         <button
            type="button"
            onClick={() => setShowFull(true)}
-           className={`transition rounded-lg px-4 py-3 text-sm text-slate-800 break-words shadow-md border ${
+           className={`transition px-4 py-2.5 text-sm rounded-3xl cursor-pointer hover:opacity-90 ${
              isOutbound
-               ? isBugReport ? "bg-green-50 hover:bg-green-100 border-green-200 rounded-tr-none" : "bg-slate-50 hover:bg-slate-100 border-slate-300 rounded-tr-none"
-               : "bg-white hover:bg-slate-50 border-slate-300 rounded-tl-none"
+               ? isBugReport ? "bg-green-500 text-white" : "bg-blue-500 text-white"
+               : "bg-slate-200 text-slate-900"
            }`}
            title="Click to view full email"
          >
            {(reply.image_urls || []).length > 0 && (
-             <div className="flex flex-wrap gap-2 mb-2">
+             <div className="flex flex-wrap gap-1.5 mb-2">
                {reply.image_urls.map((u, i) => (
-                 <img key={i} src={u} alt="" className="w-16 h-16 object-cover rounded border border-slate-200" />
+                 <img key={i} src={u} alt="" className="w-20 h-20 object-cover rounded-lg" />
                ))}
              </div>
            )}
-           <div className="line-clamp-1 text-slate-700">
-             {clean || "No preview"}
-           </div>
-           <div className="flex items-center justify-end gap-2 mt-2 text-[10px] text-slate-500">
-             <span>{sender} • {formatDate(reply.received_at)}</span>
-             <Maximize2 className="w-3 h-3" />
+           <div className="line-clamp-3 break-words">
+             {clean || "No content"}
            </div>
          </button>
+        <div className={`text-[10px] text-slate-500 px-2 ${isOutbound ? "text-right" : "text-left"}`}>
+          {sender} • {formatDate(reply.received_at)}
+        </div>
       </div>
 
       {showFull && (
