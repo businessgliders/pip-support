@@ -156,7 +156,7 @@ export default function BugReportIssueList({ currentUser }) {
           onClick={() => setSelected(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[calc(100vh-6rem)] sm:max-h-[90vh] overflow-hidden flex flex-col my-auto"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[90vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 py-4 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white flex items-center justify-between flex-shrink-0">
