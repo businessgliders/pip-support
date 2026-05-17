@@ -96,9 +96,9 @@ export default function BugReportIssueList({ currentUser }) {
               key={r.id}
               type="button"
               onClick={() => { setSelected(r); markRepliesRead(r); }}
-              className={`w-full text-left p-3 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all flex flex-col`}
+              className={`w-full text-left p-3 rounded-xl border ${u.border} ${u.bg} hover:shadow-md transition-all`}
             >
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className={`w-2 h-2 rounded-full ${u.dot} flex-shrink-0`} />
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${u.text}`}>
                   {r.urgency || "Soon"}
@@ -128,16 +128,16 @@ export default function BugReportIssueList({ currentUser }) {
                 )}
               </div>
               {r.title && (
-                <div className="block text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
+                <div className="text-sm text-slate-900 font-bold line-clamp-1 mb-0.5 break-words">
                   {r.title}
                 </div>
               )}
-              <div className="block text-xs text-slate-700 line-clamp-1 mb-1.5 break-words">
+              <div className="text-xs text-slate-700 line-clamp-1 mb-1 break-words">
                 {r.description}
               </div>
-              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+              <div className="flex items-center justify-between text-[11px] text-slate-500">
                 <span className="truncate">{r.reported_by_name || r.reported_by_email}</span>
-                <span className="flex-shrink-0">{formatDate(r.created_date)}</span>
+                <span>{formatDate(r.created_date)}</span>
               </div>
             </button>
           );
