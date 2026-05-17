@@ -29,7 +29,7 @@ export default function BugReportFeaturePopup({ open, onClose, onMarkRead }) {
       eyebrow: "Step 1 of 2",
       title: "Report an issue with the chat assistant",
       description:
-        "Click the floating bug button at the bottom-right of the board to launch a guided chat. It walks you through capturing the description, urgency, screenshots, and ticket reference — then emails the right vendor automatically.",
+        "Click the floating bug button at the bottom-right to start a guided chat. It captures the details and emails the right vendor for you.",
       graphic: <LiveChatGraphic />,
     },
     {
@@ -37,7 +37,7 @@ export default function BugReportFeaturePopup({ open, onClose, onMarkRead }) {
       eyebrow: "Step 2 of 2",
       title: "Track replies in the side panel",
       description:
-        'Look for the "Reported Issues" tab peeking out on the right edge of the board. Click it to slide open a list of all reported issues, see vendor replies as they come in, and click any item for full details.',
+        'Open the "Reported Issues" tab on the right edge to view all reports and vendor replies.',
       graphic: <SidePanelGraphic />,
     },
   ];
