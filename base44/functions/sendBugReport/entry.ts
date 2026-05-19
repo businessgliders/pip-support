@@ -29,6 +29,7 @@ function buildHtml(report) {
        <div>${report.image_urls.map(u => `
          <div style="margin:8px 0;">
            <img src="${escapeHtml(u)}" style="max-width:480px;border-radius:8px;border:1px solid #e2e8f0;" />
+           <div style="margin-top:4px;font-size:11px;color:#64748b;word-break:break-all;">${escapeHtml(u)}</div>
          </div>
        `).join("")}</div>`
     : "";
