@@ -48,9 +48,10 @@ export default function BugReportIssueList({ currentUser, highlightId = null }) 
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
-    queryKey: ["bug-reports"],
+    queryKey: ["bug-reports", currentUser?.email || null],
     queryFn: () => base44.entities.BugReport.list("-created_date", 50),
     refetchInterval: 15000,
+    enabled: !!currentUser?.email,
   });
 
   useEffect(() => {

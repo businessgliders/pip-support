@@ -39,7 +39,12 @@ export default function ReportBug() {
   const highlightId = new URLSearchParams(location.search).get("highlight") || null;
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser(null));
+    base44.auth.me()
+      .then(setUser)
+      .catch(() => {
+        // Not authenticated — bug reports are RLS-gated, so redirect to login
+        base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+      });
   }, []);
 
   // Auto-open the bug report chat when the URL is /ReportBug/new
