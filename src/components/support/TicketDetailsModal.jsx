@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp, Sparkles, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Mail, Phone, Calendar, MessageSquare, Gift, User, History, ExternalLink, Send, UserPlus, ChevronDown, ChevronUp, Sparkles, Clock, CheckCircle, XCircle, X } from "lucide-react";
 import EmailThreadPanel from "../email/EmailThreadPanel";
 import { getPhotoForEmail } from "@/lib/userProfile";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -360,33 +360,41 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 })}
               </div>
 
-              {/* Assigned user avatar */}
-              {ticket.assigned_to && (() => {
-                const assignedUser = allUsers.find(u => u.email === ticket.assigned_to);
-                const photo = getPhotoForEmail(ticket.assigned_to, allUsers);
-                const displayName = ticket.assigned_to === 'info@pilatesinpinkstudio.com'
-                  ? 'Front Desk'
-                  : (assignedUser?.full_name?.split(' ')[0] || ticket.assigned_to.split('@')[0]);
-                const initials = displayName.slice(0, 2).toUpperCase();
-                return (
-                  <div
-                    className="hidden md:flex items-center"
-                    title={`Assigned to ${displayName}`}
-                  >
-                    {photo ? (
-                      <img
-                        src={photo}
-                        alt={displayName}
-                        className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 text-white text-xs font-semibold flex items-center justify-center border-2 border-white shadow-sm">
-                        {initials}
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
+              {/* Assigned user avatar + close button */}
+              <div className="hidden md:flex items-center gap-2">
+                {ticket.assigned_to && (() => {
+                  const assignedUser = allUsers.find(u => u.email === ticket.assigned_to);
+                  const photo = getPhotoForEmail(ticket.assigned_to, allUsers);
+                  const displayName = ticket.assigned_to === 'info@pilatesinpinkstudio.com'
+                    ? 'Front Desk'
+                    : (assignedUser?.full_name?.split(' ')[0] || ticket.assigned_to.split('@')[0]);
+                  const initials = displayName.slice(0, 2).toUpperCase();
+                  return (
+                    <div
+                      title={`Assigned to ${displayName}`}
+                    >
+                      {photo ? (
+                        <img
+                          src={photo}
+                          alt={displayName}
+                          className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 text-white text-xs font-semibold flex items-center justify-center border-2 border-white shadow-sm">
+                          {initials}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+                <button
+                  onClick={onClose}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Close"
+                >
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
             </div>
           </div>
 
