@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Bug, X, AlertCircle, CheckCircle2, ChevronRight, MessageSquare, ExternalLink } from "lucide-react";
@@ -46,6 +47,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
   }, [tickets]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [lightboxUrl, setLightboxUrl] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -90,13 +92,14 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
-        if (selected) setSelected(null);
+        if (lightboxUrl) setLightboxUrl(null);
+        else if (selected) setSelected(null);
         else if (open) setOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, selected]);
+  }, [open, selected, lightboxUrl]);
 
   const count = reports.length;
   const openCount = reports.filter(r => r.email_status !== "failed").length;
@@ -351,9 +354,14 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                       <div className="text-xs text-slate-500 mb-1">Attachments ({selected.image_urls.length})</div>
                       <div className="grid grid-cols-3 gap-2">
                         {selected.image_urls.map((u, i) => (
-                          <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="block">
-                            <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition" />
-                          </a>
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setLightboxUrl(u)}
+                            className="block focus:outline-none"
+                          >
+                            <img src={u} alt={`attachment ${i + 1}`} className="w-full h-20 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition cursor-zoom-in" />
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -431,6 +439,30 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
             </div>
           </div>
         </div>
+      )}
+
+      {/* Attachment lightbox — portaled so it sits above the detail modal */}
+      {lightboxUrl && createPortal(
+        <div
+          className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightboxUrl(null); }}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white"
+            title="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt="attachment"
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          />
+        </div>,
+        document.body
       )}
     </>
   );
