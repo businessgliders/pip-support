@@ -101,6 +101,19 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
   const count = reports.length;
   const openCount = reports.filter(r => r.email_status !== "failed").length;
 
+  // Count unread replies across all reports for the current user (notification badge)
+  const unreadRepliesCount = React.useMemo(() => {
+    if (!currentUser?.email) return 0;
+    let total = 0;
+    for (const r of reports) {
+      const replies = Array.isArray(r.replies) ? r.replies : [];
+      for (const rep of replies) {
+        if (!(rep.read_by || []).includes(currentUser.email)) total += 1;
+      }
+    }
+    return total;
+  }, [reports, currentUser?.email]);
+
   return (
     <>
       {/* Backdrop blur when expanded */}
@@ -122,9 +135,18 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="hidden sm:flex w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
-          title="Reported Issues"
+          className="hidden sm:flex relative w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
+          title={unreadRepliesCount > 0 ? `${unreadRepliesCount} new repl${unreadRepliesCount === 1 ? "y" : "ies"}` : "Reported Issues"}
         >
+          {/* Unread notification badge (floats off the tab edge) */}
+          {unreadRepliesCount > 0 && (
+            <span className="absolute -top-1.5 -left-1.5 flex h-4 w-4 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping" />
+              <span className="relative inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 text-white text-[9px] font-bold px-1 shadow-md ring-2 ring-white">
+                {unreadRepliesCount > 9 ? "9+" : unreadRepliesCount}
+              </span>
+            </span>
+          )}
           <Bug className="w-3.5 h-3.5" />
           <div className="text-[9px] font-bold tracking-wider whitespace-nowrap" style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
             REPORTED ISSUES
