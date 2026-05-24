@@ -310,7 +310,7 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
       const res = await base44.functions.invoke("sendBugReport", payload);
       if (res?.data?.success) {
         setStep("done");
-        pushAssistant(`✅ Sent to ${res.data.escalated_to}. Thanks for the heads up!`);
+        pushAssistant(`✅ Reported to Platform for Escalation. Thanks for the heads up!`);
       } else {
         throw new Error(res?.data?.error || "Unknown error");
       }
