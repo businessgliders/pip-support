@@ -256,7 +256,7 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
     pushUser(label);
     setData(d => ({ ...d, urgency: u }));
     setStep("images");
-    setTimeout(() => pushAssistant("Want to attach any screenshots? You can add a few, or skip."), 200);
+    setTimeout(() => pushAssistant("Want to attach any screenshots or videos? You can add a few, or skip."), 200);
   };
 
   const handleFileUpload = async (e) => {
@@ -275,7 +275,7 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
     }
     setData(d => ({ ...d, image_urls: [...d.image_urls, ...uploaded] }));
     if (uploaded.length) {
-      pushUser(`📎 Attached ${uploaded.length} image${uploaded.length === 1 ? "" : "s"}`);
+      pushUser(`📎 Attached ${uploaded.length} file${uploaded.length === 1 ? "" : "s"}`);
     }
     setUploading(false);
     e.target.value = "";
@@ -448,23 +448,28 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
               <div className="pt-1 space-y-2">
                 {data.image_urls.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {data.image_urls.map((url, i) => (
-                      <img key={i} src={url} alt="attachment" className="w-16 h-16 object-cover rounded-lg border border-slate-200" />
-                    ))}
+                    {data.image_urls.map((url, i) => {
+                      const isVideo = /\.(mp4|mov|webm|m4v|avi|mkv|quicktime)(\?|$)/i.test(url);
+                      return isVideo ? (
+                        <video key={i} src={url} className="w-16 h-16 object-cover rounded-lg border border-slate-200 bg-black" muted />
+                      ) : (
+                        <img key={i} src={url} alt="attachment" className="w-16 h-16 object-cover rounded-lg border border-slate-200" />
+                      );
+                    })}
                   </div>
                 )}
                 <div className="flex gap-2">
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     multiple
                     onChange={handleFileUpload}
                     className="hidden"
                   />
                   <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="bg-white">
                     {uploading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <ImagePlus className="w-3 h-3 mr-1" />}
-                    Add image
+                    Add image or video
                   </Button>
                   <Button size="sm" onClick={finishImages} disabled={uploading} className="bg-[#b67651] hover:bg-[#a05a3a] text-white">
                     {data.image_urls.length ? "Continue" : "Skip"}
