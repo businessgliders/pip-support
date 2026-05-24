@@ -373,7 +373,7 @@ export default function BugReportIssueList({ currentUser, highlightId = null }) 
                   </div>
                   <div className="flex-1 md:overflow-y-auto md:pr-2">
                     {(selected.replies || []).length > 0 ? (
-                      <div className="space-y-3">
+                      <div className="flex flex-col space-y-3">
                         {selected.replies.map((r, i) => (
                           <ReplyBubble key={r.gmail_message_id || i} reply={r} isBugReport={true} />
                         ))}
