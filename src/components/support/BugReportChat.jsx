@@ -310,7 +310,11 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
       const res = await base44.functions.invoke("sendBugReport", payload);
       if (res?.data?.success) {
         setStep("done");
-        pushAssistant(`✅ Reported to Platform for Escalation. Thanks for the heads up!`);
+        if (res.data.email_failed) {
+          pushAssistant(`✅ Ticket recorded${res.data.bug_number ? ` (B${res.data.bug_number})` : ''}. ⚠️ Couldn't send the notification email right now, but the report is saved and will be looked at. Thanks for the heads up!`);
+        } else {
+          pushAssistant(`✅ Reported to Platform for Escalation. Thanks for the heads up!`);
+        }
       } else {
         throw new Error(res?.data?.error || "Unknown error");
       }

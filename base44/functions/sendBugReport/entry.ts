@@ -194,7 +194,14 @@ Deno.serve(async (req) => {
         email_status: "failed",
         email_error: errText.slice(0, 500)
       });
-      return Response.json({ error: "Failed to send email", details: errText }, { status: 500 });
+      // Return success so the report is acknowledged as saved, but flag email failure
+      return Response.json({
+        success: true,
+        bug_report_id: created.id,
+        escalated_to: ESCALATION_TO,
+        email_failed: true,
+        bug_number: bugNumber
+      });
     }
 
     const sentMessage = await gmailRes.json();
