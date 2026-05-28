@@ -336,16 +336,31 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
   return (
     <>
       {!open && !hideFab && (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
-          className="fixed md:!bottom-5 right-0 md:right-5 z-50 group flex items-center justify-center gap-2 w-12 h-12 md:w-auto md:h-auto md:px-4 md:py-3 rounded-l-full md:rounded-full bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
-          title="Report an issue"
-        >
-          <LifeBuoy className="w-5 h-5" />
-          <span className="hidden md:inline text-sm font-semibold">Report an issue</span>
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
+            className="fixed md:!bottom-5 right-0 md:right-5 z-50 group flex items-center justify-center gap-2 w-12 h-12 md:w-auto md:h-auto md:px-4 md:py-3 rounded-l-full md:rounded-full bg-gradient-to-br from-[#b67651] to-[#a05a3a] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
+            title="Report an issue"
+          >
+            <LifeBuoy className="w-5 h-5" />
+            <span className="hidden md:inline text-sm font-semibold">Report an issue</span>
+          </button>
+          
+          {/* Open Reported Issues button - positioned below report bug FAB */}
+          {onOpenEscalations && (
+            <button
+              type="button"
+              onClick={() => onOpenEscalations()}
+              style={{ bottom: "calc(128px + env(safe-area-inset-bottom, 0px))" }}
+              className="sm:hidden fixed right-0 z-50 flex items-center justify-center gap-2 w-12 h-12 rounded-l-full bg-gradient-to-br from-[#8b5a3c] to-[#6b4530] text-white shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/30"
+              title={`Open reported issues (${escalationCount})`}
+            >
+              <span className="text-xs font-bold">{escalationCount > 0 ? escalationCount : ""}</span>
+            </button>
+          )}
+        </>
       )}
 
       {open && (
@@ -361,23 +376,9 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
                 <div className="text-[11px] text-white/80">Internal escalation</div>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              {onOpenEscalations && (
-                <button
-                  onClick={() => { onOpenEscalations(); setOpen(false); }}
-                  className="sm:hidden flex items-center gap-1.5 px-2 py-1 hover:bg-white/20 rounded-lg transition text-xs font-semibold"
-                  title="Open reported issues"
-                >
-                  <span>Open</span>
-                  <span className="bg-white text-[#b67651] rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[11px] font-bold">
-                    {escalationCount}
-                  </span>
-                </button>
-              )}
-              <button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            <button onClick={handleClose} className="p-1 hover:bg-white/20 rounded-lg transition">
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-slate-50">
