@@ -301,11 +301,19 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   asChild
                   size="icon"
                   variant="outline"
-                  title="Email Client"
+                  title={`Search Gmail for ${ticket.client_email}`}
                   className="h-9 w-9"
                 >
-                  <a href={`mailto:${ticket.client_email}`}>
-                    <Mail className="w-4 h-4" />
+                  <a
+                    href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(ticket.client_email)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+                      alt="Gmail"
+                      className="w-4 h-4"
+                    />
                   </a>
                 </Button>
                 {ticket.client_phone && (
