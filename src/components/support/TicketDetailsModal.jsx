@@ -317,7 +317,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                       />
                     </a>
                   </Button>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 animate-bounce shadow-lg z-50">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-y-0 -translate-y-1 pointer-events-none transition-all duration-200 ease-out shadow-lg z-50">
                     Search all in Gmail
                     <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
                   </div>
@@ -400,8 +400,9 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                        />
                      </a>
                    </Button>
-                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 animate-bounce">
+                   <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-y-0 -translate-y-1 pointer-events-none transition-all duration-200 ease-out shadow-lg z-50">
                      Search all in Gmail
+                     <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
                    </div>
                  </div>
                  {ticket.client_phone && (
