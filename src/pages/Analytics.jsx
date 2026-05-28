@@ -143,7 +143,11 @@ export default function Analytics() {
       </div>
 
       {/* iOS-style Mobile Tab Bar */}
-      <MobileTabBar user={user} />
+      <MobileTabBar
+        user={user}
+        onHome={() => navigate("/TicketBoard")}
+        onSearch={() => navigate("/TicketBoard?search=1")}
+      />
     </div>
   );
 }

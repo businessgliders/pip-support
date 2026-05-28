@@ -103,18 +103,7 @@ export default function MobileUserFilter({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <button
-        type="button"
-        onClick={onToggleArchived}
-        title={showArchived ? "Hide archived" : "Show archived"}
-        className={`md:hidden flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl border shadow-lg backdrop-blur-xl transition ${
-          showArchived
-            ? "bg-purple-500/80 border-purple-400/80 text-white"
-            : "bg-white/40 border-white/60 text-gray-900 hover:bg-white/60"
-        }`}
-      >
-        <Archive className="w-4 h-4" />
-      </button>
+
     </div>
   );
 }

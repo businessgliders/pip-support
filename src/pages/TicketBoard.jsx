@@ -711,24 +711,7 @@ export default function TicketBoard() {
             onToggleArchived={() => setShowArchived(!showArchived)}
           />
         )}
-        {/* Non-owners still need archive toggle on mobile */}
-        {!isOwner && (
-          <div className="lg:hidden flex justify-end">
-            <button
-              type="button"
-              onClick={() => setShowArchived(!showArchived)}
-              title={showArchived ? "Hide archived" : "Show archived"}
-              className={`flex items-center gap-2 px-3 h-10 rounded-xl border shadow-lg backdrop-blur-xl transition ${
-                showArchived
-                  ? "bg-purple-500/80 border-purple-400/80 text-white"
-                  : "bg-white/40 border-white/60 text-gray-900 hover:bg-white/60"
-              }`}
-            >
-              <Archive className="w-4 h-4" />
-              <span className="text-sm font-medium">{showArchived ? "Hide archived" : "Archived"}</span>
-            </button>
-          </div>
-        )}
+
         </div>
         {/* End sticky wrapper */}
 
