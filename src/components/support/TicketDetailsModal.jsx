@@ -323,21 +323,27 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   </div>
                 </div>
                 {ticket.client_phone && (
-                  <Button
-                    asChild
-                    size="icon"
-                    variant="outline"
-                    title={`Call ${ticket.client_phone} via Zoom`}
-                    className="h-9 w-9"
-                  >
-                    <a href={`zoomphonecall://${ticket.client_phone.replace(/[^\d+]/g, '')}`}>
-                      <img
-                        src="https://media.base44.com/images/public/690aaf0c732696417648d224/adb1bdaaa_image.png"
-                        alt="Call"
-                        className="w-4 h-4"
-                      />
-                    </a>
-                  </Button>
+                  <div className="relative group">
+                    <Button
+                      asChild
+                      size="icon"
+                      variant="outline"
+                      title={`Call ${ticket.client_phone} via Zoom`}
+                      className="h-9 w-9"
+                    >
+                      <a href={`zoomphonecall://${ticket.client_phone.replace(/[^\d+]/g, '')}`}>
+                        <img
+                          src="https://media.base44.com/images/public/690aaf0c732696417648d224/adb1bdaaa_image.png"
+                          alt="Call"
+                          className="w-4 h-4"
+                        />
+                      </a>
+                    </Button>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-y-0 -translate-y-1 pointer-events-none transition-all duration-200 ease-out shadow-lg z-50">
+                      Call on Zoom
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -406,21 +412,27 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                    </div>
                  </div>
                  {ticket.client_phone && (
-                   <Button
-                     asChild
-                     size="icon"
-                     variant="outline"
-                     title={`Call ${ticket.client_phone} via Zoom`}
-                     className="h-9 w-9"
-                   >
-                     <a href={`zoomphonecall://${ticket.client_phone.replace(/[^\d+]/g, '')}`}>
-                       <img
-                         src="https://media.base44.com/images/public/690aaf0c732696417648d224/adb1bdaaa_image.png"
-                         alt="Call"
-                         className="w-4 h-4"
-                       />
-                     </a>
-                   </Button>
+                   <div className="relative group">
+                     <Button
+                       asChild
+                       size="icon"
+                       variant="outline"
+                       title={`Call ${ticket.client_phone} via Zoom`}
+                       className="h-9 w-9"
+                     >
+                       <a href={`zoomphonecall://${ticket.client_phone.replace(/[^\d+]/g, '')}`}>
+                         <img
+                           src="https://media.base44.com/images/public/690aaf0c732696417648d224/adb1bdaaa_image.png"
+                           alt="Call"
+                           className="w-4 h-4"
+                         />
+                       </a>
+                     </Button>
+                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-y-0 -translate-y-1 pointer-events-none transition-all duration-200 ease-out shadow-lg z-50">
+                       Call on Zoom
+                       <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
+                     </div>
+                   </div>
                  )}
                  <button
                    onClick={onClose}
