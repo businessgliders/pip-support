@@ -338,8 +338,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
             {/* Status pills - centered in 2nd column */}
             <div className="flex items-center gap-3 flex-shrink-0 md:flex-[2] md:justify-center">
-              {/* Desktop status pills */}
-              <div className="hidden md:flex items-center gap-1.5">
+              {/* Desktop & tablet status pills */}
+               <div className="hidden sm:flex items-center gap-1.5">
                 {[
                   { status: "New", icon: Sparkles, color: "bg-pink-500" },
                   { status: "In Progress", icon: Clock, color: "bg-blue-500" },
@@ -411,7 +411,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           </div>
 
           {/* Mobile status select */}
-          <div className="md:hidden mt-3">
+          <div className="sm:hidden mt-3">
             <Select
               value={ticket.status}
               onValueChange={(newStatus) => {
