@@ -71,7 +71,8 @@ export default function TermsChat({ openSignal = 0 }) {
 
       const data = res?.data ?? res;
       const answer = data?.answer || "I got an empty response. Please try rephrasing your question.";
-      setMessages(prev => [...prev, { role: "assistant", content: answer }]);
+      const sourceMarkdown = data?.source_markdown ? `\n\n---\n\n_**source:** ${data.source_markdown}_` : "";
+      setMessages(prev => [...prev, { role: "assistant", content: answer + sourceMarkdown }]);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("[TermsChat] LLM error:", err);
@@ -152,7 +153,7 @@ export default function TermsChat({ openSignal = 0 }) {
                   {m.role === "user" ? (
                     m.content
                   ) : (
-                    <div className="prose prose-sm max-w-none prose-slate prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-blockquote:my-2 prose-blockquote:border-pink-400 prose-blockquote:text-slate-600">
+                    <div className="prose prose-sm max-w-none prose-slate prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-blockquote:my-2 prose-blockquote:border-pink-400 prose-blockquote:text-slate-600 [&_em]:text-xs [&_em]:text-slate-500 [&_strong]:font-normal">
                       <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
                   )}

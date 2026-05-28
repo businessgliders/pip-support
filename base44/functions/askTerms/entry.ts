@@ -74,13 +74,22 @@ ${history || "(none)"}
 
 Front-desk staff is asking: "${question}"
 
-Answer their question now, citing the relevant section of the terms.`;
+Answer their question now, citing the relevant section of the terms.
 
-    const answer = await base44.integrations.Core.InvokeLLM({ prompt });
+IMPORTANT: After your answer, add a line break, then "---", then on the next line include the exact markdown snippet or section heading from the terms that you quoted (e.g., "### Cancellation Policy" or "#### Value Memberships"). This is critical for source attribution.`;
+
+    const response = await base44.integrations.Core.InvokeLLM({ prompt });
+    const fullAnswer = typeof response === "string" ? response : (response?.response || response?.text || "");
+    
+    // Extract markdown section from answer if present (format: "answer\n\n---\n\nsource markdown")
+    const parts = fullAnswer.split(/\n\n---\n\n/);
+    const answer = parts[0] || fullAnswer;
+    const source_markdown = parts[1] || null;
 
     return Response.json({
-      answer: typeof answer === "string" ? answer : (answer?.response || answer?.text || ""),
-      cached: now => now - cachedAt < CACHE_TTL_MS,
+      answer,
+      source_markdown,
+      cached: Date.now() - cachedAt < CACHE_TTL_MS,
       terms_length: termsText.length
     });
   } catch (error) {
