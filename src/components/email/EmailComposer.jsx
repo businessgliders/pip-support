@@ -376,7 +376,7 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="flex justify-end gap-2 pt-2 border-t">
+      <div className="flex justify-end gap-2 pt-2 border-t flex-wrap">
         <Button
           type="button"
           variant="outline"
@@ -394,21 +394,21 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
           onClick={handlePolish}
           disabled={isEmpty(draftHtml) || polishing}
           className="border-purple-300 text-purple-700 hover:bg-purple-50"
+          title="Polish"
         >
-          {polishing ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Wand2 className="w-4 h-4 mr-1.5" />}
-          Polish
+          {polishing ? <Loader2 className="w-4 h-4 md:mr-1.5 animate-spin" /> : <Wand2 className="w-4 h-4 md:mr-1.5" />}
+          <span className="hidden md:inline">Polish</span>
         </Button>
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="icon"
           onClick={saveDraft}
           disabled={!isDirty || !hasContent}
           title="Save draft"
           className="border-gray-300 text-gray-700 hover:bg-gray-50"
         >
-          <Save className="w-4 h-4 mr-1.5" />
-          Save Draft
+          <Save className="w-4 h-4" />
         </Button>
         <Button
           type="button"
@@ -426,9 +426,10 @@ export default function EmailComposer({ ticket, currentUser, onSent, onCancel })
           onClick={handleSend}
           disabled={isEmpty(draftHtml) || sending}
           className="bg-[#b67651] hover:bg-[#a56541] text-white"
+          title="Send"
         >
-          {sending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
-          Send Reply
+          {sending ? <Loader2 className="w-4 h-4 md:mr-1.5 animate-spin" /> : <Send className="w-4 h-4 md:mr-1.5" />}
+          <span className="hidden md:inline">Send Reply</span>
         </Button>
       </div>
     </div>
