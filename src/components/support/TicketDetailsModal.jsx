@@ -357,11 +357,11 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                           }
                         }}
                         disabled={isActive}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                          isActive
-                            ? `${color} text-white shadow`
-                            : "bg-white border border-gray-300 text-gray-600 hover:border-gray-400 hover:shadow-sm"
-                        }`}
+                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.65rem] font-medium transition-all whitespace-nowrap ${
+                           isActive
+                             ? `${color} text-white shadow`
+                             : "bg-white border border-gray-300 text-gray-600 hover:border-gray-400 hover:shadow-sm"
+                         }`}
                       >
                         <Icon className="w-3 h-3" />
                         {status}
