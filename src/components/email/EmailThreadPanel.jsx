@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import EmailMessageItem from "./EmailMessageItem";
 import EmailComposer from "./EmailComposer";
 import { buildWelcomeHtml } from "./welcomeEmailHtml";
@@ -146,6 +146,7 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
   const threadRef = useRef(null);
   const [pendingScroll, setPendingScroll] = useState(false);
   const didInitialScroll = useRef(false);
+  const [expanded, setExpanded] = useState(true);
 
   // Scroll to highlighted message after render
   useEffect(() => {
@@ -180,20 +181,26 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
 
   return (
     <div className="bg-gradient-to-br from-amber-50 to-pink-50 rounded-xl p-4 border border-amber-200">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <Mail className="w-4 h-4" />
-          Email Communications
-          {messages.length > 0 && (
-            <span className="text-xs bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">
-              {messages.length}
-            </span>
-          )}
-        </h3>
-        <span className="text-xs text-[#b67651]">{ticket.client_email}</span>
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-2 text-left flex-1 min-w-0"
+        >
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Email Communications
+            {messages.length > 0 && (
+              <span className="text-xs bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">
+                {messages.length}
+              </span>
+            )}
+          </h3>
+          {expanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+        </button>
+        <span className="text-xs text-[#b67651] truncate">{ticket.client_email}</span>
       </div>
 
-      {isLoading ? (
+      {!expanded ? null : isLoading ? (
         <div className="flex items-center justify-center py-6 text-gray-500 text-sm">
           <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading thread…
         </div>
@@ -219,11 +226,13 @@ export default function EmailThreadPanel({ ticket, currentUser, highlightMessage
         </div>
       )}
 
-      <EmailComposer
-        ticket={ticket}
-        currentUser={currentUser}
-        onSent={async () => { await refetch(); setPendingScroll(true); }}
-      />
+      {expanded && (
+        <EmailComposer
+          ticket={ticket}
+          currentUser={currentUser}
+          onSent={async () => { await refetch(); setPendingScroll(true); }}
+        />
+      )}
     </div>
   );
 }

@@ -436,7 +436,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Left Section - Cancellation + Email */}
-                      <div className="w-full md:flex-[3] space-y-4 md:min-w-0 order-2 md:order-1">
+                      <div className="w-full md:flex-[3] space-y-4 md:min-w-0 order-3 md:order-1">
           {/* Cancellation Details */}
           {false && ticket.inquiry_type === "Cancellation" && (
             <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 border border-red-200">
@@ -518,8 +518,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           )}
 
-          {/* Email Communications */}
-          <EmailThreadPanel ticket={ticket} currentUser={currentUser} highlightMessageId={highlightMessageId} />
+          {/* Email Communications - desktop only here; mobile renders it after Contact Info */}
+          <div className="hidden md:block">
+            <EmailThreadPanel ticket={ticket} currentUser={currentUser} highlightMessageId={highlightMessageId} />
+          </div>
                       </div>
 
               {/* Divider */}
@@ -556,6 +558,11 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Email Communications - mobile only, shows right after Contact Info */}
+          <div className="md:hidden">
+            <EmailThreadPanel ticket={ticket} currentUser={currentUser} highlightMessageId={highlightMessageId} />
           </div>
 
           {/* Status History Timeline */}
@@ -710,8 +717,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                     onClick={handleAssignment}
                     disabled={selectedAssignee === ticket.assigned_to}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                    title="Assign"
                   >
-                    Assign
+                    <UserPlus className="w-4 h-4 md:mr-2" />
+                    <span className="hidden md:inline">Assign</span>
                   </Button>
                 </div>
                 <p className="text-xs text-gray-600 mt-2">
@@ -781,9 +790,10 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                     onClick={handleAddComment}
                     disabled={isAddingComment || !newComment.trim()}
                     className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                    title="Add Note"
                   >
-                    <Send className="w-4 h-4 mr-2" />
-                    Add Note
+                    <Send className="w-4 h-4 md:mr-2" />
+                    <span className="hidden md:inline">Add Note</span>
                   </Button>
                 </div>
               </div>
