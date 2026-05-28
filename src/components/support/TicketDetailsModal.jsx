@@ -411,7 +411,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
           </div>
 
           {/* Tablet status pills */}
-          <div className="hidden sm:flex md:hidden items-center gap-1.5 mt-3">
+          <div className="hidden sm:flex md:hidden items-center justify-center gap-1.5 mt-3 py-3">
             {[
               { status: "New", icon: Sparkles, color: "bg-pink-500" },
               { status: "In Progress", icon: Clock, color: "bg-blue-500" },
