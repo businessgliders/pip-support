@@ -199,9 +199,19 @@ Deno.serve(async (req) => {
       const autoSubmitted = getHeader(headers, 'Auto-Submitted');
       const precedence = getHeader(headers, 'Precedence');
 
-      // Skip outbound
+      // Skip outbound (either Gmail-sent label, or From is our own studio address)
       const labelIds = message.labelIds || [];
       if (labelIds.includes('SENT')) continue;
+      const fromParsed = parseFromHeader(fromHeader);
+      const STUDIO_OUTBOUND_ADDRESSES = [
+        'support@pilatesinpinkstudio.com',
+        'info@pilatesinpinkstudio.com',
+        'reportbug@pilatesinpinkstudio.com',
+      ];
+      if (STUDIO_OUTBOUND_ADDRESSES.includes(fromParsed.email)) {
+        dropped++;
+        continue;
+      }
 
       // Skip auto-replies / out-of-office to prevent loops
       if (autoSubmitted && autoSubmitted.toLowerCase() !== 'no') {
