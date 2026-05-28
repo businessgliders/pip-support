@@ -366,7 +366,7 @@ export default function BugReportChat({ currentUser, tickets = [], hideFab = fal
       {open && (
         <div
           style={{ bottom: "calc(72px + env(safe-area-inset-bottom, 0px))" }}
-          className="fixed md:!bottom-5 right-5 z-50 w-[calc(100vw-2.5rem)] sm:w-[400px] h-[600px] max-h-[calc(100vh-6rem)] md:max-h-[calc(100vh-2.5rem)] flex flex-col rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-200"
+          className="fixed md:!bottom-5 right-5 z-[60] w-[calc(100vw-2.5rem)] sm:w-[400px] h-[600px] max-h-[calc(100vh-6rem)] md:max-h-[calc(100vh-2.5rem)] flex flex-col rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-200"
         >
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white">
             <div className="flex items-center gap-2">
