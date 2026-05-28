@@ -33,6 +33,7 @@ import ChangelogPopup from "../components/support/ChangelogPopup";
 import ResolvedCleanupPopup from "../components/support/ResolvedCleanupPopup";
 import ArchivedTicketsList from "../components/support/ArchivedTicketsList";
 import BugReportChat from "../components/support/BugReportChat";
+import TermsChat from "../components/support/TermsChat";
 import EscalationSwimlane from "../components/support/EscalationSwimlane";
 import BugReportFeaturePopup from "../components/support/BugReportFeaturePopup";
 import MobileTabBar from "../components/support/MobileTabBar";
@@ -884,6 +885,9 @@ export default function TicketBoard() {
         escalationCount={bugReports.length}
         onOpenEscalations={() => setEscalationOpenSignal(s => s + 1)}
       />
+
+      {/* Floating Terms Assistant Chat */}
+      <TermsChat />
 
       {/* iOS-style Mobile Tab Bar */}
       <MobileTabBar
