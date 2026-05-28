@@ -326,7 +326,7 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                   >
                     <a href={`zoomphonecall://${ticket.client_phone.replace(/[^\d+]/g, '')}`}>
                       <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg"
+                        src="https://media.base44.com/images/public/690aaf0c732696417648d224/cb83e421b_image.png"
                         alt="Zoom"
                         className="w-4 h-4"
                       />
