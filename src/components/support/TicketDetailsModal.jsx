@@ -297,25 +297,31 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
 
               {/* Email/Call buttons - hidden on tablet (shown in right column instead) */}
                <div className="flex sm:hidden lg:flex items-center gap-2 flex-shrink-0">
-                <Button
-                  asChild
-                  size="icon"
-                  variant="outline"
-                  title={`Search Gmail for ${ticket.client_email}`}
-                  className="h-9 w-9"
-                >
-                  <a
-                    href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(ticket.client_email)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div className="relative group">
+                  <Button
+                    asChild
+                    size="icon"
+                    variant="outline"
+                    title={`Search Gmail for ${ticket.client_email}`}
+                    className="h-9 w-9"
                   >
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
-                      alt="Gmail"
-                      className="w-4 h-4"
-                    />
-                  </a>
-                </Button>
+                    <a
+                      href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(ticket.client_email)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+                        alt="Gmail"
+                        className="w-4 h-4"
+                      />
+                    </a>
+                  </Button>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 animate-bounce shadow-lg z-50">
+                    Search all in Gmail
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45" />
+                  </div>
+                </div>
                 {ticket.client_phone && (
                   <Button
                     asChild
