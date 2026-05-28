@@ -21,6 +21,27 @@ function escapeHtml(s = "") {
     .replace(/'/g, "&#039;");
 }
 
+function buildForwardMailto(report) {
+  const subject = `[Bug${report.bug_number ? ` #${report.bug_number}` : ''}] ${report.title || 'Issue reported'}${report.client_name ? ` - ${report.client_name}` : ''}`;
+  const lines = [
+    `Forwarding bug report from PiP Support Portal.`,
+    ``,
+    `Title: ${report.title || '—'}`,
+    `Urgency: ${report.urgency || '—'}`,
+    `Platform: ${report.platform || '—'}`,
+    `Reported by: ${report.reported_by_name || report.reported_by_email || '—'}`,
+    report.ticket_number ? `Related Ticket: #${report.ticket_number}` : null,
+    report.client_name ? `Client: ${report.client_name}` : null,
+    report.booking_info ? `Booking: ${report.booking_info}` : null,
+    ``,
+    `Description:`,
+    report.description || '—',
+    ``,
+    (report.image_urls || []).length ? `Attachments:\n${(report.image_urls || []).join('\n')}` : null,
+  ].filter(Boolean).join('\n');
+  return `mailto:support@gokenko.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines)}`;
+}
+
 function buildHtml(report) {
   const urgencyColor = URGENCY_COLOR[report.urgency] || "#64748b";
 
@@ -37,7 +58,7 @@ function buildHtml(report) {
   return `
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:0 auto;background:#ffffff;padding:24px;">
     <div style="border-left:4px solid ${urgencyColor};padding-left:14px;margin-bottom:18px;">
-      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">⚠️ Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;">Issue ${report.bug_number ? `B${report.bug_number} • ` : ''}${escapeHtml(report.urgency || 'Soon')}</div>
       <h1 style="margin:4px 0 0;font-size:22px;color:#0f172a;">${escapeHtml(report.title || 'New issue reported')}</h1>
     </div>
 
@@ -52,6 +73,10 @@ function buildHtml(report) {
 
     <h3 style="margin:18px 0 8px;font-size:14px;color:#334155;">📝 Description</h3>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13px;color:#0f172a;white-space:pre-wrap;font-style:italic;">${escapeHtml(report.description || '—')}</div>
+
+    <div style="margin-top:14px;">
+      <a href="${buildForwardMailto(report)}" style="display:inline-block;padding:10px 18px;background:#0f172a;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600;">Forward to Platform</a>
+    </div>
 
     ${imagesHtml}
 
