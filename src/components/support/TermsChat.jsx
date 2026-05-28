@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from "react-markdown";
 import { base44 } from "@/api/base44Client";
 
-const TERMS_URL = "https://www.pilatesinpinkstudio.com/terms";
+const TERMS_URL = "https://pricing.pilatesinpinkstudio.com/terms";
 
 const SUGGESTIONS = [
   "What's the cancellation policy?",
@@ -145,7 +145,14 @@ Answer their question now, citing the relevant section of the terms.`;
               <BookOpen className="w-4 h-4" />
               <div>
                 <div className="font-semibold text-sm">Terms Assistant</div>
-                <div className="text-[11px] text-white/80">Powered by Studio Terms & Etiquette</div>
+                <a
+                  href={TERMS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-white/80 hover:text-white underline underline-offset-2"
+                >
+                  Source: pricing.pilatesinpinkstudio.com/terms
+                </a>
               </div>
             </div>
             <div className="flex items-center gap-1">
