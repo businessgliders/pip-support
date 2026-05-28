@@ -619,10 +619,10 @@ export default function TicketBoard() {
               </button>
             </div>
 
-            {/* Archive Toggle Button (desktop only - mobile uses tab bar) */}
+            {/* Archive Toggle Button */}
             <Button
               onClick={() => setShowArchived(!showArchived)}
-              className={`hidden md:flex backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
+              className={`flex backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
                 showArchived
                   ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
                   : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
