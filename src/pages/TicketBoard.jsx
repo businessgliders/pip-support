@@ -36,6 +36,7 @@ import BugReportChat from "../components/support/BugReportChat";
 import TermsChat from "../components/support/TermsChat";
 import EscalationSwimlane from "../components/support/EscalationSwimlane";
 import BugReportFeaturePopup from "../components/support/BugReportFeaturePopup";
+import TermsFeaturePopup from "../components/support/TermsFeaturePopup";
 import MobileTabBar from "../components/support/MobileTabBar";
 import { getPhotoForUser } from "@/lib/userPhotos";
 
@@ -74,6 +75,7 @@ export default function TicketBoard() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [escalationOpenSignal, setEscalationOpenSignal] = useState(0);
   const [showBugFeaturePopup, setShowBugFeaturePopup] = useState(false);
+  const [showTermsFeaturePopup, setShowTermsFeaturePopup] = useState(false);
   const swimlaneScrollRef = React.useRef(null);
   const queryClient = useQueryClient();
 
@@ -147,6 +149,9 @@ export default function TicketBoard() {
         try {
           if (!localStorage.getItem('pip_seen_bug_report_feature_v1')) {
             setShowBugFeaturePopup(true);
+          }
+          if (!localStorage.getItem('pip_seen_terms_feature_v1')) {
+            setShowTermsFeaturePopup(true);
           }
         } catch { /* ignore */ }
       } catch (error) {
@@ -915,6 +920,16 @@ export default function TicketBoard() {
         onMarkRead={() => {
           try { localStorage.setItem('pip_seen_bug_report_feature_v1', '1'); } catch { /* ignore */ }
           setShowBugFeaturePopup(false);
+        }}
+      />
+
+      {/* Terms Assistant feature announcement */}
+      <TermsFeaturePopup
+        open={showTermsFeaturePopup && !showBugFeaturePopup}
+        onClose={() => setShowTermsFeaturePopup(false)}
+        onMarkRead={() => {
+          try { localStorage.setItem('pip_seen_terms_feature_v1', '1'); } catch { /* ignore */ }
+          setShowTermsFeaturePopup(false);
         }}
       />
 
