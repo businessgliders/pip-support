@@ -5,7 +5,7 @@ const TERMS_URL = "https://pricing.pilatesinpinkstudio.com/terms";
 // In-memory cache (per warm instance). Refresh hourly.
 let cachedTerms = null;
 let cachedAt = 0;
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 async function fetchTermsText() {
   const now = Date.now();

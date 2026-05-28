@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { BookOpen, X, Send, Loader2, Sparkles } from "lucide-react";
+import { BookOpen, X, Send, Loader2, Sparkles, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from "react-markdown";
@@ -115,17 +115,19 @@ export default function TermsChat({ openSignal = 0 }) {
               <BookOpen className="w-4 h-4" />
               <div>
                 <div className="font-semibold text-sm">Terms Assistant</div>
-                <a
-                  href={TERMS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-white/80 hover:text-white underline underline-offset-2"
-                >
-                  Source: pricing.pilatesinpinkstudio.com/terms
-                </a>
+                <div className="text-[11px] text-white/80">Powered by Studio Terms & Etiquette</div>
               </div>
             </div>
             <div className="flex items-center gap-1">
+              <a
+                href={TERMS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 hover:bg-white/20 rounded-lg transition"
+                title="Open source page"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
               <button
                 onClick={resetChat}
                 className="p-1 hover:bg-white/20 rounded-lg transition text-[11px] px-2"
