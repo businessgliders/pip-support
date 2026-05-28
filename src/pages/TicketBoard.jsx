@@ -561,26 +561,16 @@ export default function TicketBoard() {
             </div>
           </div>
           <div className="flex gap-2 md:gap-3 flex-nowrap md:flex-wrap items-center justify-end">
-            {/* Notification Bell + New ticket (notification visible on all sizes; new ticket desktop-only) */}
-            <div className="flex items-center gap-2">
-              <NotificationCenter
-                currentUser={user}
-                tickets={tickets}
-                variant="inline"
-                onTicketClick={(ticket, messageId) => {
-                  setHighlightedMessageId(messageId || null);
-                  setSelectedTicket(ticket);
-                }}
-              />
-              <a href="/" target="_blank" rel="noopener noreferrer">
-                <Button
-                  className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
-                  title="New ticket"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </a>
-            </div>
+            {/* Notification Bell */}
+            <NotificationCenter
+              currentUser={user}
+              tickets={tickets}
+              variant="inline"
+              onTicketClick={(ticket, messageId) => {
+                setHighlightedMessageId(messageId || null);
+                setSelectedTicket(ticket);
+              }}
+            />
 
             {/* Search Bar (Desktop & Tablet) */}
             <div className="hidden md:block">
@@ -619,18 +609,28 @@ export default function TicketBoard() {
               </button>
             </div>
 
-            {/* Archive Toggle Button */}
-            <Button
-              onClick={() => setShowArchived(!showArchived)}
-              className={`flex backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
-                showArchived
-                  ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
-                  : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
-              }`}
-              title={showArchived ? "Hide archived" : "Show archived"}
-            >
-              <Archive className="w-4 h-4" />
-            </Button>
+            {/* New Ticket + Archive Toggle */}
+            <div className="flex items-center gap-2">
+              <a href="/" target="_blank" rel="noopener noreferrer">
+                <Button
+                  className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
+                  title="New ticket"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </a>
+              <Button
+                onClick={() => setShowArchived(!showArchived)}
+                className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
+                  showArchived
+                    ? "bg-purple-500/80 border-purple-400/80 text-white hover:bg-purple-500/90"
+                    : "bg-white/70 border-white/80 text-gray-900 hover:bg-white/80"
+                }`}
+                title={showArchived ? "Hide archived" : "Show archived"}
+              >
+                <Archive className="w-4 h-4" />
+              </Button>
+            </div>
 
             {/* Profile Avatar with dropdown menu (desktop only - mobile uses tab bar) */}
             {(() => {
