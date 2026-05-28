@@ -59,48 +59,18 @@ export default function TermsChat({ openSignal = 0 }) {
         .map(m => `${m.role === "user" ? "Front Desk" : "Assistant"}: ${m.content}`)
         .join("\n");
 
-      const prompt = `You are a knowledgeable, friendly assistant helping front-desk staff at "Pilates in Pink" studio quickly find and explain studio policies.
-
-Your ONLY source of truth is the studio's Terms & Etiquette page: ${TERMS_URL}
-
-RULES:
-- Always fetch the latest content from ${TERMS_URL} and base your answer strictly on what's written there.
-- Quote the exact relevant phrasing from the terms when possible (use blockquote markdown).
-- Be concise and direct - front desk staff need quick answers while clients are waiting.
-- If the answer isn't in the terms page, say so plainly: "That isn't covered in our Terms page."
-- Do NOT make up policies. Do NOT use other websites.
-- Format with markdown: bold key terms, use bullet points for lists, blockquotes for direct citations.
-
-Recent conversation:
-${history}
-
-Front-desk staff is asking: "${q}"
-
-Answer their question now, citing the relevant section of the terms.`;
-
-      // Race the LLM call against a 45s timeout so the UI never hangs forever
-      const llmCall = base44.integrations.Core.InvokeLLM({
-        prompt,
-        add_context_from_internet: true,
-        model: "gemini_3_flash"
-      });
+      // Call backend function that fetches terms server-side and asks the LLM (fast: no web crawling)
+      const callPromise = base44.functions.invoke("askTerms", { question: q, history });
       const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out after 45s")), 45000)
+        setTimeout(() => reject(new Error("Request timed out after 30s")), 30000)
       );
-      const res = await Promise.race([llmCall, timeout]);
+      const res = await Promise.race([callPromise, timeout]);
 
       // eslint-disable-next-line no-console
-      console.log("[TermsChat] LLM response:", res);
+      console.log("[TermsChat] askTerms response:", res);
 
-      let answer;
-      if (typeof res === "string") {
-        answer = res;
-      } else if (res && typeof res === "object") {
-        answer = res.response || res.text || res.content || res.answer || res.output || "";
-        if (!answer) answer = "I got an empty response. Please try rephrasing your question.";
-      } else {
-        answer = "I couldn't read the response. Please try again.";
-      }
+      const data = res?.data ?? res;
+      const answer = data?.answer || "I got an empty response. Please try rephrasing your question.";
       setMessages(prev => [...prev, { role: "assistant", content: answer }]);
     } catch (err) {
       // eslint-disable-next-line no-console
