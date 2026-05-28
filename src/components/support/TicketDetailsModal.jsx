@@ -118,8 +118,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedAssignee, setSelectedAssignee] = useState(ticket.assigned_to || "info@pilatesinpinkstudio.com");
   const [showRelatedTickets, setShowRelatedTickets] = useState(false);
-  const [showInternalNotes, setShowInternalNotes] = useState(false);
-  const [showEscalate, setShowEscalate] = useState(false);
+  const [showInternalNotes, setShowInternalNotes] = useState(true);
+  const [showEscalate, setShowEscalate] = useState(true);
   const [showStatusHistory, setShowStatusHistory] = useState(true); // expanded by default
   const [systemAlert, setSystemAlert] = useState(null);
   const [statusPrompt, setStatusPrompt] = useState(null);
