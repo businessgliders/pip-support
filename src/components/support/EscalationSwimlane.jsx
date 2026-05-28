@@ -54,11 +54,17 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
     if (openSignal > 0) setOpen(true);
   }, [openSignal]);
 
-  const { data: reports = [], isLoading } = useQuery({
+  const { data: allReports = [], isLoading } = useQuery({
     queryKey: ["bug-reports"],
     queryFn: () => base44.entities.BugReport.list("-created_date", 50),
     refetchInterval: 15000,
   });
+
+  // Side panel only shows active issues (New / In Progress)
+  const reports = React.useMemo(
+    () => allReports.filter(r => !r.status || r.status === "New" || r.status === "In Progress"),
+    [allReports]
+  );
 
   // Keep selected in sync with refreshed data (so new replies show up)
   useEffect(() => {
