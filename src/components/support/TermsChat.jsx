@@ -78,18 +78,36 @@ Front-desk staff is asking: "${q}"
 
 Answer their question now, citing the relevant section of the terms.`;
 
-      const res = await base44.integrations.Core.InvokeLLM({
+      // Race the LLM call against a 45s timeout so the UI never hangs forever
+      const llmCall = base44.integrations.Core.InvokeLLM({
         prompt,
         add_context_from_internet: true,
         model: "gemini_3_flash"
       });
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out after 45s")), 45000)
+      );
+      const res = await Promise.race([llmCall, timeout]);
 
-      const answer = typeof res === "string" ? res : (res?.response || res?.text || JSON.stringify(res));
+      // eslint-disable-next-line no-console
+      console.log("[TermsChat] LLM response:", res);
+
+      let answer;
+      if (typeof res === "string") {
+        answer = res;
+      } else if (res && typeof res === "object") {
+        answer = res.response || res.text || res.content || res.answer || res.output || "";
+        if (!answer) answer = "I got an empty response. Please try rephrasing your question.";
+      } else {
+        answer = "I couldn't read the response. Please try again.";
+      }
       setMessages(prev => [...prev, { role: "assistant", content: answer }]);
     } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[TermsChat] LLM error:", err);
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: `⚠️ Couldn't fetch that right now: ${err.message}. Please try again.`
+        content: `⚠️ Couldn't fetch that right now: ${err.message || "Unknown error"}. Please try again.`
       }]);
     } finally {
       setLoading(false);
