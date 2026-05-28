@@ -410,6 +410,40 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
             </div>
           </div>
 
+          {/* Tablet status pills */}
+          <div className="hidden sm:flex md:hidden items-center gap-1.5 mt-3">
+            {[
+              { status: "New", icon: Sparkles, color: "bg-pink-500" },
+              { status: "In Progress", icon: Clock, color: "bg-blue-500" },
+              { status: "Resolved", icon: CheckCircle, color: "bg-green-500" },
+              { status: "Closed", icon: XCircle, color: "bg-gray-500" }
+            ].map(({ status, icon: Icon, color }, index) => {
+              const isActive = ticket.status === status;
+              return (
+                <React.Fragment key={status}>
+                  <button
+                    onClick={() => {
+                      if (!isActive) {
+                        setStatusPrompt({ ticketId: ticket.id, newStatus: status });
+                        setStatusNote("");
+                      }
+                    }}
+                    disabled={isActive}
+                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.65rem] font-medium transition-all whitespace-nowrap ${
+                       isActive
+                         ? `${color} text-white shadow`
+                         : "bg-white border border-gray-300 text-gray-600 hover:border-gray-400 hover:shadow-sm"
+                     }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {status}
+                  </button>
+                  {index < 3 && <div className="text-gray-300 text-xs">→</div>}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
           {/* Mobile status select */}
           <div className="sm:hidden mt-3">
             <Select
