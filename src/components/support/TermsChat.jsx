@@ -152,7 +152,7 @@ export default function TermsChat({ openSignal = 0 }) {
                   {m.role === "user" ? (
                     m.content
                   ) : (
-                    <div className="prose prose-sm max-w-none prose-slate prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-blockquote:my-2 prose-blockquote:border-pink-400 prose-blockquote:text-slate-600">
+                    <div className="prose prose-sm max-w-none prose-slate prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-ol:my-1 prose-blockquote:my-2 prose-blockquote:border-pink-400 prose-blockquote:text-slate-600 [&>p:has(+blockquote)]:mb-3 [&>p:has(+blockquote)]:text-xs [&>p:has(+blockquote)]:italic [&>p:has(+blockquote)]:text-slate-500">
                       <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
                   )}
