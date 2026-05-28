@@ -609,16 +609,8 @@ export default function TicketBoard() {
               </button>
             </div>
 
-            {/* New Ticket + Archive Toggle */}
+            {/* Archive Toggle + New Ticket */}
             <div className="flex items-center gap-2">
-              <a href="/" target="_blank" rel="noopener noreferrer">
-                <Button
-                  className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
-                  title="New ticket"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </a>
               <Button
                 onClick={() => setShowArchived(!showArchived)}
                 className={`backdrop-blur-md border shadow-lg h-11 rounded-xl px-3 ${
@@ -630,6 +622,14 @@ export default function TicketBoard() {
               >
                 <Archive className="w-4 h-4" />
               </Button>
+              <a href="/" target="_blank" rel="noopener noreferrer">
+                <Button
+                  className="backdrop-blur-md bg-white/70 border border-white/80 text-gray-900 hover:bg-white/80 rounded-xl h-11 px-3 shadow-lg"
+                  title="New ticket"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </a>
             </div>
 
             {/* Profile Avatar with dropdown menu (desktop only - mobile uses tab bar) */}
