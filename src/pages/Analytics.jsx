@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Ticket, XCircle, Heart, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
+import MobileTabBar from "../components/support/MobileTabBar";
 import KpiCard from "../components/analytics/KpiCard";
 import TicketsTrendChart from "../components/analytics/TicketsTrendChart";
 import CancellationReasonsChart from "../components/analytics/CancellationReasonsChart";
@@ -140,6 +141,9 @@ export default function Analytics() {
           </>
         )}
       </div>
+
+      {/* iOS-style Mobile Tab Bar */}
+      <MobileTabBar user={user} />
     </div>
   );
 }
