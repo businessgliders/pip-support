@@ -582,13 +582,13 @@ export default function TicketBoard() {
               </a>
             </div>
 
-            {/* Search Bar (Desktop) / Button (Mobile) */}
+            {/* Search Bar (Desktop & Tablet) */}
             <div className="hidden md:block">
               <Input
                 placeholder="Search tickets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="backdrop-blur-md bg-white/70 border-white/80 text-gray-900 placeholder:text-gray-600 rounded-xl h-11 w-64"
+                className="backdrop-blur-md bg-white/70 border-white/80 text-gray-900 placeholder:text-gray-600 rounded-xl h-11 w-40 lg:w-64"
               />
             </div>
 
