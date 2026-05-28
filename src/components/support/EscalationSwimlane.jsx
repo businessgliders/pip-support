@@ -129,7 +129,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
 
       {/* Peeking tab + expanded panel */}
       <div
-        className={`fixed lg:top-1/2 lg:-translate-y-1/2 bottom-24 lg:bottom-auto right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
+        className={`fixed lg:top-1/2 lg:-translate-y-1/2 bottom-6 lg:bottom-auto right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full sm:translate-x-[calc(100%-28px)]"
         }`}
         style={{ height: open ? "min(60vh, 520px)" : undefined }}
