@@ -129,7 +129,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
 
       {/* Peeking tab + expanded panel */}
       <div
-        className={`fixed lg:top-1/2 lg:-translate-y-1/2 bottom-6 lg:bottom-auto right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
+        className={`fixed top-1/2 -translate-y-1/2 right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full sm:translate-x-[calc(100%-28px)]"
         }`}
         style={{ height: open ? "min(60vh, 520px)" : undefined }}
@@ -138,7 +138,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="hidden sm:flex relative w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors lg:self-center"
+          className="hidden sm:flex relative w-7 py-3 flex-col items-center justify-center gap-1.5 bg-gradient-to-b from-[#b67651] to-[#a05a3a] text-white rounded-l-xl shadow-2xl border-y border-l border-white/30 hover:from-[#a05a3a] hover:to-[#8f4d31] transition-colors self-center"
           title={unreadRepliesCount > 0 ? `${unreadRepliesCount} new repl${unreadRepliesCount === 1 ? "y" : "ies"}` : "Reported Issues"}
         >
           {/* Unread notification badge (floats off the tab edge) */}
