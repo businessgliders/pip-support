@@ -295,8 +295,8 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 </div>
               </div>
 
-              {/* Email/Call buttons - aligned to right edge of left column */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Email/Call buttons - hidden on tablet (shown in right column instead) */}
+               <div className="flex sm:hidden lg:flex items-center gap-2 flex-shrink-0">
                 <Button
                   asChild
                   size="icon"
@@ -372,9 +372,56 @@ export default function TicketDetailsModal({ ticket, onClose, onStatusChange, on
                 })}
               </div>
 
-              {/* Assigned user avatar + close button */}
-              <div className="hidden md:flex items-center gap-2">
-                {ticket.assigned_to && (() => {
+              {/* Tablet-only: Gmail/Call buttons */}
+               <div className="hidden sm:flex lg:hidden items-center gap-2 flex-shrink-0">
+                 <Button
+                   asChild
+                   size="icon"
+                   variant="outline"
+                   title={`Search Gmail for ${ticket.client_email}`}
+                   className="h-9 w-9"
+                 >
+                   <a
+                     href={`https://mail.google.com/mail/u/0/#search/${encodeURIComponent(ticket.client_email)}`}
+                     target="_blank"
+                     rel="noopener noreferrer"
+                   >
+                     <img
+                       src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+                       alt="Gmail"
+                       className="w-4 h-4"
+                     />
+                   </a>
+                 </Button>
+                 {ticket.client_phone && (
+                   <Button
+                     asChild
+                     size="icon"
+                     variant="outline"
+                     title={`Call ${ticket.client_phone} via Zoom`}
+                     className="h-9 w-9"
+                   >
+                     <a href={`zoomphonecall://${ticket.client_phone.replace(/[^\d+]/g, '')}`}>
+                       <img
+                         src="https://media.base44.com/images/public/690aaf0c732696417648d224/adb1bdaaa_image.png"
+                         alt="Call"
+                         className="w-4 h-4"
+                       />
+                     </a>
+                   </Button>
+                 )}
+                 <button
+                   onClick={onClose}
+                   className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                   title="Close"
+                 >
+                   <X className="w-4 h-4 text-gray-500" />
+                 </button>
+               </div>
+
+               {/* Assigned user avatar + close button (desktop only) */}
+               <div className="hidden lg:flex items-center gap-2">
+                 {ticket.assigned_to && (() => {
                   const assignedUser = allUsers.find(u => u.email === ticket.assigned_to);
                   const photo = getPhotoForEmail(ticket.assigned_to, allUsers);
                   const displayName = ticket.assigned_to === 'info@pilatesinpinkstudio.com'
