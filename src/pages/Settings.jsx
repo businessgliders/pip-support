@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link, useNavigate } from "react-router-dom";
-import { PenLine, ArrowLeft, FileText } from "lucide-react";
+import { PenLine, ArrowLeft, FileText, DatabaseBackup } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserSelectionScreen from "../components/support/UserSelectionScreen";
 
@@ -19,8 +19,18 @@ const settingsCards = [
     description: "Quick-reply templates with variables",
     icon: FileText,
     path: "/Settings/Templates"
+  },
+  {
+    key: "admin",
+    title: "Admin Settings",
+    description: "Disaster recovery & system backups",
+    icon: DatabaseBackup,
+    path: "/Settings/Admin",
+    superAdminOnly: true
   }
 ];
+
+const SUPER_ADMIN_EMAILS = ["info@pilatesinpinkstudio.com"];
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -81,7 +91,9 @@ export default function Settings() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {settingsCards.map((card) => {
+          {settingsCards
+            .filter((card) => !card.superAdminOnly || (user?.role === "admin" && SUPER_ADMIN_EMAILS.includes((user?.email || "").toLowerCase())))
+            .map((card) => {
             const Icon = card.icon;
             return (
               <Link

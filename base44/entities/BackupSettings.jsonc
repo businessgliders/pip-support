@@ -1,0 +1,70 @@
+{
+  "name": "BackupSettings",
+  "type": "object",
+  "properties": {
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "default": "weekly",
+      "description": "How often the automatic backup should run"
+    },
+    "last_backup_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the most recent successful backup"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether scheduled backups are enabled"
+    },
+    "drive_folder_id": {
+      "type": "string",
+      "description": "Optional Google Drive folder ID where backup sheets are placed"
+    },
+    "backup_history": {
+      "type": "array",
+      "default": [],
+      "description": "Last few backup runs (most recent first)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "required": []
+}
