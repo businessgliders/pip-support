@@ -138,7 +138,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
         className={`fixed top-1/2 -translate-y-1/2 right-0 z-50 flex items-stretch transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full sm:translate-x-[calc(100%-28px)]"
         }`}
-        style={{ height: open ? "min(60vh, 520px)" : undefined }}
+        style={{ height: open ? "min(84vh, 728px)" : undefined }}
       >
         {/* Peek tab (always visible sliver) - hidden on mobile */}
         <button
@@ -168,7 +168,7 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
         </button>
 
         {/* Panel content */}
-        <div className="w-[340px] max-w-[calc(100vw-28px)] bg-white shadow-2xl border-y border-l border-slate-200 rounded-l-xl flex flex-col overflow-hidden" style={{ height: open ? "min(60vh, 520px)" : undefined }}>
+        <div className="w-[340px] max-w-[calc(100vw-28px)] bg-white shadow-2xl border-y border-l border-slate-200 rounded-l-xl flex flex-col overflow-hidden" style={{ height: open ? "min(84vh, 728px)" : undefined }}>
           {/* Header */}
           <div className="px-4 py-3 bg-gradient-to-r from-[#b67651] to-[#a05a3a] text-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
@@ -207,9 +207,43 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                 No reported issues yet
               </div>
             ) : (
-              <div className="p-2 space-y-2">
-                {reports.map(r => {
-                  const u = URGENCY_STYLE[r.urgency] || URGENCY_STYLE.Soon;
+              <div className="p-2 space-y-3">
+                {(() => {
+                  // Group reports by Today / Yesterday / Earlier (America/Toronto)
+                  const tzDate = (d) => {
+                    if (!d) return null;
+                    let iso = d;
+                    if (typeof d === "string" && !d.endsWith("Z") && !d.includes("+")) iso = d + "Z";
+                    const parts = new Date(iso).toLocaleString("en-CA", {
+                      timeZone: "America/Toronto",
+                      year: "numeric", month: "2-digit", day: "2-digit"
+                    });
+                    return parts; // YYYY-MM-DD
+                  };
+                  const today = tzDate(new Date().toISOString());
+                  const yest = (() => {
+                    const y = new Date();
+                    y.setDate(y.getDate() - 1);
+                    return tzDate(y.toISOString());
+                  })();
+
+                  const groups = { Today: [], Yesterday: [], Earlier: [] };
+                  for (const r of reports) {
+                    const d = tzDate(r.created_date);
+                    if (d === today) groups.Today.push(r);
+                    else if (d === yest) groups.Yesterday.push(r);
+                    else groups.Earlier.push(r);
+                  }
+
+                  const renderGroup = (label, items) => items.length === 0 ? null : (
+                    <div key={label} className="space-y-2">
+                      <div className="px-1 pt-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                        <span>{label}</span>
+                        <span className="flex-1 h-px bg-slate-200" />
+                        <span className="text-slate-400">{items.length}</span>
+                      </div>
+                      {items.map(r => {
+                        const u = URGENCY_STYLE[r.urgency] || URGENCY_STYLE.Soon;
                   const replies = r.replies || [];
                   const unreadReplies = currentUser?.email
                     ? replies.filter(rep => !(rep.read_by || []).includes(currentUser.email)).length
@@ -276,7 +310,18 @@ export default function EscalationSwimlane({ currentUser, openSignal = 0, ticket
                       </div>
                     </button>
                   );
-                })}
+                      })}
+                    </div>
+                  );
+
+                  return (
+                    <>
+                      {renderGroup("Today", groups.Today)}
+                      {renderGroup("Yesterday", groups.Yesterday)}
+                      {renderGroup("Earlier", groups.Earlier)}
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
