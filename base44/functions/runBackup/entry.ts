@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Integration 'googlesheets' has expired. Please reconnect the connector." }, { status: 500 });
     }
 
-    const appName = Deno.env.get("BASE44_APP_NAME") || "App";
+    const appName = Deno.env.get("BASE44_APP_NAME") || "PiPSupport";
     const title = `Backup - ${appName} - ${torontoTimestamp()}`;
 
     // Step 1: Create spreadsheet
