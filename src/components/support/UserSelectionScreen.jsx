@@ -18,9 +18,10 @@ export default function UserSelectionScreen() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await base44.functions.invoke('getUsersForSelection', {
-          token: import.meta.env.VITE_USER_SELECTION_TOKEN,
-        });
+        // No client-side token — the backend validates the request Origin
+        // against a server-side allow-list. Browsers set Origin automatically
+        // and JS cannot spoof it on fetch().
+        const response = await base44.functions.invoke('getUsersForSelection', {});
         console.log("Fetched users:", response.data.users);
         // Sort users to put Front Desk first
         const sortedUsers = response.data.users.sort((a, b) => {

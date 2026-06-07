@@ -8,14 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, DatabaseBackup, ExternalLink, Loader2, ShieldAlert } from "lucide-react";
 
-const SUPER_ADMIN_EMAILS = ["info@pilatesinpinkstudio.com"];
-
-function isSuperAdmin(user) {
-  if (!user) return false;
-  if (user.role !== "admin") return false;
-  return SUPER_ADMIN_EMAILS.includes((user.email || "").toLowerCase());
-}
-
 function fmtDate(iso) {
   if (!iso) return "Never";
   try {
@@ -32,7 +24,7 @@ function fmtDate(iso) {
 export default function AdminSettingsPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState(null);
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -41,9 +33,13 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const me = await base44.auth.me();
-        setUser(me);
-        if (isSuperAdmin(me)) {
+        // Authoritative super-admin check happens server-side; the email
+        // allow-list lives in the SUPER_ADMIN_EMAILS secret and can be
+        // updated without a frontend redeploy.
+        const resp = await base44.functions.invoke("checkSuperAdmin", {});
+        const allowed = !!resp?.data?.is_super_admin;
+        setIsSuperAdminUser(allowed);
+        if (allowed) {
           const list = await base44.entities.BackupSettings.list();
           let s = list[0];
           if (!s) {
@@ -56,7 +52,7 @@ export default function AdminSettingsPage() {
           setSettings(s);
         }
       } catch (e) {
-        setUser(null);
+        setIsSuperAdminUser(false);
       } finally {
         setLoading(false);
       }
@@ -105,7 +101,7 @@ export default function AdminSettingsPage() {
     );
   }
 
-  if (!isSuperAdmin(user)) {
+  if (!isSuperAdminUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] p-6">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
