@@ -709,25 +709,22 @@ export default function TicketBoard() {
           </Link>
         </div>
 
-        {/* Floating User Filter (left-center, owner only) - desktop sidebar */}
-        {isOwner && (
-          <FloatingUserFilter
-            allUsers={allUsers}
-            userFilter={userFilter}
-            onChange={setUserFilter}
-          />
-        )}
+        {/* Floating User Filter — visible to all logged-in staff. RLS still
+            limits non-admins to their own tickets at the DB level. */}
+        <FloatingUserFilter
+          allUsers={allUsers}
+          userFilter={userFilter}
+          onChange={setUserFilter}
+        />
 
         {/* Mobile: user filter dropdown + archived toggle */}
-        {isOwner && (
-          <MobileUserFilter
-            allUsers={allUsers}
-            userFilter={userFilter}
-            onChange={setUserFilter}
-            showArchived={showArchived}
-            onToggleArchived={() => setShowArchived(!showArchived)}
-          />
-        )}
+        <MobileUserFilter
+          allUsers={allUsers}
+          userFilter={userFilter}
+          onChange={setUserFilter}
+          showArchived={showArchived}
+          onToggleArchived={() => setShowArchived(!showArchived)}
+        />
 
         </div>
         {/* End sticky wrapper */}
