@@ -50,8 +50,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const users = await base44.asServiceRole.entities.User.list();
 
+    const suffix = `@${staffDomain}`;
     const filteredUsers = users
-      .filter(user => !!user.email)
+      .filter(user => user.email?.toLowerCase().endsWith(suffix))
       .map(user => ({
         id: user.id,
         email: user.email,
