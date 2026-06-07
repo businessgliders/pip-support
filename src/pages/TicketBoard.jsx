@@ -53,6 +53,7 @@ const userColors = {
 
 export default function TicketBoard() {
   const [user, setUser] = useState(null);
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState(null);
@@ -143,6 +144,13 @@ export default function TicketBoard() {
           return;
         }
         setUser(currentUser);
+        // Super-admin status lives in the SUPER_ADMIN_EMAILS secret — checked server-side.
+        try {
+          const resp = await base44.functions.invoke("checkSuperAdmin", {});
+          setIsSuperAdminUser(!!resp?.data?.is_super_admin);
+        } catch {
+          setIsSuperAdminUser(false);
+        }
         if (!currentUser.seen_changelog_v1) {
           setShowChangelog(true);
         }
@@ -413,7 +421,9 @@ export default function TicketBoard() {
     return () => clearTimeout(t);
   }, [updateScrollButtons, columns.length, showArchived]);
 
-  const isOwner = user?.email === 'info@pilatesinpinkstudio.com';
+  // "Owner" = super-admin, decided server-side. Non-super-admins are limited
+  // to their own tickets by RLS anyway, so the user filter is hidden for them.
+  const isOwner = isSuperAdminUser;
 
   const getTicketsByColumn = (column) => {
     // This function is only called when showArchived is false,
