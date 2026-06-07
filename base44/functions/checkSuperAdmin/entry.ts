@@ -18,8 +18,13 @@ Deno.serve(async (req) => {
     const email = (user.email || '').toLowerCase();
     const isSuperAdmin = user.role === 'admin' && allowed.includes(email);
 
-    return Response.json({ is_super_admin: isSuperAdmin });
+    // Front-desk flag — server-side compare against DEFAULT_TICKET_ASSIGNEE
+    // (the front-desk inbox) so the email never has to ship to the client.
+    const frontDeskEmail = (Deno.env.get('DEFAULT_TICKET_ASSIGNEE') || '').toLowerCase();
+    const isFrontDesk = !!frontDeskEmail && email === frontDeskEmail;
+
+    return Response.json({ is_super_admin: isSuperAdmin, is_front_desk: isFrontDesk });
   } catch (error) {
-    return Response.json({ is_super_admin: false, error: error.message }, { status: 500 });
+    return Response.json({ is_super_admin: false, is_front_desk: false, error: error.message }, { status: 500 });
   }
 });

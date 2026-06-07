@@ -30,10 +30,9 @@ const settingsCards = [
   }
 ];
 
-const SUPER_ADMIN_EMAILS = ["info@pilatesinpinkstudio.com"];
-
 export default function Settings() {
   const [user, setUser] = useState(null);
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -47,6 +46,14 @@ export default function Settings() {
           return;
         }
         setUser(currentUser);
+        // Super-admin check happens server-side; the allow-list lives in
+        // the SUPER_ADMIN_EMAILS secret, not in the frontend bundle.
+        try {
+          const resp = await base44.functions.invoke("checkSuperAdmin", {});
+          setIsSuperAdminUser(!!resp?.data?.is_super_admin);
+        } catch {
+          setIsSuperAdminUser(false);
+        }
       } catch (error) {
         setUser(null);
       } finally {
@@ -92,7 +99,7 @@ export default function Settings() {
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {settingsCards
-            .filter((card) => !card.superAdminOnly || (user?.role === "admin" && SUPER_ADMIN_EMAILS.includes((user?.email || "").toLowerCase())))
+            .filter((card) => !card.superAdminOnly || isSuperAdminUser)
             .map((card) => {
             const Icon = card.icon;
             return (

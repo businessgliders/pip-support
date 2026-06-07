@@ -6,8 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
 
-const FRONT_DESK_EMAIL = "info@pilatesinpinkstudio.com";
-
 const URGENCY_OPTIONS = [
   { value: "Low", label: "🟢 Low - whenever you can" },
   { value: "Soon", label: "🟡 Soon - this week" },
@@ -30,8 +28,23 @@ const SIDE_LABELS = {
 };
 
 export default function BugReportChat({ currentUser, tickets = [], hideFab = false, openSignal = 0, onOpenEscalations, escalationCount = 0 }) {
-  const isFrontDesk = currentUser?.email === FRONT_DESK_EMAIL;
+  // Front-desk status is decided server-side against the DEFAULT_TICKET_ASSIGNEE
+  // secret — the email itself never reaches the client bundle.
+  const [isFrontDesk, setIsFrontDesk] = useState(false);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await base44.functions.invoke("checkSuperAdmin", {});
+        if (!cancelled) setIsFrontDesk(!!resp?.data?.is_front_desk);
+      } catch {
+        if (!cancelled) setIsFrontDesk(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser?.email]);
 
   useEffect(() => {
     if (openSignal > 0) setOpen(true);
