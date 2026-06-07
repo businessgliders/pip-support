@@ -4,22 +4,38 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Defense-in-depth: this endpoint can't require auth (it powers the pre-login
-    // user selection screen), so instead we restrict it to same-origin requests
-    // coming from our own app. Blocks casual scraping from other origins.
-    const origin = req.headers.get('origin') || '';
-    const referer = req.headers.get('referer') || '';
-    const ALLOWED_HOST = 'pilatesinpinkstudio.com';
-    const isAllowed =
-      origin.includes(ALLOWED_HOST) ||
-      referer.includes(ALLOWED_HOST) ||
-      origin.includes('base44.app') ||  // Base44 preview/dev
-      referer.includes('base44.app');
-    if (!isAllowed) {
+    // Defense-in-depth: this endpoint can't require user auth (it powers the
+    // pre-login user selection screen). Instead, require a shared-secret token
+    // in the request body. The token is stored as a Base44 secret and provided
+    // to the frontend via Vite env at build time. This is stronger than the
+    // previous origin/referer check (which can be trivially spoofed via curl).
+    const expectedToken = Deno.env.get('USER_SELECTION_TOKEN');
+    if (!expectedToken) {
+      return Response.json({ error: 'Server misconfigured' }, { status: 500 });
+    }
+
+    let body = {};
+    try {
+      body = await req.json();
+    } catch (_) {
+      body = {};
+    }
+
+    const providedToken = body?.token || '';
+
+    // Constant-time comparison to avoid timing attacks.
+    const a = new TextEncoder().encode(providedToken);
+    const b = new TextEncoder().encode(expectedToken);
+    let mismatch = a.length !== b.length ? 1 : 0;
+    const len = Math.max(a.length, b.length);
+    for (let i = 0; i < len; i++) {
+      mismatch |= (a[i] ?? 0) ^ (b[i] ?? 0);
+    }
+    if (mismatch !== 0) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Use service role to fetch users (no auth required — this powers the
+    // Use service role to fetch users (no user auth required — this powers the
     // pre-login user selection screen).
     const users = await base44.asServiceRole.entities.User.list();
 
