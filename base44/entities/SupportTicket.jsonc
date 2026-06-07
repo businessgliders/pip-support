@@ -162,7 +162,7 @@
     "inquiry_type"
   ],
   "rls": {
-    "create": null,
+    "create": true,
     "read": {
       "$or": [
         {
