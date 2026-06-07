@@ -17,12 +17,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Server misconfigured' }, { status: 500 });
     }
 
-    // Path 1: authenticated staff user → allow.
+    // Path 1: any authenticated user → allow. All staff are trusted; the
+    // response is already limited to the staff domain below.
     let authorized = false;
     try {
       const base44Auth = createClientFromRequest(req);
       const me = await base44Auth.auth.me();
-      if (me?.email?.toLowerCase().endsWith(`@${staffDomain}`)) {
+      if (me?.email) {
         authorized = true;
       }
     } catch {
