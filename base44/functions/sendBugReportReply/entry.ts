@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-const FROM_EMAIL = 'support@pilatesinpinkstudio.com';
-const FROM_NAME = 'Pilates in Pink Support';
+const FROM_EMAIL = Deno.env.get('BUG_REPORT_REPLY_FROM_EMAIL') || '';
+const FROM_NAME = Deno.env.get('BUG_REPORT_REPLY_FROM_NAME') || '';
 
 const escapeHtml = (s = '') =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -57,6 +57,10 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!FROM_EMAIL || !FROM_NAME) {
+      return Response.json({ error: 'Server misconfigured: bug report reply sender missing' }, { status: 500 });
+    }
 
     const { bug_report_id, body_text = '', image_urls = [] } = await req.json();
     if (!bug_report_id) return Response.json({ error: 'bug_report_id required' }, { status: 400 });

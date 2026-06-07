@@ -111,7 +111,8 @@ Deno.serve(async (req) => {
     // Also block if a welcome was already sent (idempotency + abuse guard).
     let caller = null;
     try { caller = await base44.auth.me(); } catch (_e) { caller = null; }
-    const isStaff = caller?.email?.endsWith('@pilatesinpinkstudio.com');
+    const staffDomain = Deno.env.get('ALLOWED_STAFF_DOMAIN') || '';
+    const isStaff = !!staffDomain && caller?.email?.endsWith(`@${staffDomain}`);
     if (!isStaff) {
       const ageMs = Date.now() - new Date(ticket.created_date).getTime();
       if (ageMs > 5 * 60 * 1000) {
@@ -143,10 +144,13 @@ Deno.serve(async (req) => {
       ticketShortId: ticketRef,
     });
 
-    // Brand sender as "Pilates in Pink ™" — RFC 2047 encode the display name so non-ASCII (™) renders correctly
-    const fromName = 'Pilates in Pink \u2122';
+    // Sender identity from env secrets — RFC 2047 encode the display name so non-ASCII (™) renders correctly
+    const fromName = Deno.env.get('SUPPORT_FROM_NAME') || '';
+    const fromEmail = Deno.env.get('SUPPORT_FROM_EMAIL') || '';
+    if (!fromName || !fromEmail) {
+      return Response.json({ error: 'Server misconfigured: support sender missing' }, { status: 500 });
+    }
     const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
-    const fromEmail = 'support@pilatesinpinkstudio.com';
     const fromHeader = `${fromNameEncoded} <${fromEmail}>`;
     const raw = buildMime({ from: fromHeader, to: ticket.client_email, subject, htmlBody });
 

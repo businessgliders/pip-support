@@ -1,9 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Hardcoded escalation recipient(s). Can be moved to settings later.
-const ESCALATION_TO = "gurpreen@pilatesinpinkstudio.com";
-const FROM_EMAIL = "reportbug@pilatesinpinkstudio.com";
-const FROM_NAME = "PiP Support Bug Report";
+// Escalation recipient and sender identity come from environment secrets
+// (BUG_REPORT_ESCALATION_TO, BUG_REPORT_FROM_EMAIL, BUG_REPORT_FROM_NAME).
+const ESCALATION_TO = Deno.env.get("BUG_REPORT_ESCALATION_TO") || "";
+const FROM_EMAIL = Deno.env.get("BUG_REPORT_FROM_EMAIL") || "";
+const FROM_NAME = Deno.env.get("BUG_REPORT_FROM_NAME") || "";
 
 const URGENCY_COLOR = {
   "Critical": "#dc2626",
@@ -117,6 +118,10 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+    if (!ESCALATION_TO || !FROM_EMAIL || !FROM_NAME) {
+      return Response.json({ error: "Server misconfigured: bug report email settings missing" }, { status: 500 });
+    }
 
     const body = await req.json().catch(() => ({}));
     const {

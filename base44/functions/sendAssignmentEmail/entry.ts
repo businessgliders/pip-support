@@ -23,7 +23,8 @@ Deno.serve(async (req) => {
     if (!ticket) return Response.json({ error: 'Ticket not found' }, { status: 404 });
 
     // If caller is not authenticated staff, require the ticket to be brand new.
-    const isStaff = user?.email?.endsWith('@pilatesinpinkstudio.com');
+    const staffDomain = Deno.env.get('ALLOWED_STAFF_DOMAIN') || '';
+    const isStaff = !!staffDomain && user?.email?.endsWith(`@${staffDomain}`);
     if (!isStaff) {
       const ageMs = Date.now() - new Date(ticket.created_date).getTime();
       if (ageMs > 5 * 60 * 1000) {
@@ -97,9 +98,12 @@ Deno.serve(async (req) => {
       subject = `${wavePrefix}${subjectTag} ${ticket.inquiry_type} - ${ticket.client_name}`;
     }
 
-    // Sender — same branding as sendTicketEmail
-    const fromName = 'Pilates in Pink \u2122';
-    const fromEmail = 'support@pilatesinpinkstudio.com';
+    // Sender — same branding as sendTicketEmail (from env secrets)
+    const fromName = Deno.env.get('SUPPORT_FROM_NAME') || '';
+    const fromEmail = Deno.env.get('SUPPORT_FROM_EMAIL') || '';
+    if (!fromName || !fromEmail) {
+      return Response.json({ error: 'Server misconfigured: support sender missing' }, { status: 500 });
+    }
     const fromNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(fromName)))}?=`;
     const fromHeader = `${fromNameEncoded} <${fromEmail}>`;
 

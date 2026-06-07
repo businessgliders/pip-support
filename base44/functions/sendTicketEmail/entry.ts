@@ -150,7 +150,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!user.email.endsWith('@pilatesinpinkstudio.com')) {
+    const staffDomain = Deno.env.get('ALLOWED_STAFF_DOMAIN') || '';
+    if (!staffDomain || !user.email.endsWith(`@${staffDomain}`)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -194,9 +195,12 @@ Deno.serve(async (req) => {
       subject = `${subjectTag} ${ticket.inquiry_type} - Pilates in Pink`;
     }
 
-    // Always brand sender as "Pilates in Pink ™" — RFC 2047 encode display name for non-ASCII safety
-    const staffName = 'Pilates in Pink \u2122';
-    const fromEmail = 'support@pilatesinpinkstudio.com';
+    // Sender identity sourced from env secrets — RFC 2047 encode display name for non-ASCII safety
+    const staffName = Deno.env.get('SUPPORT_FROM_NAME') || '';
+    const fromEmail = Deno.env.get('SUPPORT_FROM_EMAIL') || '';
+    if (!staffName || !fromEmail) {
+      return Response.json({ error: 'Server misconfigured: support sender missing' }, { status: 500 });
+    }
     const staffNameEncoded = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(staffName)))}?=`;
     const fromHeader = `${staffNameEncoded} <${fromEmail}>`;
 
