@@ -1,33 +1,48 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-// Pre-login endpoint that powers the user-selection screen.
+// Returns a minimal staff-user list (id, email, full_name) for two use cases:
 //
-// Security model:
-// - No user auth (the screen runs before login).
-// - No client-side secret (would be readable by anyone inspecting the bundle).
-// - Instead: strict Origin allow-list. The Origin header is set by the browser
-//   on cross-origin and same-origin fetch() requests and CANNOT be spoofed by
-//   page JavaScript (it is one of the "forbidden headers"). Non-browser clients
-//   (curl, scripts) can set any Origin they want, so the allow-list is a
-//   reasonable bar — combined with field projection (only id/email/full_name)
-//   and a domain filter, this exposes no more than the selection screen itself.
-// - Response is also restricted to internal staff domain.
+// 1) Pre-login user-selection screen — no auth available, so we fall back to
+//    strict Origin allow-listing against ALLOWED_ORIGINS.
+// 2) Post-login UI (filter avatars, assignee pickers) — the caller is
+//    authenticated; the staff-domain check is enough.
+//
+// Either pathway is sufficient on its own. Response is always limited to the
+// staff domain and projects only id/email/full_name.
 
 Deno.serve(async (req) => {
   try {
-    const allowedOriginsRaw = Deno.env.get('ALLOWED_ORIGINS') || '';
     const staffDomain = Deno.env.get('ALLOWED_STAFF_DOMAIN') || '';
-    if (!allowedOriginsRaw || !staffDomain) {
+    if (!staffDomain) {
       return Response.json({ error: 'Server misconfigured' }, { status: 500 });
     }
 
-    const allowedOrigins = allowedOriginsRaw
-      .split(',')
-      .map(s => s.trim().toLowerCase())
-      .filter(Boolean);
+    // Path 1: authenticated staff user → allow.
+    let authorized = false;
+    try {
+      const base44Auth = createClientFromRequest(req);
+      const me = await base44Auth.auth.me();
+      if (me?.email?.toLowerCase().endsWith(`@${staffDomain}`)) {
+        authorized = true;
+      }
+    } catch {
+      // Not authenticated — fall through to origin check.
+    }
 
-    const origin = (req.headers.get('origin') || '').toLowerCase();
-    if (!origin || !allowedOrigins.includes(origin)) {
+    // Path 2: pre-login user-selection screen → require allow-listed Origin.
+    if (!authorized) {
+      const allowedOriginsRaw = Deno.env.get('ALLOWED_ORIGINS') || '';
+      const allowedOrigins = allowedOriginsRaw
+        .split(',')
+        .map(s => s.trim().toLowerCase())
+        .filter(Boolean);
+      const origin = (req.headers.get('origin') || '').toLowerCase();
+      if (origin && allowedOrigins.includes(origin)) {
+        authorized = true;
+      }
+    }
+
+    if (!authorized) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
