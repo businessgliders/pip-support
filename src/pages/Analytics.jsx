@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Ticket, XCircle, Heart, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import RequireGoogleAuth from "../components/support/RequireGoogleAuth";
+import AccessDenied from "../components/support/AccessDenied";
 import MobileTabBar from "../components/support/MobileTabBar";
 import KpiCard from "../components/analytics/KpiCard";
 import TicketsTrendChart from "../components/analytics/TicketsTrendChart";
@@ -59,7 +59,7 @@ export default function Analytics() {
     );
   }
 
-  if (!user) return <RequireGoogleAuth />;
+  if (!user) return <AccessDenied />;
 
   const formatHours = (h) => {
     if (h < 1) return `${Math.round(h * 60)}m`;

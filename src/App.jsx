@@ -72,7 +72,6 @@ const AuthenticatedApp = () => {
         <Route path="/Analytics" element={<Analytics />} />
         <Route path="/ReportBug" element={<ReportBug />} />
         <Route path="/ReportBug/new" element={<ReportBug />} />
-        <Route path="/login" element={<Navigate to="/TicketBoard" replace />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>

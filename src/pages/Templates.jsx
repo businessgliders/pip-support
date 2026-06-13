@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Trash2, Pencil, FileText, Copy } from "lucide-react";
-import RequireGoogleAuth from "../components/support/RequireGoogleAuth";
+import AccessDenied from "../components/support/AccessDenied";
 
 const VARIABLES = [
   { key: "client_name", label: "Client full name" },
@@ -70,7 +70,7 @@ export default function Templates() {
   if (authLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f1899b] to-[#fbe0e2] text-white">Loading…</div>;
   }
-  if (!user) return <RequireGoogleAuth />;
+  if (!user) return <AccessDenied />;
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-[#f1899b] to-white relative">
