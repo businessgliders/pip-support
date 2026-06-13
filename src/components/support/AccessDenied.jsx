@@ -18,11 +18,15 @@ export default function AccessDenied() {
         </p>
         <Button
           onClick={() => {
-            // Hard logout WITHOUT auto-redirect to avoid re-using the
-            // same Google session that just got rejected. The user can
-            // then sign in fresh with their studio email.
+            // Clear Base44 token (no redirect), then send the user to
+            // Google's logout endpoint. After Google clears its session,
+            // it sends them back to our app root, where AuthProvider will
+            // trigger a fresh login and Google will show the account
+            // chooser instead of silently reusing the rejected account.
             base44.auth.logout();
-            window.location.href = "https://accounts.google.com/Logout";
+            const returnTo = `${window.location.origin}/`;
+            window.location.href =
+              `https://accounts.google.com/Logout?continue=https://appengine.google.com/_ah/logout?continue=${encodeURIComponent(returnTo)}`;
           }}
           className="bg-[#f1899b] hover:bg-[#e0788a] text-white rounded-xl"
         >
