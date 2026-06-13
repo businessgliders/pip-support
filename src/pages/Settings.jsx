@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Link, useNavigate } from "react-router-dom";
 import { PenLine, ArrowLeft, FileText, DatabaseBackup } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import UserSelectionScreen from "../components/support/UserSelectionScreen";
+import RequireGoogleAuth from "../components/support/RequireGoogleAuth";
 
 const settingsCards = [
   {
@@ -72,7 +72,7 @@ export default function Settings() {
   }
 
   if (!user) {
-    return <UserSelectionScreen />;
+    return <RequireGoogleAuth />;
   }
 
   return (

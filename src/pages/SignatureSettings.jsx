@@ -5,7 +5,7 @@ import { ArrowLeft, Copy, Check, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import UserSelectionScreen from "../components/support/UserSelectionScreen";
+import RequireGoogleAuth from "../components/support/RequireGoogleAuth";
 
 export default function SignatureSettings() {
   const [user, setUser] = useState(null);
@@ -78,7 +78,7 @@ export default function SignatureSettings() {
   }
 
   if (!user) {
-    return <UserSelectionScreen />;
+    return <RequireGoogleAuth />;
   }
 
   return (

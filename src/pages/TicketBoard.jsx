@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import KanbanColumn from "../components/support/KanbanColumn";
 import TicketDetailsModal from "../components/support/TicketDetailsModal";
-import UserSelectionScreen from "../components/support/UserSelectionScreen";
+import RequireGoogleAuth from "../components/support/RequireGoogleAuth";
 import FloatingUserFilter from "../components/support/FloatingUserFilter";
 import MobileUserFilter from "../components/support/MobileUserFilter";
 import NotificationCenter from "../components/support/NotificationCenter";
@@ -513,7 +513,7 @@ export default function TicketBoard() {
   }
 
   if (!user) {
-    return <UserSelectionScreen />;
+    return <RequireGoogleAuth />;
   }
 
   return (

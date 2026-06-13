@@ -1,3 +1,9 @@
+// ARCHIVED on 2026-06-13.
+// Netflix-style user selection screen. Replaced by direct Google OAuth redirect
+// via components/support/RequireGoogleAuth.jsx. Restore by copying this file
+// back to components/support/UserSelectionScreen.jsx (and re-adding the import
+// in TicketBoard / Analytics / Settings) if you want the picker UX back.
+
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 
