@@ -17,7 +17,13 @@ export default function AccessDenied() {
           Please sign in with your studio email.
         </p>
         <Button
-          onClick={() => base44.auth.logout()}
+          onClick={() => {
+            // Hard logout WITHOUT auto-redirect to avoid re-using the
+            // same Google session that just got rejected. The user can
+            // then sign in fresh with their studio email.
+            base44.auth.logout();
+            window.location.href = "https://accounts.google.com/Logout";
+          }}
           className="bg-[#f1899b] hover:bg-[#e0788a] text-white rounded-xl"
         >
           Switch Account
