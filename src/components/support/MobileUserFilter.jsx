@@ -61,7 +61,7 @@ export default function MobileUserFilter({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex-1 min-w-0 flex items-center gap-2 backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl px-3 py-2 shadow-lg text-left"
+            className="flex-1 min-w-0 flex items-center gap-2 bg-white/95 border border-gray-200 rounded-xl px-3 py-2 shadow-sm text-left"
           >
             <div className="w-7 h-7 rounded-full overflow-hidden border border-white/80 flex items-center justify-center bg-pink-400 flex-shrink-0">
               {userFilter === "all" ? (

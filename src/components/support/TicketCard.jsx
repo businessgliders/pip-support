@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,26 +6,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Mail, Phone, MoreVertical, Gift, User } from "lucide-react";
+import { Mail, MoreVertical, Gift, User } from "lucide-react";
 import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { getPhotoForEmail } from "@/lib/userProfile";
 
-const priorityBorderColors = {
-  "Low": "border-green-500",
-  "Medium": "border-yellow-500",
-  "High": "border-orange-500",
-  "Urgent": "border-red-500"
+// pip-events style: subtle left accent stripe by priority
+const priorityAccent = {
+  Low:    "#34d399",
+  Medium: "#fbbf24",
+  High:   "#fb923c",
+  Urgent: "#ef4444",
 };
 
 const userColors = {
-  0: "bg-pink-400",
-  1: "bg-purple-400",
-  2: "bg-blue-400",
-  3: "bg-teal-400",
-  4: "bg-green-400",
-  5: "bg-amber-400",
-  6: "bg-rose-400",
-  7: "bg-indigo-400"
+  0: "bg-pink-400", 1: "bg-purple-400", 2: "bg-blue-400", 3: "bg-teal-400",
+  4: "bg-green-400", 5: "bg-amber-400", 6: "bg-rose-400", 7: "bg-indigo-400",
 };
 
 const inquiryTypeIcons = {
@@ -34,71 +28,30 @@ const inquiryTypeIcons = {
   "Membership Inquiry": "💳",
   "Private Events": "🎉",
   "Cancellation": "⚠️",
-  "Other": "📝"
-};
-
-const formatDateEST = (dateString) => {
-  // Force UTC interpretation by ensuring ISO format with Z suffix
-  let isoString = dateString;
-  if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
-    isoString = dateString + 'Z';
-  }
-  const date = new Date(isoString);
-  return date.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
+  "Other": "📝",
 };
 
 const formatRelativeTime = (dateString) => {
-  let isoString = dateString;
-  if (typeof dateString === 'string' && !dateString.endsWith('Z') && !dateString.includes('+')) {
-    isoString = dateString + 'Z';
-  }
-  const date = new Date(isoString);
+  if (!dateString) return "";
+  let iso = dateString;
+  if (typeof iso === "string" && !iso.endsWith("Z") && !iso.includes("+")) iso += "Z";
+  const date = new Date(iso);
   const now = new Date();
-  
-  // Get dates in EST
-  const dateEST = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const nowEST = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  
-  const diffMs = nowEST - dateEST;
-  const diffMins = Math.floor(diffMs / 60000);
-  
-  const dateESTOnly = new Date(dateEST.getFullYear(), dateEST.getMonth(), dateEST.getDate());
-  const nowESTOnly = new Date(nowEST.getFullYear(), nowEST.getMonth(), nowEST.getDate());
-  const diffDays = Math.round((nowESTOnly - dateESTOnly) / 86400000);
-  
-  const time = date.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-  
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins} mins ago`;
-  if (diffDays === 0) return `Today, ${time}`;
-  if (diffDays === 1) return `Yesterday, ${time}`;
-  if (diffDays < 7) return `${diffDays} days ago`;
-  
-  return date.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
+  const diffMs = now - date;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHrs = Math.floor(diffMin / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
-export default function TicketCard({ ticket, onStatusChange, onClick, isDragging, isHighlighted, allUsers = [], viewMode = "status", unreadCount = 0 }) {
-  // Shake the mail icon when a NEW unread message arrives (count goes up)
+export default function TicketCard({
+  ticket, onStatusChange, onClick, isDragging, isHighlighted,
+  allUsers = [], viewMode = "status", unreadCount = 0,
+}) {
   const mailShake = useAnimationControls();
   const prevUnreadRef = useRef(unreadCount);
   useEffect(() => {
@@ -111,208 +64,159 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
     prevUnreadRef.current = unreadCount;
   }, [unreadCount, mailShake]);
 
-  // Watermark only shown in category view (where status isn't already visible via column).
-  // In status view, category is already shown as a badge on the card, so no watermark needed.
+  const accent = priorityAccent[ticket.priority] || priorityAccent.Medium;
   const watermarkText = viewMode === "category" ? ticket.status : null;
+
   const getInitials = (email) => {
-    if (email === 'info@pilatesinpinkstudio.com') return 'FD';
-    const user = allUsers.find(u => u.email === email);
+    if (email === "info@pilatesinpinkstudio.com") return "FD";
+    const user = allUsers.find((u) => u.email === email);
     if (user?.full_name) {
-      return user.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+      return user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase();
     }
-    return email.substring(0, 2).toUpperCase();
+    return (email || "").substring(0, 2).toUpperCase();
   };
 
-  const getUserColor = (email) => {
-    const hash = email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const getUserColor = (email = "") => {
+    const hash = email.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
     return userColors[hash % 8];
   };
+
+  const tag = ticket.ticket_number ? `#${ticket.ticket_number}` : `#${ticket.id?.slice(-6)}`;
+
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden backdrop-blur-md bg-white/40 border-2 ${priorityBorderColors[ticket.priority]} rounded-xl p-2 md:p-4 group ${
-        isDragging 
-          ? "shadow-2xl bg-white/90 cursor-grabbing ring-4 ring-white/60" 
+      className={`relative overflow-hidden bg-white rounded-xl group transition-all ${
+        isDragging
+          ? "shadow-2xl ring-2 ring-pink-300 cursor-grabbing scale-[1.02]"
           : isHighlighted
-          ? "shadow-2xl bg-white/70 ring-4 ring-yellow-400/50 animate-shake cursor-grab transition-all"
-          : "hover:bg-white/50 shadow-lg hover:shadow-xl cursor-grab transition-all"
+          ? "shadow-xl ring-2 ring-yellow-400 cursor-grab animate-shake"
+          : "shadow-sm hover:shadow-md cursor-grab border border-gray-100 hover:border-pink-200"
       }`}
     >
-      {/* Watermark - opposite dimension (status <-> category) */}
-      {watermarkText && (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1 right-2 text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-900/10 select-none whitespace-nowrap"
-        >
-          {watermarkText}
-        </span>
-      )}
+      {/* Left accent stripe — priority color */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-1"
+        style={{ background: accent }}
+        aria-hidden="true"
+      />
 
-      {/* Unread inbound emails badge */}
-      <AnimatePresence>
-        {unreadCount > 0 && (
-          <motion.div
-            key="unread-badge"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [1, 1.15, 1], opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{
-              scale: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
-              opacity: { duration: 0.2, ease: "easeOut" },
-            }}
-            title={`${unreadCount} unread ${unreadCount === 1 ? "reply" : "replies"}`}
-            className="absolute top-2 right-3 z-10"
+      <div className="pl-3 pr-3 py-3">
+        {/* Watermark */}
+        {watermarkText && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-2 right-3 text-[10px] font-black uppercase tracking-wider text-gray-200 select-none whitespace-nowrap"
           >
-            <div className="relative bg-red-500 rounded-full w-7 h-7 md:w-8 md:h-8 flex items-center justify-center shadow-md ring-2 ring-white">
-              <motion.span animate={mailShake} style={{ display: "inline-flex", transformOrigin: "50% 50%" }}>
-                <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
-              </motion.span>
-              <span className="absolute -top-1.5 -right-1.5 bg-white text-red-600 text-[9px] md:text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1 shadow ring-1 ring-red-500">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            </div>
-          </motion.div>
+            {watermarkText}
+          </span>
         )}
-      </AnimatePresence>
 
-      {/* Mobile Compact View */}
-      <div className="md:hidden">
-        {/* pip-events style: tag + type on top line */}
-        <div className="flex items-center gap-1.5 text-[10px] mb-0.5">
-          {ticket.ticket_number && (
-            <span className="font-mono font-semibold text-gray-500">#{ticket.ticket_number}</span>
+        {/* Unread email badge */}
+        <AnimatePresence>
+          {unreadCount > 0 && (
+            <motion.div
+              key="unread-badge"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [1, 1.15, 1], opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{
+                scale: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
+                opacity: { duration: 0.2 },
+              }}
+              title={`${unreadCount} unread ${unreadCount === 1 ? "reply" : "replies"}`}
+              className="absolute top-2 right-2 z-10"
+            >
+              <div className="relative bg-red-500 rounded-full w-6 h-6 flex items-center justify-center shadow ring-2 ring-white">
+                <motion.span animate={mailShake} style={{ display: "inline-flex", transformOrigin: "50% 50%" }}>
+                  <Mail className="w-3 h-3 text-white" />
+                </motion.span>
+                <span className="absolute -top-1 -right-1 bg-white text-red-600 text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 shadow">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              </div>
+            </motion.div>
           )}
-          <span className="text-gray-700 truncate">{ticket.inquiry_type}</span>
+        </AnimatePresence>
+
+        {/* Top line: tag + inquiry type */}
+        <div className="flex items-center gap-1.5 text-[11px] mb-1 pr-8">
+          <span className="font-mono font-semibold text-gray-400">{tag}</span>
+          <span className="text-gray-500 truncate">{ticket.inquiry_type}</span>
         </div>
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-            <span className="text-sm">{inquiryTypeIcons[ticket.inquiry_type]}</span>
+
+        {/* Name with emoji */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+            <span className="text-base flex-shrink-0">{inquiryTypeIcons[ticket.inquiry_type]}</span>
             <h4 className="text-gray-900 font-semibold truncate text-sm">
               {ticket.client_name}
             </h4>
           </div>
+
           {!isDragging && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 text-white hover:bg-white/20"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 text-gray-400 hover:text-gray-700 hover:bg-gray-100"
                 >
-                  <MoreVertical className="w-3 h-3" />
+                  <MoreVertical className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="backdrop-blur-xl bg-white/95 border-white/40">
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "New"); }}>
-                  Move to New
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "In Progress"); }}>
-                  Move to In Progress
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Resolved"); }}>
-                  Move to Resolved
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Closed"); }}>
-                  Move to Closed
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-        <div className="flex items-center justify-end gap-2">
-          <span className="text-gray-700 text-[10px]">
-            {formatRelativeTime(ticket.created_date)}
-          </span>
-        </div>
-      </div>
-
-      {/* Desktop Full View */}
-      <div className="hidden md:block">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1 min-w-0">
-            {/* pip-events style: tag + inquiry type on top line, name below */}
-            <div className="flex items-center gap-2 text-xs mb-1">
-              {ticket.ticket_number && (
-                <span className="font-mono font-semibold text-gray-500">#{ticket.ticket_number}</span>
-              )}
-              <span className="text-gray-700 truncate">{ticket.inquiry_type}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-              <h4 className="text-gray-900 font-semibold truncate text-base">
-                {ticket.client_name}
-              </h4>
-            </div>
-          </div>
-          
-          {!isDragging && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-white hover:bg-white/20"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="backdrop-blur-xl bg-white/95 border-white/40">
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "New"); }}>
-                  Move to New
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "In Progress"); }}>
-                  Move to In Progress
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Resolved"); }}>
-                  Move to Resolved
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, "Closed"); }}>
-                  Move to Closed
-                </DropdownMenuItem>
+              <DropdownMenuContent className="bg-white border border-gray-200">
+                {["New", "In Progress", "Resolved", "Closed"].map((s) => (
+                  <DropdownMenuItem
+                    key={s}
+                    onClick={(e) => { e.stopPropagation(); onStatusChange(ticket.id, s); }}
+                  >
+                    Move to {s}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
         </div>
 
+        {/* Cancellation discount chip */}
         {ticket.inquiry_type === "Cancellation" && ticket.discount_offered && (
-          <div className="mt-3 mb-3">
-            <div className="backdrop-blur-sm bg-[#b67651]/30 border border-[#b67651]/50 rounded-lg p-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Gift className="w-4 h-4 text-gray-900 flex-shrink-0" />
-                <span className="text-gray-900 text-xs font-medium">
-                  {ticket.discount_offered} offer
-                </span>
-              </div>
-              {ticket.discount_accepted !== undefined && ticket.discount_accepted !== null && (
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
-                  ticket.discount_accepted 
-                    ? 'bg-green-500/40 text-green-800' 
-                    : 'bg-gray-400/40 text-gray-800'
-                }`}>
-                  {ticket.discount_accepted ? '✓ Accepted' : '✗ Declined'}
-                </span>
-              )}
+          <div className="mb-2 flex items-center justify-between gap-2 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Gift className="w-3 h-3 text-amber-700 flex-shrink-0" />
+              <span className="text-amber-900 text-[11px] font-medium truncate">
+                {ticket.discount_offered} offer
+              </span>
             </div>
+            {ticket.discount_accepted !== undefined && ticket.discount_accepted !== null && (
+              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                ticket.discount_accepted
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}>
+                {ticket.discount_accepted ? "✓" : "✗"}
+              </span>
+            )}
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-3">
-          <div className="text-gray-700 text-xs">
+        {/* Footer: relative time + assignee */}
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-gray-400 text-[11px]">
             {formatRelativeTime(ticket.created_date)}
-          </div>
+          </span>
           {ticket.assigned_to && (() => {
             const photo = getPhotoForEmail(ticket.assigned_to, allUsers);
             if (photo) {
               return (
-                <div className="w-7 h-7 rounded-full overflow-hidden border-2 border-white/80 shadow-sm">
+                <div className="w-6 h-6 rounded-full overflow-hidden border border-white shadow-sm">
                   <img src={photo} alt={getInitials(ticket.assigned_to)} className="w-full h-full object-cover" />
                 </div>
               );
             }
             return (
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
-                <User className="w-3 h-3 text-white" />
-                <span className="text-white text-xs font-semibold">
+              <div className={`flex items-center justify-center w-6 h-6 rounded-full ${getUserColor(ticket.assigned_to)} shadow-sm`}>
+                <span className="text-white text-[9px] font-semibold">
                   {getInitials(ticket.assigned_to)}
                 </span>
               </div>
@@ -324,12 +228,10 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
       <style jsx>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-          20%, 40%, 60%, 80% { transform: translateX(5px); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+          20%, 40%, 60%, 80% { transform: translateX(3px); }
         }
-        .animate-shake {
-          animation: shake 0.5s ease-in-out 3;
-        }
+        .animate-shake { animation: shake 0.5s ease-in-out 2; }
       `}</style>
     </div>
   );

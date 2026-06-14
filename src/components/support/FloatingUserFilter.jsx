@@ -69,7 +69,7 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
           <Users className={`${icon} text-white`} />
         </div>
         {!compact && (
-          <span className="text-white text-[10px] font-medium mt-1 max-w-[60px] truncate drop-shadow">
+          <span className="text-gray-600 text-[10px] font-medium mt-1 max-w-[60px] truncate">
             All
           </span>
         )}
@@ -103,7 +103,7 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
             )}
           </div>
           {!compact && (
-            <span className="text-white text-[10px] font-medium mt-1 max-w-[60px] truncate drop-shadow">
+            <span className="text-gray-600 text-[10px] font-medium mt-1 max-w-[60px] truncate">
               {getDisplayName(u)}
             </span>
           )}
@@ -115,8 +115,8 @@ export default function FloatingUserFilter({ allUsers, userFilter, onChange }) {
     <>
       {/* Desktop: floating vertical sidebar */}
       <div className="hidden lg:block fixed left-4 top-1/2 -translate-y-1/2 z-40">
-        <div className="backdrop-blur-xl bg-white/30 border border-white/50 rounded-2xl p-2 shadow-2xl flex flex-col items-center gap-2 max-h-[80vh] overflow-y-auto">
-          <div className="flex items-center gap-1 text-white text-[10px] font-semibold uppercase tracking-wider px-1 pt-1">
+        <div className="bg-white/95 border border-gray-200 rounded-2xl p-2 shadow-lg flex flex-col items-center gap-2 max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center gap-1 text-gray-500 text-[10px] font-semibold uppercase tracking-wider px-1 pt-1">
             <Users className="w-3 h-3" />
             Filter
           </div>
