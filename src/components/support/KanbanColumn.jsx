@@ -5,56 +5,31 @@ import { Button } from "@/components/ui/button";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { Archive, Sparkles } from "lucide-react";
 import TicketCard from "./TicketCard";
-
-// pip-events style palette: soft pastel header strip + clean white column body
-const headerTheme = {
-  "New":                 { bg: "#fde4d4", text: "#9a3412", accent: "#fb923c" },
-  "In Progress":         { bg: "#dbeafe", text: "#1e40af", accent: "#3b82f6" },
-  "Resolved":            { bg: "#d1fae5", text: "#065f46", accent: "#10b981" },
-  "Closed":              { bg: "#e5e7eb", text: "#374151", accent: "#9ca3af" },
-  "General Inquiry":     { bg: "#dbeafe", text: "#1e40af", accent: "#3b82f6" },
-  "Membership Inquiry":  { bg: "#ede9fe", text: "#5b21b6", accent: "#8b5cf6" },
-  "Private Events":      { bg: "#fce7f3", text: "#9d174d", accent: "#ec4899" },
-  "Cancellation":        { bg: "#fee2e2", text: "#991b1b", accent: "#ef4444" },
-  "Other":               { bg: "#f3f4f6", text: "#374151", accent: "#9ca3af" },
-};
+import {
+  COLUMN_COLOR_CLASSES,
+  COLUMN_HEADER_CLASSES,
+  DEFAULT_COLOR,
+  DEFAULT_HEADER,
+} from "./columnTheme";
 
 export default function KanbanColumn({
   status, tickets, onStatusChange, onTicketClick, isLoading, highlightedTicketId,
   onArchiveSome, onArchiveAll, onTidyUp, viewMode, allUsers, unreadByTicket = {},
 }) {
-  const theme = headerTheme[status] || headerTheme["Other"];
-  const isDimmed = status === "Closed";
+  const colorClass = COLUMN_COLOR_CLASSES[status] || DEFAULT_COLOR;
+  const headerClass = COLUMN_HEADER_CLASSES[status] || DEFAULT_HEADER;
 
   return (
     <div
-      className={`bg-white/95 backdrop-blur-sm border border-white rounded-2xl overflow-hidden shadow-lg flex flex-col h-[calc(100dvh-260px)] lg:h-[calc(100vh-220px)] ${
-        isDimmed ? "opacity-70 hover:opacity-100 transition-opacity" : ""
-      }`}
+      className={`backdrop-blur-xl bg-gradient-to-b ${colorClass} border rounded-2xl overflow-hidden shadow-xl flex flex-col h-[calc(100dvh-260px)] lg:h-[calc(100vh-220px)]`}
     >
-      {/* Column Header — soft pastel strip in pip-events style */}
-      <div
-        className="px-4 py-3 flex-shrink-0 border-b border-black/5"
-        style={{ background: theme.bg }}
-      >
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2 min-w-0">
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{ background: theme.accent }}
-              aria-hidden="true"
-            />
-            <h3
-              className="font-semibold text-sm md:text-base truncate"
-              style={{ color: theme.text }}
-            >
-              {status}
-            </h3>
-          </div>
-          <span
-            className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/70 border"
-            style={{ color: theme.text, borderColor: "rgba(0,0,0,0.06)" }}
-          >
+      {/* Column Header — translucent colored bar (pip-events) */}
+      <div className={`px-4 py-3 flex-shrink-0 backdrop-blur-md ${headerClass} border-b`}>
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-white text-sm md:text-base truncate drop-shadow">
+            {status}
+          </h3>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/30 text-white border border-white/40">
             {tickets.length}
           </span>
         </div>
@@ -64,7 +39,7 @@ export default function KanbanColumn({
           <Button
             onClick={onTidyUp}
             size="sm"
-            className="w-full h-7 mt-2 bg-white/80 hover:bg-white text-gray-800 border border-black/5 text-xs shadow-sm"
+            className="w-full h-7 mt-2 bg-white/30 hover:bg-white/40 text-white border border-white/40 text-xs"
           >
             <Sparkles className="w-3 h-3 mr-1.5" />
             Tidy Up
@@ -78,7 +53,7 @@ export default function KanbanColumn({
               <Button
                 onClick={onArchiveSome}
                 size="sm"
-                className="flex-1 h-7 bg-white/80 hover:bg-white text-gray-800 border border-black/5 text-xs shadow-sm"
+                className="flex-1 h-7 bg-white/30 hover:bg-white/40 text-white border border-white/40 text-xs"
               >
                 <Archive className="w-3 h-3 mr-1 hidden sm:inline-block" />
                 Clean Up
@@ -88,7 +63,7 @@ export default function KanbanColumn({
               <Button
                 onClick={onArchiveAll}
                 size="sm"
-                className="flex-1 h-7 bg-white/80 hover:bg-white text-gray-800 border border-black/5 text-xs shadow-sm"
+                className="flex-1 h-7 bg-white/30 hover:bg-white/40 text-white border border-white/40 text-xs"
               >
                 <Archive className="w-3 h-3 mr-1 hidden sm:inline-block" />
                 Archive All
@@ -105,19 +80,19 @@ export default function KanbanColumn({
             ref={dropProvided.innerRef}
             {...dropProvided.droppableProps}
             className={`flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar transition-colors ${
-              dropSnapshot.isDraggingOver ? "bg-pink-50/50" : "bg-white/60"
+              dropSnapshot.isDraggingOver ? "bg-white/10" : ""
             }`}
             style={{ position: "static" }}
           >
             {isLoading ? (
               <>
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-24 md:h-32 rounded-xl bg-gray-100" />
+                  <Skeleton key={i} className="h-24 md:h-32 rounded-xl bg-white/20" />
                 ))}
               </>
             ) : tickets.length === 0 ? (
               <div className="flex items-center justify-center h-full min-h-[100px]">
-                <p className="text-gray-400 text-xs md:text-sm">No tickets</p>
+                <p className="text-white/60 text-xs md:text-sm">No tickets</p>
               </div>
             ) : (
               tickets.map((ticket, index) => (
@@ -162,9 +137,9 @@ export default function KanbanColumn({
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(0,0,0,0.1); border-radius: 10px;
+          background: rgba(255,255,255,0.3); border-radius: 10px;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
       `}</style>
     </div>
   );
