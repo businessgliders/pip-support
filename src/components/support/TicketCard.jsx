@@ -177,11 +177,17 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
 
       {/* Mobile Compact View */}
       <div className="md:hidden">
+        {/* pip-events style: tag + type on top line */}
+        <div className="flex items-center gap-1.5 text-[10px] mb-0.5">
+          {ticket.ticket_number && (
+            <span className="font-mono font-semibold text-gray-500">#{ticket.ticket_number}</span>
+          )}
+          <span className="text-gray-700 truncate">{ticket.inquiry_type}</span>
+        </div>
         <div className="flex items-center justify-between gap-2 mb-1">
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             <span className="text-sm">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-            <h4 className="text-gray-900 font-medium truncate text-xs">
-              {ticket.ticket_number && <span className="text-gray-500 mr-1">#{ticket.ticket_number}</span>}
+            <h4 className="text-gray-900 font-semibold truncate text-sm">
               {ticket.client_name}
             </h4>
           </div>
@@ -213,10 +219,7 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
             </DropdownMenu>
           )}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-[10px] px-1.5 py-0">
-            {ticket.inquiry_type}
-          </Badge>
+        <div className="flex items-center justify-end gap-2">
           <span className="text-gray-700 text-[10px]">
             {formatRelativeTime(ticket.created_date)}
           </span>
@@ -227,17 +230,18 @@ export default function TicketCard({ ticket, onStatusChange, onClick, isDragging
       <div className="hidden md:block">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">{inquiryTypeIcons[ticket.inquiry_type]}</span>
-              <h4 className="text-gray-900 font-semibold truncate text-base">
-                {ticket.ticket_number && <span className="text-gray-500 font-normal mr-1.5">#{ticket.ticket_number}</span>}
-                {ticket.client_name}
-              </h4>
+            {/* pip-events style: tag + inquiry type on top line, name below */}
+            <div className="flex items-center gap-2 text-xs mb-1">
+              {ticket.ticket_number && (
+                <span className="font-mono font-semibold text-gray-500">#{ticket.ticket_number}</span>
+              )}
+              <span className="text-gray-700 truncate">{ticket.inquiry_type}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-white/20 text-gray-900 border-white/40 text-xs">
-                {ticket.inquiry_type}
-              </Badge>
+              <span className="text-lg">{inquiryTypeIcons[ticket.inquiry_type]}</span>
+              <h4 className="text-gray-900 font-semibold truncate text-base">
+                {ticket.client_name}
+              </h4>
             </div>
           </div>
           

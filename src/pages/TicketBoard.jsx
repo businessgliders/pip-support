@@ -915,6 +915,7 @@ export default function TicketBoard() {
           setMobileSearchInput(searchQuery);
           setMobileSearchDialog(true);
         }}
+        onToggleArchived={() => setShowArchived(!showArchived)}
       />
 
       {/* Peeking Escalations Swimlane */}
