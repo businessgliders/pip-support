@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 
 /**
  * Shown when an authenticated user's email does NOT match the
- * @pilatesinpinkstudio.com staff domain. Unauthenticated users never
- * reach this — AuthProvider redirects them to login first.
+ * @pilatesinpinkstudio.com staff domain.
+ *
+ * Mirrors the pip-events logout pattern: just call base44.auth.logout()
+ * with no args. The SDK clears the token and reloads — ProtectedRoute
+ * then redirects the user to /Login where they can sign in with a
+ * different Google account.
  */
 export default function AccessDenied() {
   return (
@@ -17,17 +21,7 @@ export default function AccessDenied() {
           Please sign in with your studio email.
         </p>
         <Button
-          onClick={() => {
-            // Clear Base44 token (no redirect), then send the user to
-            // Google's logout endpoint. After Google clears its session,
-            // it sends them back to our app root, where AuthProvider will
-            // trigger a fresh login and Google will show the account
-            // chooser instead of silently reusing the rejected account.
-            base44.auth.logout();
-            const returnTo = `${window.location.origin}/`;
-            window.location.href =
-              `https://accounts.google.com/Logout?continue=https://appengine.google.com/_ah/logout?continue=${encodeURIComponent(returnTo)}`;
-          }}
+          onClick={() => base44.auth.logout()}
           className="bg-[#f1899b] hover:bg-[#e0788a] text-white rounded-xl"
         >
           Switch Account
