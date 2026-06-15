@@ -1,6 +1,6 @@
 import React from "react";
-import { Search, Archive } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Home, Search, BarChart3, User, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import {
   DropdownMenu,
@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getPhotoForUser } from "@/lib/userPhotos";
-import { Settings as SettingsIcon, BarChart3, LogOut, User } from "lucide-react";
 
 const userColors = {
   0: "bg-pink-400",
@@ -19,7 +18,7 @@ const userColors = {
   4: "bg-green-400",
   5: "bg-amber-400",
   6: "bg-rose-400",
-  7: "bg-indigo-400",
+  7: "bg-indigo-400"
 };
 
 function getUserColor(email = "") {
@@ -35,26 +34,18 @@ function getInitials(user) {
   return (user?.email || "").substring(0, 2).toUpperCase();
 }
 
-/**
- * iOS-style bottom tab bar (mobile + tablet only).
- * Mirrors the pip-events 4-cell layout: Home (logo) · Search · Archive · Profile.
- * Reserves safe-area space via env(safe-area-inset-bottom).
- */
 export default function MobileTabBar({
   user,
   onHome,
   onSearch,
   showArchived,
-  onToggleArchived,
 }) {
-  const navigate = useNavigate();
   const photo = user ? getPhotoForUser(user) : null;
-  const activeColor = "#e86c84";
-  const idleColor = "#8a6a6a";
+  const navigate = useNavigate();
 
   return (
     <>
-      {/* Spacer so content doesn't sit under the fixed bar */}
+      {/* Spacer so content doesn't sit under the fixed tab bar */}
       <div
         aria-hidden="true"
         className="lg:hidden flex-shrink-0"
@@ -62,55 +53,31 @@ export default function MobileTabBar({
       />
 
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-white/85 border-t border-white/60 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 backdrop-blur-xl bg-white/80 border-t border-white/60 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="flex items-stretch justify-around h-16 px-2">
-          {/* Home — logo tile */}
-          <button
-            type="button"
+          <TabButton
+            icon={<Home className="w-5 h-5" />}
+            label="Home"
+            active={!showArchived}
             onClick={onHome}
-            className="flex flex-col items-center justify-center gap-0.5 flex-1 active:scale-95 transition-transform"
-            style={{ color: !showArchived ? activeColor : idleColor }}
-          >
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
-              alt="Home"
-              className="w-6 h-6"
-              style={{ opacity: !showArchived ? 1 : 0.55 }}
-            />
-            <span className="text-[10px] font-medium">Home</span>
-          </button>
-
-          {/* Search */}
-          <button
-            type="button"
+          />
+          <TabButton
+            icon={<Search className="w-5 h-5" />}
+            label="Search"
             onClick={onSearch}
-            className="flex flex-col items-center justify-center gap-0.5 flex-1 active:scale-95 transition-transform"
-            style={{ color: idleColor }}
-          >
-            <Search className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Search</span>
-          </button>
+          />
+          <TabButton
+            icon={<BarChart3 className="w-5 h-5" />}
+            label="Analytics"
+            onClick={() => navigate("/Analytics")}
+          />
 
-          {/* Archive */}
-          <button
-            type="button"
-            onClick={onToggleArchived}
-            className="flex flex-col items-center justify-center gap-0.5 flex-1 active:scale-95 transition-transform"
-            style={{ color: showArchived ? activeColor : idleColor }}
-          >
-            <Archive className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Archive</span>
-          </button>
-
-          {/* Profile — dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                type="button"
-                className="flex flex-col items-center justify-center gap-0.5 flex-1 active:scale-95 transition-transform"
-                style={{ color: idleColor }}
+                className="flex flex-col items-center justify-center gap-0.5 flex-1 text-gray-600 hover:text-[#b67651] transition-colors active:scale-95"
                 title={user?.full_name || user?.email}
               >
                 <div
@@ -124,20 +91,10 @@ export default function MobileTabBar({
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] font-medium">Profile</span>
+                <span className="text-[10px] font-medium">Account</span>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="top" className="w-52 mb-2">
-              <div className="px-3 py-2 border-b">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user?.full_name || "Staff"}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-              </div>
-              <DropdownMenuItem onClick={() => navigate("/Analytics")}>
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Analytics
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" side="top" className="w-48 mb-2">
               <DropdownMenuItem onClick={() => navigate("/Settings")}>
                 <SettingsIcon className="w-4 h-4 mr-2" />
                 Settings
@@ -155,5 +112,20 @@ export default function MobileTabBar({
         </div>
       </nav>
     </>
+  );
+}
+
+function TabButton({ icon, label, active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center justify-center gap-0.5 flex-1 transition-colors active:scale-95 ${
+        active ? "text-[#b67651]" : "text-gray-600 hover:text-[#b67651]"
+      }`}
+    >
+      {icon}
+      <span className="text-[10px] font-medium">{label}</span>
+    </button>
   );
 }

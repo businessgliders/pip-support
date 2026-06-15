@@ -506,8 +506,8 @@ export default function TicketBoard() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#fbe0e2] via-[#fdeef0] to-white">
-        <div className="w-8 h-8 border-4 border-pink-200 border-t-[#b67651] rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ff899b] via-[#f7b1bd] to-[#fbe0e2]">
+        <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
@@ -517,43 +517,64 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="h-[100dvh] lg:h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden">
-      {/* Decorative soft background blobs */}
+    <div className="h-[100dvh] lg:h-screen flex flex-col px-4 md:px-8 pt-4 md:pt-8 pb-2 bg-gradient-to-b from-[#f1899b] to-white relative overflow-hidden">
+      {/* Decorative background */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+
+      {/* Slanted tiled SUPPORT watermark — masked to fade behind swimlanes */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none"
+        style={{
+          WebkitMaskImage:
+            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%), linear-gradient(to bottom, transparent 0px, transparent 140px, #000 240px)",
+          WebkitMaskComposite: "source-in",
+          maskImage:
+            "radial-gradient(ellipse 55% 50% at 50% 55%, transparent 0%, transparent 35%, rgba(0,0,0,0.7) 70%, #000 100%), linear-gradient(to bottom, transparent 0px, transparent 140px, #000 240px)",
+          maskComposite: "intersect",
+        }}
+      >
+        <div
+          className="absolute -inset-[20%] flex flex-wrap content-start gap-x-16 gap-y-12 text-white/15 font-black uppercase tracking-[0.25em] text-5xl md:text-7xl whitespace-nowrap leading-none"
+          style={{ transform: "rotate(-20deg)" }}
+        >
+          {Array.from({ length: 30 }).map((_, i) => (
+            <span key={i}>SUPPORT</span>
+          ))}
+        </div>
+      </div>
       
       <div className="max-w-7xl mx-auto relative z-10 flex flex-col flex-1 w-full lg:min-h-0">
         {/* Sticky wrapper for header + filter on mobile/tablet */}
         <div className="sticky top-0 z-30 lg:static -mx-4 md:-mx-8 px-4 md:px-8 pt-4 md:pt-8 -mt-4 md:-mt-8 mb-4 lg:mb-0 bg-gradient-to-b from-[#f1899b] via-[#f1899b]/95 to-[#f1899b]/80 lg:bg-none backdrop-blur-sm lg:backdrop-blur-none lg:p-0 lg:m-0 pb-3 lg:pb-0">
         {/* Header */}
-        <div className="flex flex-row justify-between items-center gap-3 md:gap-4 mb-4 lg:mb-6">
-          <div className="flex flex-row items-center gap-3 min-w-0">
-            <Link
-              to={createPageUrl("TicketBoard")}
-              onClick={() => {
-                setShowArchived(false);
-                setSearchQuery("");
-                setViewMode("status");
+        <div className="flex flex-row justify-between items-center gap-3 md:gap-4 mb-4 lg:mb-8">
+          <div className="flex flex-row items-center gap-2 md:gap-4 min-w-0">
+            <Link 
+              to={createPageUrl("TicketBoard")} 
+              onClick={() => { 
+                setShowArchived(false); 
+                setSearchQuery(""); 
+                setViewMode("status"); 
                 setUserFilter("all");
               }}
-              className="flex-shrink-0 flex items-center gap-3 hover:opacity-80 transition-opacity"
+              className="flex-shrink-0"
             >
-              <img
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/690aaf0c732696417648d224/a1b923375_PiPSupport.png"
                 alt="PiP Support"
-                className="h-9 w-9 md:h-10 md:w-10"
+                className="h-10 md:h-16 drop-shadow-xl hover:scale-105 transition-transform"
               />
-              <div className="hidden sm:block text-left">
-                <h1 className="text-base md:text-lg font-semibold text-white leading-tight drop-shadow">
-                  PiP Support
-                </h1>
-                <p className="text-[11px] md:text-xs text-white/85 leading-tight">
-                  {showArchived
-                    ? `${archivedTickets.length} archived`
-                    : `${activeTickets.length} active`}
-                </p>
-              </div>
             </Link>
+            <div className="hidden md:block text-left">
+              <p className="text-white/90">
+                {showArchived 
+                  ? `${archivedTickets.length} archived tickets`
+                  : `${activeTickets.length} active tickets • ${getTicketsByColumn(columns[0]).length} in ${columns[0]}`
+                }
+              </p>
+            </div>
           </div>
           <div className="flex gap-2 md:gap-3 flex-nowrap md:flex-wrap items-center justify-end">
             {/* Notification Bell */}
@@ -577,6 +598,7 @@ export default function TicketBoard() {
                 className="backdrop-blur-md bg-white/70 border-white/80 text-gray-900 placeholder:text-gray-600 rounded-xl h-11 pl-9 text-base w-40 md:w-44 lg:w-64"
               />
             </div>
+
 
             {/* View Mode Toggle */}
             <div className="flex items-center backdrop-blur-md bg-white/40 border border-white/60 rounded-xl p-1 shadow-lg">
@@ -627,30 +649,24 @@ export default function TicketBoard() {
               </a>
             </div>
 
-            {/* Profile Avatar (desktop only) */}
+            {/* Profile Avatar with dropdown menu (desktop only - mobile uses tab bar) */}
             {(() => {
               const photo = getPhotoForUser(user);
               return (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className={`hidden md:flex items-center justify-center h-11 w-11 rounded-full overflow-hidden shadow-lg border-2 border-white/80 hover:ring-2 hover:ring-white/60 transition ${photo ? "" : getUserColor(user.email)}`}
+                      className={`hidden md:flex items-center justify-center h-11 w-11 rounded-xl overflow-hidden shadow-lg border-2 border-white/80 hover:ring-2 hover:ring-white/60 transition ${photo ? "" : getUserColor(user.email)}`}
                       title={user.full_name || user.email}
                     >
                       {photo ? (
                         <img src={photo} alt={user.full_name || user.email} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-white font-semibold text-sm">{getInitials(user.email)}</span>
+                        <span className="text-white font-semibold">{getInitials(user.email)}</span>
                       )}
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <div className="px-3 py-2 border-b">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {user.full_name || "Staff"}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                    </div>
+                  <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem onClick={() => base44.auth.logout()}>
                       <User className="w-4 h-4 mr-2" />
                       Switch User
@@ -899,7 +915,6 @@ export default function TicketBoard() {
           setMobileSearchInput(searchQuery);
           setMobileSearchDialog(true);
         }}
-        onToggleArchived={() => setShowArchived(!showArchived)}
       />
 
       {/* Peeking Escalations Swimlane */}
