@@ -47,18 +47,16 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import IntakeForm from './pages/IntakeForm';
 import TicketBoard from './pages/TicketBoard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "IntakeForm": IntakeForm,
     "TicketBoard": TicketBoard,
 }
 
 export const pagesConfig = {
-    mainPage: "IntakeForm",
+    mainPage: "TicketBoard",
     Pages: PAGES,
     Layout: __Layout,
 };
