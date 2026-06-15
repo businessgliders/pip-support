@@ -147,6 +147,12 @@ async function fetchAttachment(url) {
 
 Deno.serve(async (req) => {
   try {
+    // HANDOVER: outbound email is now owned by the PiP Inbox hub. Staff replies
+    // are sent from the hub, not this app. This sender is disabled — it no-ops
+    // without sending or logging. (Original logic preserved below.)
+    return Response.json({ error: 'Outbound email is now handled by the PiP Inbox hub.', disabled: true }, { status: 503 });
+
+    // eslint-disable-next-line no-unreachable
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });

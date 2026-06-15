@@ -98,6 +98,12 @@ function welcomeHtml({ clientName, inquiryType, ticketShortId }) {
 
 Deno.serve(async (req) => {
   try {
+    // HANDOVER: outbound email is now owned by the PiP Inbox hub. This sender is
+    // disabled — it no-ops without sending or logging anything. Historical
+    // EmailMessage records are untouched. (Original logic preserved below.)
+    return Response.json({ success: true, disabled: true, reason: 'outbound email handled by hub' });
+
+    // eslint-disable-next-line no-unreachable
     const base44 = createClientFromRequest(req);
     const { ticket_id } = await req.json();
     if (!ticket_id) return Response.json({ error: 'ticket_id required' }, { status: 400 });

@@ -84,25 +84,12 @@ export default function IntakeForm() {
         console.log("Note: Ticket number assignment failed", numErr);
       }
 
-      // Build ticket URL
-      const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
-
-      // Send branded welcome email to the client (threaded with [Ticket #xxx] subject tag)
+      // Forward the new ticket to the central PiP Inbox hub. The hub now owns all
+      // outbound email (welcome / assignment). Fire-and-forget — never block the user.
       try {
-        await base44.functions.invoke('sendWelcomeEmail', { ticket_id: newTicket.id });
-      } catch (welcomeErr) {
-        console.log("Note: Welcome email failed", welcomeErr);
-      }
-
-      // Send assignment email notification to owner (Front Desk)
-      // Uses sendAssignmentEmail so it's branded, threaded, and logged in the email panel
-      try {
-        await base44.functions.invoke('sendAssignmentEmail', {
-          ticket_id: newTicket.id,
-          assigned_to: 'info@pilatesinpinkstudio.com',
-        });
-      } catch (emailError) {
-        console.log("Note: Assignment email notification failed", emailError);
+        await base44.functions.invoke('forwardToHub', { ticket_id: newTicket.id });
+      } catch (hubErr) {
+        console.log("Note: Forward to hub failed", hubErr);
       }
 
       // (Removed: dead support@... Core.SendEmail — recipient not a registered Base44 app user, was always silently failing)
@@ -209,25 +196,12 @@ export default function IntakeForm() {
         console.log("Note: Ticket number assignment failed", numErr);
       }
 
-      // Build ticket URL
-      const ticketUrl = `https://support.pilatesinpinkstudio.com/TicketBoard?ticket=${newTicket.id}`;
-
-      // Send branded welcome email to the client
+      // Forward the new cancellation ticket to the central PiP Inbox hub. The hub
+      // now owns all outbound email. Fire-and-forget — never block the user.
       try {
-        await base44.functions.invoke('sendWelcomeEmail', { ticket_id: newTicket.id });
-      } catch (welcomeErr) {
-        console.log("Note: Welcome email failed", welcomeErr);
-      }
-
-      // Send assignment email notification to owner (Front Desk)
-      // Uses sendAssignmentEmail so it's branded, threaded, and logged in the email panel
-      try {
-        await base44.functions.invoke('sendAssignmentEmail', {
-          ticket_id: newTicket.id,
-          assigned_to: 'info@pilatesinpinkstudio.com',
-        });
-      } catch (emailError) {
-        console.log("Note: Assignment email notification failed", emailError);
+        await base44.functions.invoke('forwardToHub', { ticket_id: newTicket.id });
+      } catch (hubErr) {
+        console.log("Note: Forward to hub failed", hubErr);
       }
 
       // eslint-disable-next-line no-constant-condition

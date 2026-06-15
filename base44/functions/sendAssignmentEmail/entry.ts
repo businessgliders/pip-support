@@ -6,6 +6,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 // EmailMessage so it appears in the ticket's thread panel.
 Deno.serve(async (req) => {
   try {
+    // HANDOVER: outbound email is now owned by the PiP Inbox hub. This sender is
+    // disabled — it no-ops without sending or logging anything. Historical
+    // EmailMessage records are untouched. (Original logic preserved below.)
+    return Response.json({ success: true, disabled: true, reason: 'outbound email handled by hub' });
+
+    // eslint-disable-next-line no-unreachable
     const base44 = createClientFromRequest(req);
     // Hybrid auth: authenticated staff can call freely (reassignment flow).
     // Anonymous callers (public IntakeForm) are only allowed when the ticket
