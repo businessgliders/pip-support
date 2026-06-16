@@ -5,14 +5,12 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { setupIframeMessaging } from './lib/iframe-messaging';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from './pages/Login';
-import Analytics from './pages/Analytics';
-// RETIRED (dormant): Settings, AdminSettingsPage, SignatureSettings, Templates, ReportBug.
+// RETIRED (dormant): Settings, AdminSettingsPage, SignatureSettings, Templates, ReportBug, Analytics.
 // Page files are intentionally kept but unrouted as part of the email/settings
 // handover to the PiP Inbox hub. Re-add the imports + routes below to revive.
 
@@ -39,8 +37,6 @@ const AuthenticatedApp = () => {
     );
   }
 
-  const loginRedirect = <Navigate to="/Login" replace />;
-
   return (
     <LayoutWrapper currentPageName={mainPageKey}>
       <Routes>
@@ -53,13 +49,9 @@ const AuthenticatedApp = () => {
         ))}
         {/* RETIRED (dormant): /ReportBug, /ReportBug/new — unrouted. File kept. */}
 
-        {/* Protected (staff) routes */}
-        <Route element={<ProtectedRoute unauthenticatedElement={loginRedirect} />}>
-          {/* RETIRED (dormant): /Settings, /Settings/Admin, /Settings/Signature,
-              /Settings/Templates — unrouted during the email/settings handover.
-              Files kept; re-add routes here to revive. */}
-          <Route path="/Analytics" element={<Analytics />} />
-        </Route>
+        {/* RETIRED (dormant): /Settings, /Settings/Admin, /Settings/Signature,
+            /Settings/Templates, /Analytics — unrouted during the email/settings
+            handover. Files kept; re-add routes here to revive. */}
 
         <Route path="*" element={<PageNotFound />} />
       </Routes>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Search, BarChart3, User, LogOut } from "lucide-react";
+import { Home, Search, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import {
@@ -68,12 +68,6 @@ export default function MobileTabBar({
             label="Search"
             onClick={onSearch}
           />
-          <TabButton
-            icon={<BarChart3 className="w-5 h-5" />}
-            label="Analytics"
-            onClick={() => navigate("/Analytics")}
-          />
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
