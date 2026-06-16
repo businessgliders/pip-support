@@ -11,12 +11,11 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from './pages/Login';
-import Settings from './pages/Settings';
-import AdminSettingsPage from './pages/AdminSettingsPage';
-import SignatureSettings from './pages/SignatureSettings';
 import Analytics from './pages/Analytics';
-import Templates from './pages/Templates';
 import ReportBug from './pages/ReportBug';
+// RETIRED (dormant): Settings, AdminSettingsPage, SignatureSettings, Templates.
+// Page files are intentionally kept but unrouted as part of the email/settings
+// handover to the PiP Inbox hub. Re-add the imports + routes below to revive.
 
 const isBugsSubdomain = typeof window !== 'undefined' &&
   window.location.hostname === 'bugs.pilatesinpinkstudio.com';
@@ -64,10 +63,9 @@ const AuthenticatedApp = () => {
 
         {/* Protected (staff) routes */}
         <Route element={<ProtectedRoute unauthenticatedElement={loginRedirect} />}>
-          <Route path="/Settings" element={<Settings />} />
-          <Route path="/Settings/Admin" element={<AdminSettingsPage />} />
-          <Route path="/Settings/Signature" element={<SignatureSettings />} />
-          <Route path="/Settings/Templates" element={<Templates />} />
+          {/* RETIRED (dormant): /Settings, /Settings/Admin, /Settings/Signature,
+              /Settings/Templates — unrouted during the email/settings handover.
+              Files kept; re-add routes here to revive. */}
           <Route path="/Analytics" element={<Analytics />} />
         </Route>
 
