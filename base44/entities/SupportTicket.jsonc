@@ -154,6 +154,30 @@
     "ai_suggestions_message_count": {
       "type": "integer",
       "description": "Number of email messages at time of generation (used to detect staleness)"
+    },
+    "hub_forward_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "success",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Whether this ticket was successfully forwarded to the PiP Inbox hub"
+    },
+    "hub_forwarded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the last successful forward to the hub"
+    },
+    "hub_forward_error": {
+      "type": "string",
+      "description": "Error detail from the last failed forward attempt"
+    },
+    "hub_forward_attempts": {
+      "type": "integer",
+      "default": 0,
+      "description": "Number of times a forward to the hub has been attempted"
     }
   },
   "required": [

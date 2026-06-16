@@ -3,33 +3,57 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 // Forwards a newly-created SupportTicket to the central PiP Inbox hub.
 // Server-side ONLY — the SPOKE_INTAKE_SECRET never reaches the browser.
 //
-// Called fire-and-forget from the IntakeForm create flow right after a ticket
-// is saved. If the POST to the hub fails, we log it and still return 200 so the
-// client submission is never blocked.
+// Records the forward outcome back onto the ticket (hub_forward_status,
+// hub_forwarded_at, hub_forward_error, hub_forward_attempts) so the TicketBoard
+// list view can show a reliable success/fail log and offer a retry button.
 const HUB_ENDPOINT =
   'https://pink-app-hub.base44.app/api/apps/69841af9c747b033a60780f2/functions/spokeIntake';
 
 Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
+  let ticketId = null;
+
+  // Helper: best-effort status write. Never throws.
+  const recordStatus = async (id, patch) => {
+    try {
+      await base44.asServiceRole.entities.SupportTicket.update(id, patch);
+    } catch (e) {
+      console.error('forwardToHub: failed to record status', e?.message);
+    }
+  };
+
   try {
-    const base44 = createClientFromRequest(req);
-    const { ticket_id } = await req.json();
-    if (!ticket_id) {
+    const body = await req.json();
+    ticketId = body?.ticket_id;
+    if (!ticketId) {
       return Response.json({ error: 'ticket_id required' }, { status: 400 });
     }
 
-    const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticket_id);
+    const ticket = await base44.asServiceRole.entities.SupportTicket.get(ticketId);
     if (!ticket) {
       return Response.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
+    const attempts = (ticket.hub_forward_attempts || 0) + 1;
+
     if (!ticket.client_email) {
-      console.warn('forwardToHub: ticket has no client_email, skipping', ticket_id);
+      console.warn('forwardToHub: ticket has no client_email, skipping', ticketId);
+      await recordStatus(ticketId, {
+        hub_forward_status: 'failed',
+        hub_forward_error: 'Ticket has no client email',
+        hub_forward_attempts: attempts,
+      });
       return Response.json({ success: false, skipped: 'no_email' });
     }
 
     const secret = Deno.env.get('SPOKE_INTAKE_SECRET');
     if (!secret) {
       console.error('forwardToHub: SPOKE_INTAKE_SECRET not set');
+      await recordStatus(ticketId, {
+        hub_forward_status: 'failed',
+        hub_forward_error: 'Server secret missing',
+        hub_forward_attempts: attempts,
+      });
       return Response.json({ success: false, error: 'secret_missing' });
     }
 
@@ -66,16 +90,33 @@ Deno.serve(async (req) => {
     if (!res.ok) {
       const errText = await res.text();
       console.error('forwardToHub: hub POST failed', res.status, errText.slice(0, 500));
-      // Don't block the user — report soft failure.
+      await recordStatus(ticketId, {
+        hub_forward_status: 'failed',
+        hub_forward_error: `Hub returned ${res.status}`,
+        hub_forward_attempts: attempts,
+      });
       return Response.json({ success: false, hub_status: res.status });
     }
 
     let hubResult = null;
     try { hubResult = await res.json(); } catch (_e) { /* hub may return empty */ }
 
+    await recordStatus(ticketId, {
+      hub_forward_status: 'success',
+      hub_forwarded_at: new Date().toISOString(),
+      hub_forward_error: '',
+      hub_forward_attempts: attempts,
+    });
+
     return Response.json({ success: true, hub: hubResult });
   } catch (error) {
     console.error('forwardToHub error:', error);
+    if (ticketId) {
+      await recordStatus(ticketId, {
+        hub_forward_status: 'failed',
+        hub_forward_error: error.message,
+      });
+    }
     // Soft-fail so the client submission is never blocked.
     return Response.json({ success: false, error: error.message });
   }
