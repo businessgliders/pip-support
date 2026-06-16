@@ -18,10 +18,7 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
           exit={{ opacity: 0 }}
         >
           {/* Blurred backdrop */}
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-md"
-            onClick={onDismiss}
-          />
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
 
           {/* Card */}
           <motion.div
