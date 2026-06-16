@@ -156,13 +156,8 @@ export default function TicketBoard() {
         if (!currentUser.seen_changelog_v1) {
           setShowChangelog(true);
         }
-        try {
-          // Unified Inbox migration prompt — shows once per browser session,
-          // so it reappears on each net-new sign in.
-          if (!sessionStorage.getItem('pip_seen_unified_inbox_v1')) {
-            setShowUnifiedInboxPopup(true);
-          }
-        } catch { /* ignore */ }
+        // Unified Inbox migration prompt — shows on every page load.
+        setShowUnifiedInboxPopup(true);
         try {
           if (!localStorage.getItem('pip_seen_bug_report_feature_v1')) {
             setShowBugFeaturePopup(true);
@@ -943,14 +938,10 @@ export default function TicketBoard() {
       <UnifiedInboxPopup
         open={showUnifiedInboxPopup}
         onTryNow={() => {
-          try { sessionStorage.setItem('pip_seen_unified_inbox_v1', '1'); } catch { /* ignore */ }
           window.open(INBOX_URL, '_blank', 'noopener,noreferrer');
           setShowUnifiedInboxPopup(false);
         }}
-        onDismiss={() => {
-          try { sessionStorage.setItem('pip_seen_unified_inbox_v1', '1'); } catch { /* ignore */ }
-          setShowUnifiedInboxPopup(false);
-        }}
+        onDismiss={() => setShowUnifiedInboxPopup(false)}
       />
 
       {/* Terms Assistant feature announcement */}
