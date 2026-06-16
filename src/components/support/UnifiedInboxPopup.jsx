@@ -1,0 +1,93 @@
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Sparkles, X } from "lucide-react";
+
+const INBOX_URL = "https://inbox.pilatesinpinkstudio.com/";
+const INBOX_ICON = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
+const SHOWCASE = "https://media.base44.com/images/public/690aaf0c732696417648d224/716d936b0_generated_image.png";
+
+export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {/* Blurred backdrop */}
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-md"
+            onClick={onDismiss}
+          />
+
+          {/* Card */}
+          <motion.div
+            initial={{ scale: 0.92, y: 24, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.92, y: 24, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-white/60"
+          >
+            <button
+              onClick={onDismiss}
+              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm transition"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Showcase image */}
+            <div className="relative bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] p-5 md:p-7">
+              <img
+                src={SHOWCASE}
+                alt="PiP Inbox preview"
+                className="w-full rounded-2xl shadow-xl border border-white/50"
+              />
+            </div>
+
+            {/* Content */}
+            <div className="p-6 md:p-8 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <img src={INBOX_ICON} alt="PiP Inbox" className="w-11 h-11 rounded-xl shadow-md" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 text-[#b6486a] text-xs font-semibold uppercase tracking-wide">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  New
+                </span>
+              </div>
+
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                Try the new Unified Inbox
+              </h2>
+              <p className="text-gray-600 max-w-md mx-auto mb-6">
+                PiP Inbox brings all your support, events, and influencer conversations
+                into one beautiful place. Reply faster, stay organized, never miss a message.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button
+                  onClick={onTryNow}
+                  className="w-full sm:w-auto h-12 px-7 bg-[#f1899b] hover:bg-[#e8718a] text-white rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                >
+                  Try now
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
+                <Button
+                  onClick={onDismiss}
+                  variant="ghost"
+                  className="w-full sm:w-auto h-12 px-7 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl text-base font-medium"
+                >
+                  Continue existing
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export { INBOX_URL };

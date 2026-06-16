@@ -38,6 +38,7 @@ import EscalationSwimlane from "../components/support/EscalationSwimlane";
 import BugReportFeaturePopup from "../components/support/BugReportFeaturePopup";
 import TermsFeaturePopup from "../components/support/TermsFeaturePopup";
 import MobileTabBar from "../components/support/MobileTabBar";
+import UnifiedInboxPopup, { INBOX_URL } from "../components/support/UnifiedInboxPopup";
 import { getPhotoForUser } from "@/lib/userPhotos";
 
 const userColors = {
@@ -77,6 +78,7 @@ export default function TicketBoard() {
   const [escalationOpenSignal, setEscalationOpenSignal] = useState(0);
   const [showBugFeaturePopup, setShowBugFeaturePopup] = useState(false);
   const [showTermsFeaturePopup, setShowTermsFeaturePopup] = useState(false);
+  const [showUnifiedInboxPopup, setShowUnifiedInboxPopup] = useState(false);
   const swimlaneScrollRef = React.useRef(null);
   const queryClient = useQueryClient();
 
@@ -154,6 +156,13 @@ export default function TicketBoard() {
         if (!currentUser.seen_changelog_v1) {
           setShowChangelog(true);
         }
+        try {
+          // Unified Inbox migration prompt — shows once per browser session,
+          // so it reappears on each net-new sign in.
+          if (!sessionStorage.getItem('pip_seen_unified_inbox_v1')) {
+            setShowUnifiedInboxPopup(true);
+          }
+        } catch { /* ignore */ }
         try {
           if (!localStorage.getItem('pip_seen_bug_report_feature_v1')) {
             setShowBugFeaturePopup(true);
@@ -927,6 +936,20 @@ export default function TicketBoard() {
         onMarkRead={() => {
           try { localStorage.setItem('pip_seen_bug_report_feature_v1', '1'); } catch { /* ignore */ }
           setShowBugFeaturePopup(false);
+        }}
+      />
+
+      {/* Unified Inbox migration prompt */}
+      <UnifiedInboxPopup
+        open={showUnifiedInboxPopup}
+        onTryNow={() => {
+          try { sessionStorage.setItem('pip_seen_unified_inbox_v1', '1'); } catch { /* ignore */ }
+          window.open(INBOX_URL, '_blank', 'noopener,noreferrer');
+          setShowUnifiedInboxPopup(false);
+        }}
+        onDismiss={() => {
+          try { sessionStorage.setItem('pip_seen_unified_inbox_v1', '1'); } catch { /* ignore */ }
+          setShowUnifiedInboxPopup(false);
         }}
       />
 

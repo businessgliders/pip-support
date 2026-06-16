@@ -425,15 +425,16 @@ export default function IntakeForm() {
       {/* Admin Access Button - hide in embed */}
       {!isEmbedded && (
         <div className="absolute top-4 right-4 z-10">
-          <Button
-            onClick={handleAdminAccess}
-            variant="ghost"
-            size="icon"
-            className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
-            title="Staff login"
-          >
-            <Lock className="w-4 h-4" />
-          </Button>
+          <a href="https://inbox.pilatesinpinkstudio.com/" target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 text-white rounded-full w-10 h-10 shadow-lg"
+              title="Staff login"
+            >
+              <Lock className="w-4 h-4" />
+            </Button>
+          </a>
         </div>
       )}
 
