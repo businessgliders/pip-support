@@ -939,7 +939,6 @@ export default function TicketBoard() {
         open={showUnifiedInboxPopup}
         onTryNow={() => {
           window.open(INBOX_URL, '_blank', 'noopener,noreferrer');
-          setShowUnifiedInboxPopup(false);
         }}
         onDismiss={() => setShowUnifiedInboxPopup(false)}
       />

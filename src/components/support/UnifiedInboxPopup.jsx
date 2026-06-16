@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, X } from "lucide-react";
 
-const INBOX_URL = "https://inbox.pilatesinpinkstudio.com/";
+const INBOX_URL = "https://inbox.pilatesinpinkstudio.com/inbox#support";
 const INBOX_ICON = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
 const SHOWCASE = "https://media.base44.com/images/public/690aaf0c732696417648d224/716d936b0_generated_image.png";
 
@@ -55,20 +55,13 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
                 into one beautiful place. Reply faster, stay organized, never miss a message.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="flex items-center justify-center">
                 <Button
                   onClick={onTryNow}
                   className="w-full sm:w-auto h-12 px-7 bg-[#f1899b] hover:bg-[#e8718a] text-white rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   Try now
                   <ArrowRight className="w-4 h-4 ml-1.5" />
-                </Button>
-                <Button
-                  onClick={onDismiss}
-                  variant="ghost"
-                  className="w-full sm:w-auto h-12 px-7 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl text-base font-medium"
-                >
-                  Continue existing
                 </Button>
               </div>
             </div>
