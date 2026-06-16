@@ -187,7 +187,18 @@
   ],
   "rls": {
     "create": true,
-    "read": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.assigned_to": "{{user.email}}"
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
