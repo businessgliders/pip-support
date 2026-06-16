@@ -29,7 +29,7 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.92, y: 24, opacity: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 22 }}
-            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-white/60"
+            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-white/60"
           >
             <button
               onClick={onDismiss}
@@ -40,28 +40,28 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
             </button>
 
             {/* Showcase image */}
-            <div className="relative bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] p-5 md:p-7">
+            <div className="relative bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] p-3 md:p-4">
               <img
                 src={SHOWCASE}
                 alt="PiP Inbox preview"
-                className="w-full rounded-2xl shadow-xl border border-white/50"
+                className="w-full max-h-44 object-cover object-top rounded-xl shadow-lg border border-white/50"
               />
             </div>
 
             {/* Content */}
-            <div className="p-6 md:p-8 text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <img src={INBOX_ICON} alt="PiP Inbox" className="w-11 h-11 rounded-xl shadow-md" />
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 text-[#b6486a] text-xs font-semibold uppercase tracking-wide">
+            <div className="p-5 md:p-6 text-center">
+              <div className="flex items-center justify-center gap-2.5 mb-2.5">
+                <img src={INBOX_ICON} alt="PiP Inbox" className="w-9 h-9 rounded-xl shadow-md" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-100 text-[#b6486a] text-xs font-semibold uppercase tracking-wide">
                   <Sparkles className="w-3.5 h-3.5" />
                   New
                 </span>
               </div>
 
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1.5">
                 Try the new Unified Inbox
               </h2>
-              <p className="text-gray-600 max-w-md mx-auto mb-6">
+              <p className="text-sm text-gray-600 max-w-md mx-auto mb-5">
                 PiP Inbox brings all your support, events, and influencer conversations
                 into one beautiful place. Reply faster, stay organized, never miss a message.
               </p>
