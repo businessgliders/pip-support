@@ -1,13 +1,23 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, X } from "lucide-react";
+import { ArrowRight, Sparkles, X, LogOut } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
 const INBOX_URL = "https://inbox.pilatesinpinkstudio.com/inbox#support";
 const INBOX_ICON = "https://media.base44.com/images/public/69841af9c747b033a60780f2/8796f5d2d_IMG_0093.png";
 const SHOWCASE = "https://media.base44.com/images/public/690aaf0c732696417648d224/716d936b0_generated_image.png";
 
 export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
+  const handleSwitchAccount = async () => {
+    try {
+      await base44.auth.logout();
+    } catch (_) {
+      // Swallow — even if the SDK call fails we still want to redirect.
+    }
+    base44.auth.loginWithProvider('google', `${window.location.origin}/TicketBoard`);
+  };
+
   return (
     <AnimatePresence>
       {open && (
@@ -55,7 +65,7 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
                 into one beautiful place. Reply faster, stay organized, never miss a message.
               </p>
 
-              <div className="flex items-center justify-center">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button
                   onClick={onTryNow}
                   className="w-full sm:w-auto h-12 px-7 bg-[#f1899b] hover:bg-[#e8718a] text-white rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
@@ -63,6 +73,19 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
                   Try now
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
+                <button
+                  onClick={handleSwitchAccount}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-colors border"
+                  style={{
+                    color: '#7a6970',
+                    borderColor: 'rgba(122,105,112,0.25)',
+                    background: 'white',
+                  }}
+                  title="Log out and sign in with a different Google account"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Switch account
+                </button>
               </div>
             </div>
           </motion.div>
