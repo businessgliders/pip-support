@@ -40,11 +40,11 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
             </button>
 
             {/* Showcase image */}
-            <div className="relative bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] p-3 md:p-4">
+            <div className="relative">
               <img
                 src={SHOWCASE}
                 alt="PiP Inbox preview"
-                className="w-full max-h-44 object-contain object-center rounded-xl shadow-lg border border-white/50"
+                className="w-full h-44 object-cover object-center"
               />
             </div>
 
