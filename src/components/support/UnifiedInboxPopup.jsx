@@ -31,14 +31,6 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
             transition={{ type: "spring", stiffness: 220, damping: 22 }}
             className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-white/60"
           >
-            <button
-              onClick={onDismiss}
-              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm transition"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
             {/* Showcase image */}
             <div className="relative">
               <img
