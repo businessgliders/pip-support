@@ -12,13 +12,9 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from './pages/Login';
 import Analytics from './pages/Analytics';
-import ReportBug from './pages/ReportBug';
-// RETIRED (dormant): Settings, AdminSettingsPage, SignatureSettings, Templates.
+// RETIRED (dormant): Settings, AdminSettingsPage, SignatureSettings, Templates, ReportBug.
 // Page files are intentionally kept but unrouted as part of the email/settings
 // handover to the PiP Inbox hub. Re-add the imports + routes below to revive.
-
-const isBugsSubdomain = typeof window !== 'undefined' &&
-  window.location.hostname === 'bugs.pilatesinpinkstudio.com';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -50,16 +46,12 @@ const AuthenticatedApp = () => {
       <Routes>
         {/* Public routes */}
         <Route path="/Login" element={<Login />} />
-        <Route
-          path="/"
-          element={isBugsSubdomain ? <Navigate to="/ReportBug" replace /> : <MainPage />}
-        />
+        <Route path="/" element={<MainPage />} />
         {/* IntakeForm is the public client-facing form — keep it public */}
         {Object.entries(Pages).map(([path, Page]) => (
           path !== mainPageKey && <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
-        <Route path="/ReportBug" element={<ReportBug />} />
-        <Route path="/ReportBug/new" element={<ReportBug />} />
+        {/* RETIRED (dormant): /ReportBug, /ReportBug/new — unrouted. File kept. */}
 
         {/* Protected (staff) routes */}
         <Route element={<ProtectedRoute unauthenticatedElement={loginRedirect} />}>
