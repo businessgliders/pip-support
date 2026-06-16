@@ -44,7 +44,7 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
               <img
                 src={SHOWCASE}
                 alt="PiP Inbox preview"
-                className="w-full max-h-44 object-cover object-top rounded-xl shadow-lg border border-white/50"
+                className="w-full max-h-44 object-contain object-center rounded-xl shadow-lg border border-white/50"
               />
             </div>
 
