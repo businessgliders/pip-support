@@ -51,7 +51,7 @@ export default function UnifiedInboxPopup({ open, onTryNow, onDismiss }) {
               </div>
 
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1.5">
-                Try the new Unified Inbox
+                Try the new Unified PiP Inbox
               </h2>
               <p className="text-sm text-gray-600 max-w-md mx-auto mb-5">
                 PiP Inbox brings all your support, events, and influencer conversations
