@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Search, BarChart3, User, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { Home, Search, BarChart3, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import {
@@ -95,10 +95,6 @@ export default function MobileTabBar({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="top" className="w-48 mb-2">
-              <DropdownMenuItem onClick={() => navigate("/Settings")}>
-                <SettingsIcon className="w-4 h-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => base44.auth.logout()}>
                 <User className="w-4 h-4 mr-2" />
                 Switch User
