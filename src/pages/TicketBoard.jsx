@@ -55,8 +55,11 @@ export default function TicketBoard() {
         } catch {
           setIsSuperAdminUser(false);
         }
-        // Unified Inbox migration prompt — shows on every page load.
-        setShowUnifiedInboxPopup(true);
+        // Unified Inbox migration prompt — shows on every page load,
+        // except for this user who opted out.
+        if (currentUser.email !== "gurpreen@pilatesinpinkstudio.com") {
+          setShowUnifiedInboxPopup(true);
+        }
       } catch (error) {
         setUser(null);
       } finally {
