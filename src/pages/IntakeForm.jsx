@@ -371,6 +371,7 @@ export default function IntakeForm() {
   if (submitted) {
     return (
       <div className={`flex items-center justify-center p-4 ${isEmbedded ? 'min-h-[600px]' : 'min-h-screen'} bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2]`}>
+        <PageTitle title="Request Received" noindex />
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
