@@ -18,6 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import CancellationFlow from "../components/support/CancellationFlow";
+import PageTitle from "../components/seo/PageTitle";
 
 export default function IntakeForm() {
   const [formData, setFormData] = useState({
@@ -396,6 +397,7 @@ export default function IntakeForm() {
 
   return (
     <div className={`p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden ${isEmbedded ? 'min-h-[800px]' : 'min-h-screen'}`}>
+      <PageTitle title="Support | We're Here to Help" />
       
       {systemAlert && (
         <Dialog open={true} onOpenChange={() => setSystemAlert(null)}>

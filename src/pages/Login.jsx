@@ -1,6 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import PageTitle from "@/components/seo/PageTitle";
 
 /**
  * Public Login page (mirrors the pip-events pattern).
@@ -20,6 +21,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] p-6">
+      <PageTitle title="Staff Login" />
       <div className="backdrop-blur-xl bg-white/80 border border-white/60 rounded-3xl p-8 max-w-md w-full text-center shadow-xl">
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_690aada19e27fe8fcf067828/45da48106_Pilatesinpinklogojusticon1.png"

@@ -25,6 +25,7 @@ import UnifiedInboxPopup, { INBOX_URL } from "../components/support/UnifiedInbox
 import ForwardStatsBar from "../components/support/ForwardStatsBar";
 import TicketListRow from "../components/support/TicketListRow";
 import { getPhotoForUser } from "@/lib/userPhotos";
+import PageTitle from "@/components/seo/PageTitle";
 
 export default function TicketBoard() {
   const [user, setUser] = useState(null);
@@ -164,6 +165,7 @@ export default function TicketBoard() {
 
   return (
     <div className="min-h-screen px-4 md:px-8 py-6 md:py-8 bg-gradient-to-b from-[#f1899b] to-white">
+      <PageTitle title="Submitted Tickets" />
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-row justify-between items-center gap-3 mb-6">
