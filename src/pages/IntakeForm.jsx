@@ -397,7 +397,7 @@ export default function IntakeForm() {
 
   return (
     <div className={`p-4 md:p-8 bg-gradient-to-br from-[#f1899b] via-[#f7b1bd] to-[#fbe0e2] relative overflow-hidden ${isEmbedded ? 'min-h-[800px]' : 'min-h-screen'}`}>
-      <PageTitle title="Support | We're Here to Help" />
+      <PageTitle title="Submit a Request" />
       
       {systemAlert && (
         <Dialog open={true} onOpenChange={() => setSystemAlert(null)}>

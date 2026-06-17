@@ -8,7 +8,7 @@ const BRAND_SUFFIX = "Pilates in Pink™";
 export default function PageTitle({ title }) {
   useEffect(() => {
     const previous = document.title;
-    document.title = title ? `${title} - ${BRAND_SUFFIX}` : BRAND_SUFFIX;
+    document.title = title ? `${title} | ${BRAND_SUFFIX}` : BRAND_SUFFIX;
     return () => {
       document.title = previous;
     };
