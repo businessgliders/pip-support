@@ -26,6 +26,10 @@ export default function PublicForm() {
       .then((d) => {
         if (d.error) throw new Error(d.error);
         setData(d);
+        if (d.recipient?.name) {
+          const nameField = (d.form?.fields || []).find((f) => (f.label || "").trim().toLowerCase() === "name");
+          if (nameField) setAnswers((a) => ({ ...a, [nameField.id]: d.recipient.name }));
+        }
         if (d.already_submitted) setDone(true);
       })
       .catch(() => setError("This form link is invalid or has expired."))
