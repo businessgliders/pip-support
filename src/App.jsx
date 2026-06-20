@@ -10,6 +10,7 @@ import { setupIframeMessaging } from './lib/iframe-messaging';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import Login from './pages/Login';
+import PublicForm from './pages/PublicForm';
 // RETIRED (dormant): Settings, AdminSettingsPage, SignatureSettings, Templates, ReportBug, Analytics.
 // Page files are intentionally kept but unrouted as part of the email/settings
 // handover to the PiP Inbox hub. Re-add the imports + routes below to revive.
@@ -26,6 +27,12 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const AuthenticatedApp = () => {
   const { isLoadingPublicSettings } = useAuth();
+
+  // Truly public form page — renders before any auth/login gate so
+  // non-logged-in visitors are never redirected to login.
+  if (window.location.pathname === '/form') {
+    return <PublicForm />;
+  }
 
   // Wait only for app public settings — per-route auth is handled by
   // ProtectedRoute (mirrors the pip-events pattern).
